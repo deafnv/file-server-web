@@ -3,6 +3,8 @@ import Head from 'next/head'
 import axios from 'axios'
 import prettyBytes from 'pretty-bytes'
 import Link from 'next/link'
+import { useCallback } from 'react'
+import { useDropzone } from 'react-dropzone'
 
 export async function getServerSideProps({ req, res, params }: GetServerSidePropsContext) {
   const fileArr = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(params?.path as string[])?.join('/') ?? ''}`)
@@ -16,6 +18,14 @@ export async function getServerSideProps({ req, res, params }: GetServerSideProp
 }
 
 export default function Files({ params, fileArr }: { params: string[], fileArr: any[] }) {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const formData = new FormData()
+    acceptedFiles.forEach((file) => {
+      formData.append('files', file)
+    })
+  }, [])
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({onDrop})
+
   return (
     <>
       <Head>
@@ -48,6 +58,14 @@ export default function Files({ params, fileArr }: { params: string[], fileArr: 
             ))}
           </span>
           <FileList fileArr={fileArr} />
+          {/* <div {...getRootProps()}>
+            <input {...getInputProps()} />
+            {
+              isDragActive ?
+                <p>Drop the files here ...</p> :
+                <p>Drag 'n' drop some files here, or click to select files</p>
+            }
+          </div> */}
         </section>
       </main>
     </>
