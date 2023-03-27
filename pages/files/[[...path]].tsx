@@ -3,21 +3,27 @@ import Head from 'next/head'
 import axios from 'axios'
 import prettyBytes from 'pretty-bytes'
 import Link from 'next/link'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
+import { useRouter } from 'next/router'
 
-export async function getServerSideProps({ req, res, params }: GetServerSidePropsContext) {
-  const fileArr = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(params?.path as string[])?.join('/') ?? ''}`)
+export default function Files() {
+  const paramsRef = useRef<string[]>([])
 
-  return {
-    props: {
-      params: params?.path ?? [],
-      fileArr: fileArr.data
-    },
-  } 
-}
+  const [fileArr, setFileArr] = useState<any[] | string>()
 
-export default function Files({ params, fileArr }: { params: string[], fileArr: any[] }) {
+  const router = useRouter()
+  
+  useEffect(() => {
+    const getData = async () => {
+      const { path } = router.query
+      paramsRef.current = path as string[]
+      const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`)
+      setFileArr(fileArrData.data)
+    }
+    getData()
+  }, [router.asPath])
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const formData = new FormData()
     acceptedFiles.forEach((file) => {
@@ -44,12 +50,12 @@ export default function Files({ params, fileArr }: { params: string[], fileArr: 
             >
               Files
             </Link>
-            {params.map((item, index) => (
+            {paramsRef.current?.map((item, index) => (
               <>
                 /
                 <Link 
                   key={index}
-                  href={params.slice(0, index + 1).join('/')}
+                  href={paramsRef.current?.slice(0, index + 1).join('/')}
                   className='p-2 rounded-md hover:bg-gray-500'
                 >
                   {item}
@@ -57,7 +63,7 @@ export default function Files({ params, fileArr }: { params: string[], fileArr: 
               </>
             ))}
           </span>
-          <FileList fileArr={fileArr} />
+          {fileArr && <FileList fileArr={fileArr} />}
           {/* <div {...getRootProps()}>
             <input {...getInputProps()} />
             {
