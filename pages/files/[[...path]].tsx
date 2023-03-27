@@ -6,20 +6,26 @@ import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useRouter } from 'next/router'
+import CircularProgress from '@mui/material/CircularProgress'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
 
-  const [fileArr, setFileArr] = useState<any[] | string>()
+  const [fileArr, setFileArr] = useState<any[] | string | null>(null)
 
   const router = useRouter()
   
   useEffect(() => {
     const getData = async () => {
-      const { path } = router.query
-      paramsRef.current = path as string[]
-      const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`)
-      setFileArr(fileArrData.data)
+      try {
+        const { path } = router.query
+        paramsRef.current = path as string[]
+        const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`)
+        setFileArr(fileArrData.data)
+      } catch (error) {
+        console.log(error)
+        setFileArr('Error loading data from server')
+      }
     }
     getData()
   }, [router.asPath])
@@ -63,7 +69,7 @@ export default function Files() {
               </>
             ))}
           </span>
-          {fileArr && <FileList fileArr={fileArr} />}
+          <FileList fileArr={fileArr} />
           {/* <div {...getRootProps()}>
             <input {...getInputProps()} />
             {
@@ -78,7 +84,23 @@ export default function Files() {
   )
 }
 
-function FileList({ fileArr }: { fileArr: any[] | string }) {
+function FileList({ fileArr }: { fileArr: any[] | string | null }) {
+  if (fileArr == null || fileArr == 'Error loading data from server') {
+    return (
+      <div className='flex flex-col m-4 p-2 pt-0 h-full w-full bg-black rounded-lg overflow-auto'>
+        <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
+          <span className='p-3 flex-grow'>Name</span>
+          <span className='p-3 min-w-[10rem]'>Size</span>
+          <span className='p-3 min-w-[10rem]'>Created At</span>
+        </div>
+        <div className='h-full w-full flex flex-col gap-4 items-center justify-center text-2xl'>
+          {fileArr == null ? <CircularProgress size={50} /> : <span>{fileArr}</span>}
+          {fileArr != null && <span className='text-base'>Refresh the page to try again</span>}
+        </div>
+      </div>
+    )
+  }
+
   if (!(fileArr instanceof Array)) {
     return (
       <div className='flex flex-col m-4 p-2 pt-0 h-full w-full bg-black rounded-lg overflow-auto'>
