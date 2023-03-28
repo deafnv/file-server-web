@@ -91,6 +91,19 @@ export default function Files() {
     }
   }, [])
 
+  useEffect(() => {
+    const copySelected = (e: KeyboardEvent) => {
+
+      if (e.key == 'c' && e.ctrlKey && selectedFile) {
+        navigator.clipboard.writeText(selectedFile.isDirectory ? `${location.origin}/files${selectedFile.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile.path}`)
+      }
+    }
+
+    document.addEventListener("keydown", copySelected)
+
+    return () => document.removeEventListener("keydown", copySelected)
+  }, [selectedFile])
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const formData = new FormData()
     acceptedFiles.forEach((file) => {
