@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { FileServerFile } from '@/lib/types'
 import ContextMenu from '@/components/ContextMenu'
 import FileList from '@/components/FileList'
+import ModalTemplate from '@/components/ModalTemplate'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -16,6 +17,7 @@ export default function Files() {
   const [selectedFile, setSelectedFile] = useState<FileServerFile | null>(null)
   const [contextMenu, setContextMenu] = useState<FileServerFile | 'directory' | null>(null)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
+  const [modal, setModal] = useState(false)
 
   const router = useRouter()
 
@@ -148,7 +150,20 @@ export default function Files() {
           </div> */}
         </section>
         {contextMenu && <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} />}
+        {modal && <Modal />}
       </main>
     </>
   )
+
+  function Modal() {
+    return (
+      <ModalTemplate>
+        <h3 className='text-2xl'>New folder</h3>
+				<div className='flex gap-4'>
+					<button onClick={() => {}} className='px-3 py-1 input-submit'>Cancel</button>
+          <button onClick={() => {}} className='px-3 py-1 input-submit'>Create</button>
+				</div>
+      </ModalTemplate>
+    )
+  }
 }

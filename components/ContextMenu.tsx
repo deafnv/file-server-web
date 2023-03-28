@@ -1,4 +1,5 @@
 import { FileServerFile } from '@/lib/types'
+import axios from 'axios';
 import { useRouter } from 'next/router'
 import { Dispatch, RefObject, SetStateAction } from 'react'
 
@@ -20,7 +21,11 @@ export default function ContextMenu(
         ref={contextMenuRef}
         className="absolute min-w-[12rem] z-10 p-3 shadow-lg shadow-gray-700 bg-slate-200 text-black text-lg rounded-md border-black border-solid border-2 context-menu"
       >
-        Show New Folder and stuff
+        <li className="flex justify-center h-8 rounded-sm hover:bg-slate-500">
+          <button onClick={() => console.log(router.asPath.replace('/files', ''))} className="w-full">
+            New Folder
+          </button>
+        </li>
       </menu>
     )
   }
