@@ -179,3 +179,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 		opacity: 1;
 	}
 }
+
+.folder-details {
+	height: 12.1rem;
+	width: 15rem;
+	animation: openFolderDetails 150ms ease-out;
+}
+
+@keyframes openFolderDetails {
+	0% {
+		height: 0;
+		opacity: 0;
+	}
+	100% {
+		height: 12.1rem;
+		opacity: 1;
+	}
+}

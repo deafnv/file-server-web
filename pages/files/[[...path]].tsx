@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useRouter } from 'next/router'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { FileServerFile } from '@/lib/types'
 import ContextMenu from '@/components/ContextMenu'
 import FileList from '@/components/FileList'
@@ -13,6 +14,8 @@ export default function Files() {
   const paramsRef = useRef<string[]>([])
   const fileListRef = useRef<HTMLDivElement>(null)
   const contextMenuRef = useRef<HTMLMenuElement>(null)
+  const folderDetailsRef = useRef<HTMLDivElement>(null)
+  const folderDetailsDropdownRef = useRef<HTMLMenuElement>(null)
 
   const [selectedFile, setSelectedFile] = useState<FileServerFile | null>(null)
   const [contextMenu, setContextMenu] = useState<FileServerFile | 'directory' | null>(null)
@@ -60,11 +63,18 @@ export default function Files() {
       contextMenuRef.current.style.left = `${e.pageX}px`
     }
     
-    const exitContextMenu = (e: MouseEvent) => {
+    const exitMenus = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      if (!contextMenuRef.current) return
-      if (!contextMenuRef.current?.contains(target)) {
-        setContextMenu(null)
+      if (contextMenuRef.current) {
+        if (!contextMenuRef.current?.contains(target)) {
+          setContextMenu(null)
+        }
+      }
+
+      if (folderDetailsDropdownRef.current){
+        if (!folderDetailsRef.current?.contains(target) && !folderDetailsDropdownRef.current.contains(target)) {
+          folderDetailsDropdownRef.current.style.display = 'none'
+        }
       }
     }
 
@@ -78,14 +88,14 @@ export default function Files() {
 
     document.addEventListener("mousedown", preventSelect)
     document.addEventListener("contextmenu", customContextMenu)
-    document.addEventListener("click", exitContextMenu)
+    document.addEventListener("click", exitMenus)
 
     router.events.on('routeChangeStart', routeChangeStart)
     
     return () => {
       document.removeEventListener("mousedown", preventSelect)
       document.removeEventListener("contextmenu", customContextMenu)
-      document.removeEventListener("click", exitContextMenu)
+      document.removeEventListener("click", exitMenus)
 
       router.events.off('routeChangeStart', routeChangeStart)
     }
@@ -112,6 +122,16 @@ export default function Files() {
   }, [])
   const { getRootProps, getInputProps, isDragActive } = useDropzone({onDrop})
 
+  function handleFolderDetails() {
+    if (!folderDetailsRef.current || !folderDetailsDropdownRef.current) return
+    const { top, left } = folderDetailsRef.current.getBoundingClientRect()
+    const height = folderDetailsRef.current.offsetHeight
+    
+    folderDetailsDropdownRef.current.style.display = 'block'
+    folderDetailsDropdownRef.current.style.top = `${top + height}px`
+    folderDetailsDropdownRef.current.style.left = `${left}px`
+  }
+
   return (
     <>
       <Head>
@@ -125,25 +145,42 @@ export default function Files() {
           </div>
         </section>
         <section className='p-12 h-[calc(100dvh-60px)] w-[85%] bg-slate-600'>
-          <span className='text-xl'>
+          <span className='flex items-center text-xl'>
             <Link 
               href={''}
               className='p-2 rounded-md hover:bg-gray-500'
             >
               Files
             </Link>
-            {paramsRef.current?.map((item, index) => (
-              <>
-                /
-                <Link 
-                  key={index}
-                  href={paramsRef.current?.slice(0, index + 1).join('/')}
-                  className='p-2 rounded-md hover:bg-gray-500'
-                >
-                  {item}
-                </Link>
-              </>
-            ))}
+            {paramsRef.current?.map((param, index) => {
+              if (index == paramsRef.current.length - 1)
+                return (
+                  <>
+                    /
+                    <div 
+                      key={index}
+                      ref={folderDetailsRef}
+                      onClick={handleFolderDetails}
+                      className='flex items-center p-2 rounded-md cursor-pointer hover:bg-gray-500'
+                    >
+                      <span>{param}</span>
+                      <ArrowDropDownIcon />
+                    </div>
+                  </>
+                )
+              return (
+                <>
+                  /
+                  <Link 
+                    key={index}
+                    href={paramsRef.current?.slice(0, index + 1).join('/')}
+                    className='p-2 rounded-md hover:bg-gray-500'
+                  >
+                    {param}
+                  </Link>
+                </>
+              )
+            })}
           </span>
           <FileList
             fileArr={fileArr} 
@@ -163,10 +200,48 @@ export default function Files() {
           </div> */}
         </section>
         {contextMenu && <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} router={router} />}
+        <FolderDetails />
         {modal && <Modal />}
       </main>
     </>
   )
+
+  function FolderDetails() {
+    return (
+      <menu
+        ref={folderDetailsDropdownRef}
+        style={{ display: 'none' }}
+        className="absolute min-w-[12rem] z-10 py-2 shadow-lg shadow-gray-700 bg-slate-200 text-black text-lg rounded-md folder-details"
+      >
+        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
+          <button onClick={() => console.log(router.asPath.replace('/files', ''))} className="w-full">
+            New folder
+          </button>
+        </li>
+        <hr className="my-2 border-gray-500 border-t-[1px]" />
+        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
+          <button onClick={() => {}} className="w-full">
+            Encode MKV
+          </button>
+        </li>
+        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
+          <button onClick={() => {}} className="w-full">
+            Extract captions
+          </button>
+        </li>
+        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
+          <button onClick={() => {}} className="w-full">
+            Convert captions
+          </button>
+        </li>
+        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
+          <button onClick={() => {}} className="w-full">
+            Generate manifests
+          </button>
+        </li>
+      </menu>
+    )
+  }
 
   function Modal() {
     return (
