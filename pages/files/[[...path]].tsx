@@ -1,4 +1,3 @@
-import { GetServerSidePropsContext } from 'next'
 import Head from 'next/head'
 import axios from 'axios'
 import prettyBytes from 'pretty-bytes'
@@ -6,12 +5,21 @@ import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useRouter } from 'next/router'
+import { FileServerFile } from '@/lib/types'
 import CircularProgress from '@mui/material/CircularProgress'
+import FolderIcon from '@mui/icons-material/Folder'
+import MovieIcon from '@mui/icons-material/Movie'
+import ImageIcon from '@mui/icons-material/Image'
+import CodeIcon from '@mui/icons-material/Code'
+import DataObjectIcon from '@mui/icons-material/DataObject'
+import ListAltIcon from '@mui/icons-material/ListAlt'
+import AudioFileIcon from '@mui/icons-material/AudioFile'
+import ArticleIcon from '@mui/icons-material/Article'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
 
-  const [fileArr, setFileArr] = useState<any[] | string | null>(null)
+  const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
 
   const router = useRouter()
   
@@ -84,7 +92,7 @@ export default function Files() {
   )
 }
 
-function FileList({ fileArr }: { fileArr: any[] | string | null }) {
+function FileList({ fileArr }: { fileArr: FileServerFile[] | string | null }) {
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
       <div className='flex flex-col m-4 p-2 pt-0 h-full w-full bg-black rounded-lg overflow-auto'>
@@ -119,21 +127,23 @@ function FileList({ fileArr }: { fileArr: any[] | string | null }) {
   return (
     <div className='flex flex-col m-4 p-2 pt-0 h-full w-full bg-black rounded-lg overflow-auto'>
       <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
+        <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'></span>
         <span className='p-3 flex-grow'>Name</span>
         <span className='p-3 min-w-[10rem]'>Size</span>
         <span className='p-3 min-w-[10rem]'>Created At</span>
       </div>
-      {fileArr.map((item, index) => {
+      {fileArr.map((file, index) => {
         return (
           <Link 
             key={index}
-            href={item.isDirectory ? `/files${item.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${item.path}`}
+            href={file.isDirectory ? `/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`}
             className='flex text-lg rounded-md cursor-pointer hover:bg-gray-500'
           >
-            <span className='p-3 flex-grow'>{item.name}</span>
-            <span className='p-3 min-w-[10rem]'>{prettyBytes(item.size)}</span>
+            <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
+            <span className='p-3 flex-grow'>{file.name}</span>
+            <span className='p-3 min-w-[10rem]'>{prettyBytes(file.size)}</span>
             <span className='p-3 min-w-[10rem]'>
-              {new Date(item.created).toLocaleDateString('en-US', {
+              {new Date(file.created).toLocaleDateString('en-US', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
@@ -144,4 +154,19 @@ function FileList({ fileArr }: { fileArr: any[] | string | null }) {
       })}
     </div>
   )
-}
+
+  function getIcon(file: FileServerFile) {
+    if (file.isDirectory) return <FolderIcon />
+    const splitName = file.name.split('.')
+    const extension = splitName[splitName.length - 1]
+    if (splitName.length == 1) return null
+    if (['doc', 'docx', 'txt', 'pdf'].includes(extension)) return <ArticleIcon />
+    if (['mkv', 'mp4', 'webm', 'ogg'].includes(extension)) return <MovieIcon />
+    if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) return <ImageIcon />
+    if (['wav', 'mp3', 'aac', 'flac', 'm4a'].includes(extension)) return <AudioFileIcon />
+    if (['json', 'jsonl'].includes(extension)) return <DataObjectIcon />
+    if (['js', 'jsx', 'css', 'ts', 'tsx'].includes(extension)) return <CodeIcon />
+    if (['xlsx', 'xls', 'csv'].includes(extension)) return <ListAltIcon />
+    return null
+    }
+  }

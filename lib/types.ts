@@ -13,3 +13,12 @@ interface NavLinksWithRoute {
 }
 
 export type NavLinks = NavLinksWithDropdown | NavLinksWithRoute;
+
+export interface FileServerFile {
+  name: string;
+  path: string;
+  created: string;
+  modified: string;
+  isDirectory: boolean;
+  size: number;
+}
