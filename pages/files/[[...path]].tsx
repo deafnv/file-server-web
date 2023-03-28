@@ -149,7 +149,7 @@ export default function Files() {
             }
           </div> */}
         </section>
-        {contextMenu && <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} />}
+        {contextMenu && <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} router={router} />}
         {modal && <Modal />}
       </main>
     </>

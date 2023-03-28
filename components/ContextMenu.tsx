@@ -1,19 +1,17 @@
 import { FileServerFile } from '@/lib/types'
-import axios from 'axios';
-import { useRouter } from 'next/router'
+import { NextRouter } from 'next/router'
 import { Dispatch, RefObject, SetStateAction } from 'react'
 
 export default function ContextMenu(
-  { contextMenuRef, contextMenu, setContextMenu }: 
+  { contextMenuRef, contextMenu, setContextMenu, router }: 
   { 
     contextMenuRef: RefObject<HTMLMenuElement>; 
     contextMenu:  FileServerFile | 'directory' | null; 
     setContextMenu: Dispatch<SetStateAction<FileServerFile | 'directory' | null>>;
+    router: NextRouter;
   }
 ) {
   if (!contextMenu) return null
-
-  const router = useRouter()
 
   if (contextMenu == 'directory') {
     return (
