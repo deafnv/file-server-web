@@ -15,6 +15,7 @@ import DataObjectIcon from '@mui/icons-material/DataObject'
 import ListAltIcon from '@mui/icons-material/ListAlt'
 import AudioFileIcon from '@mui/icons-material/AudioFile'
 import ArticleIcon from '@mui/icons-material/Article'
+import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -167,6 +168,7 @@ function FileList({ fileArr }: { fileArr: FileServerFile[] | string | null }) {
     if (['json', 'jsonl'].includes(extension)) return <DataObjectIcon />
     if (['js', 'jsx', 'css', 'ts', 'tsx'].includes(extension)) return <CodeIcon />
     if (['xlsx', 'xls', 'csv'].includes(extension)) return <ListAltIcon />
+    if (['ass', 'srt', 'vtt'].includes(extension)) return <ClosedCaptionIcon />
     return null
-    }
   }
+}
