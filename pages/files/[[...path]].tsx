@@ -34,7 +34,12 @@ export default function Files() {
         const { path } = router.query
         paramsRef.current = path as string[]
         const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`)
-        setFileArr(fileArrData.data.sort((a: any, b: any) => a.name.localeCompare(b.name)))
+        setFileArr(fileArrData.data.sort((a: FileServerFile, b: FileServerFile) => {
+          if (a.isDirectory && b.isDirectory) return a.name.localeCompare(b.name)
+          if (a.isDirectory && !b.isDirectory) return -1
+          if (!a.isDirectory && b.isDirectory) return 1
+          return a.name.localeCompare(b.name)
+        }))
       } catch (error) {
         console.log(error)
         setFileArr('Error loading data from server')
