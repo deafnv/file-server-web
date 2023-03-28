@@ -144,7 +144,7 @@ export default function Files() {
             <span className='text-lg'>Storage Space</span>
           </div>
         </section>
-        <section className='p-12 h-[calc(100dvh-60px)] w-[85%] bg-slate-600'>
+        <section className='px-12 py-8 h-[calc(100dvh-60px)] w-[85%] bg-slate-600'>
           <span className='flex items-center text-xl'>
             <Link 
               href={''}
