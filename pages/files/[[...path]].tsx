@@ -18,7 +18,7 @@ export default function Files() {
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
 
   const router = useRouter()
-  
+
   useEffect(() => {
     const getData = async () => {
       try {
@@ -72,11 +72,21 @@ export default function Files() {
       }
     }
 
+    const routeChangeStart = () => setContextMenu(null)
+
     document.addEventListener("mousedown", preventSelect)
     document.addEventListener("contextmenu", customContextMenu)
     document.addEventListener("click", exitContextMenu)
+
+    router.events.on('routeChangeStart', routeChangeStart)
     
-    return () => document.removeEventListener("contextmenu", customContextMenu)
+    return () => {
+      document.removeEventListener("mousedown", preventSelect)
+      document.removeEventListener("contextmenu", customContextMenu)
+      document.removeEventListener("click", exitContextMenu)
+
+      router.events.off('routeChangeStart', routeChangeStart)
+    }
   }, [])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -137,7 +147,7 @@ export default function Files() {
             }
           </div> */}
         </section>
-        {contextMenu && <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} />}
+        {contextMenu && <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} />}
       </main>
     </>
   )

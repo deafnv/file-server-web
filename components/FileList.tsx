@@ -71,7 +71,7 @@ export default function FileList(
           <div
             key={index}
             onClick={() => setSelectedFile(file)}
-            onDoubleClick={() => file.isDirectory ? router.replace(`/files${file.path}`) : router.replace(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
+            onDoubleClick={() => file.isDirectory ? router.push(`/files${file.path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
             onContextMenu={() => setContextMenu(file)}
             className={`flex text-lg rounded-md cursor-default ${(contextMenu == file || selectedFile == file) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
           >
