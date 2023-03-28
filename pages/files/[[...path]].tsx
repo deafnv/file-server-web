@@ -22,6 +22,7 @@ export default function Files() {
   const fileListRef = useRef<HTMLDivElement>(null)
   const contextMenuRef = useRef<HTMLMenuElement>(null)
 
+  const [selectedFile, setSelectedFile] = useState<FileServerFile | null>(null)
   const [contextMenu, setContextMenu] = useState<FileServerFile | 'directory' | null>(null)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
 
@@ -56,6 +57,7 @@ export default function Files() {
         setContextMenu('directory')
       }
       if (!contextMenuRef.current) return
+      setSelectedFile(null)
       contextMenuRef.current.style.top = `${e.pageY}px`
       contextMenuRef.current.style.left = `${e.pageX}px`
     }
@@ -68,6 +70,13 @@ export default function Files() {
       }
     }
 
+    const preventSelect = (e: MouseEvent) => {
+      if (e.detail > 1 && fileListRef.current?.contains(e.target as HTMLElement)) {
+        e.preventDefault();
+      }
+    }
+
+    document.addEventListener("mousedown", preventSelect)
     document.addEventListener("contextmenu", customContextMenu)
     document.addEventListener("click", exitContextMenu)
     
@@ -115,7 +124,14 @@ export default function Files() {
               </>
             ))}
           </span>
-          <FileList fileArr={fileArr} fileListRef={fileListRef} contextMenu={contextMenu} setContextMenu={setContextMenu} />
+          <FileList 
+            fileArr={fileArr} 
+            fileListRef={fileListRef} 
+            contextMenu={contextMenu} 
+            setContextMenu={setContextMenu}
+            selectedFile={selectedFile}
+            setSelectedFile={setSelectedFile}
+          />
           {/* <div {...getRootProps()}>
             <input {...getInputProps()} />
             {
@@ -175,7 +191,17 @@ function ContextMenu({ contextMenuRef, contextMenu }: { contextMenuRef: RefObjec
   )
 }
 
-function FileList({ fileArr, fileListRef, contextMenu, setContextMenu }: { fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; contextMenu:  FileServerFile | 'directory' | null; setContextMenu: Dispatch<SetStateAction<FileServerFile | 'directory' | null>>; }) {
+function FileList(
+  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile }: 
+  { 
+    fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
+    contextMenu:  FileServerFile | 'directory' | null; 
+    setContextMenu: Dispatch<SetStateAction<FileServerFile | 'directory' | null>>; 
+    selectedFile:  FileServerFile | null; 
+    setSelectedFile: Dispatch<SetStateAction<FileServerFile | null>>; 
+  }
+) {
+  const router = useRouter()
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
       <div className='flex flex-col m-4 p-2 pt-0 h-full w-full bg-black rounded-lg overflow-auto'>
@@ -212,7 +238,7 @@ function FileList({ fileArr, fileListRef, contextMenu, setContextMenu }: { fileA
       ref={fileListRef}
       className='flex flex-col m-4 p-2 pt-0 h-full w-full bg-black rounded-lg overflow-auto'
     >
-      <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
+      <div className='sticky top-0 mb-1 flex text-lg border-b-[1px] bg-black'>
         <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'></span>
         <span className='p-3 flex-grow'>Name</span>
         <span className='p-3 min-w-[10rem]'>Size</span>
@@ -220,11 +246,12 @@ function FileList({ fileArr, fileListRef, contextMenu, setContextMenu }: { fileA
       </div>
       {fileArr.map((file, index) => {
         return (
-          <Link 
+          <div
             key={index}
-            href={file.isDirectory ? `/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`}
+            onClick={() => setSelectedFile(file)}
+            onDoubleClick={() => file.isDirectory ? router.replace(`/files${file.path}`) : router.replace(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
             onContextMenu={() => setContextMenu(file)}
-            className={`flex text-lg rounded-md cursor-pointer ${contextMenu == file ? 'bg-gray-500' : ''} hover:bg-gray-500`}
+            className={`flex text-lg rounded-md cursor-default ${(contextMenu == file || selectedFile == file) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
           >
             <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
             <span className='p-3 flex-grow'>{file.name}</span>
@@ -236,7 +263,7 @@ function FileList({ fileArr, fileListRef, contextMenu, setContextMenu }: { fileA
                 year: 'numeric'
               })}
             </span>
-          </Link>
+          </div>
         )
       })}
     </div>
@@ -258,3 +285,4 @@ function FileList({ fileArr, fileListRef, contextMenu, setContextMenu }: { fileA
     return null
   }
 }
+//file.isDirectory ? `/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`
