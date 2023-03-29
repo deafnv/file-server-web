@@ -42,6 +42,7 @@ export default function Files() {
       }
     }
     getData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
 
   useEffect(() => {
@@ -99,6 +100,11 @@ export default function Files() {
 
       router.events.off('routeChangeStart', routeChangeStart)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+
   }, [])
 
   useEffect(() => {
@@ -199,7 +205,7 @@ export default function Files() {
             }
           </div> */}
         </section>
-        {contextMenu && <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} router={router} />}
+        <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} router={router} />
         <FolderDetails />
         {modal && <Modal />}
       </main>
