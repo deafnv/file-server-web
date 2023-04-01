@@ -1,7 +1,12 @@
 import Head from "next/head"
 import TextField from "@mui/material/TextField"
 import Button from "@mui/material/Button"
-import { useRef, BaseSyntheticEvent } from "react"
+import InputAdornment from '@mui/material/InputAdornment'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import IconButton from '@mui/material/IconButton'
+import { useRef, useState, BaseSyntheticEvent } from "react"
+import axios, { AxiosError } from "axios"
 
 export default function Login() {
   const loginDataRef = useRef({
@@ -9,8 +14,31 @@ export default function Login() {
     password: ''
   })
 
-  function handleLogin(e: BaseSyntheticEvent) {
+  const [showPassword, setShowPassword] = useState(false)
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show)
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+  }
+
+  async function handleLogin(e: BaseSyntheticEvent) {
     e.preventDefault()
+
+    try {
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/get`, { user: 'asdas' },
+        {
+          headers: {
+            'X-API-Key': loginDataRef.current.password
+          }
+        }
+      )
+
+      console.log(data)
+    } catch (error) {
+      if ((error as AxiosError).response?.status === 401) return alert('Entered wrong password')
+      console.log(error)
+    }
   }
 
   return (
@@ -31,6 +59,7 @@ export default function Login() {
               variant="filled" 
               onChange={(e) => loginDataRef.current.username = e.target.value} 
               fullWidth
+              type="text"
               className="bg-gray-200 rounded-md"
             />
             <TextField 
@@ -38,7 +67,22 @@ export default function Login() {
               variant="filled" 
               onChange={(e) => loginDataRef.current.password = e.target.value}
               fullWidth
-              className="bg-gray-200 rounded-md" 
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="off"
+              className="bg-gray-200 rounded-md"
+              InputProps={{
+                endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>)
+              }}
             />
             <Button 
               variant="contained"
