@@ -7,6 +7,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import IconButton from '@mui/material/IconButton'
 import { useRef, useState, BaseSyntheticEvent } from "react"
 import axios, { AxiosError } from "axios"
+import { setCookie } from "cookies-next"
+import { useRouter } from "next/router"
 
 export default function Login() {
   const loginDataRef = useRef({
@@ -22,11 +24,13 @@ export default function Login() {
     event.preventDefault()
   }
 
+  const router = useRouter()
+
   async function handleLogin(e: BaseSyntheticEvent) {
     e.preventDefault()
 
     try {
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/get`, { user: 'asdas' },
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/get`, { user: loginDataRef.current.username },
         {
           headers: {
             'X-API-Key': loginDataRef.current.password
@@ -35,6 +39,8 @@ export default function Login() {
       )
 
       console.log(data)
+      setCookie('token', data)
+      router.push('/')
     } catch (error) {
       if ((error as AxiosError).response?.status === 401) return alert('Entered wrong password')
       console.log(error)

@@ -5,6 +5,8 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Loading from './LoadingComponent'
 import { useLoading } from './LoadingContext'
+import { getCookie, deleteCookie } from 'cookies-next'
+import { decode } from 'jsonwebtoken'
 
 export default function Navbar() {
 	const router = useRouter()
@@ -16,6 +18,7 @@ export default function Navbar() {
 			route: '/files'
 		}
 	]
+	const [user, setUser] = useState('')
 
 	useEffect(() => {
 		const navbarAnimate = () => {
@@ -26,6 +29,20 @@ export default function Navbar() {
 
 		window.addEventListener('scroll', throttle(navbarAnimate, 100))
 	}, [])
+
+	useEffect(() => {
+		const cookie = getCookie('token')
+		if (typeof cookie == 'string') {
+			const decoded = decode(cookie)
+			if (decoded instanceof Object)
+				setUser(decoded.user)
+		}
+	}, [router.asPath])
+
+	function handleLogout() {
+		deleteCookie('token')
+		router.reload()
+	}
 
 	return (
 		<>
@@ -40,7 +57,7 @@ export default function Navbar() {
 				}}
 			>
 				<div className="flex items-center">
-					<span className="absolute left-8 text-center 2xl:w-max xl:w-40 lg:w-40 text-lg sm:text-2xl font-semibold xs:visible invisible">
+					<span className="absolute left-6 md:left-24 text-center text-lg sm:text-2xl font-semibold xs:visible invisible">
 						File Server
 					</span>
 					<ul className='flex items-center'>
@@ -93,6 +110,23 @@ export default function Navbar() {
 								)
 						})}
 					</ul>
+					{user ? 
+					<span className="flex gap-2 absolute right-6 md:right-24 text-center text-sm sm:text-base font-semibold">
+						{user}
+						<span
+							onClick={handleLogout}
+							className='cursor-pointer link'
+						>
+							Logout
+						</span>
+					</span> :
+					<Link
+						href={'/login'}
+						className="absolute right-6 md:right-24 text-center text-sm sm:text-base font-semibold cursor-pointer link"
+					>
+						Login
+					</Link>
+					}
 				</div>
 			</nav>
 		</>
