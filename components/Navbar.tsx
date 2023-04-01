@@ -39,6 +39,7 @@ export default function Navbar() {
 
 	function handleLogout() {
 		deleteCookie('token')
+		deleteCookie('userdata')
 		router.reload()
 	}
 
