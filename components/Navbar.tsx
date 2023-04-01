@@ -31,11 +31,9 @@ export default function Navbar() {
 	}, [])
 
 	useEffect(() => {
-		const cookie = getCookie('token')
+		const cookie = getCookie('userdata')
 		if (typeof cookie == 'string') {
-			const decoded = decode(cookie)
-			if (decoded instanceof Object)
-				setUser(decoded.user)
+			setUser(JSON.parse(cookie).user)
 		}
 	}, [router.asPath])
 

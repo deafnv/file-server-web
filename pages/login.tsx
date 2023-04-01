@@ -34,12 +34,14 @@ export default function Login() {
         {
           headers: {
             'X-API-Key': loginDataRef.current.password
-          }
+          },
+          withCredentials: true
         }
       )
 
       console.log(data)
-      setCookie('token', data)
+      setCookie('token', data, { httpOnly: true })
+      setCookie('userdata', JSON.stringify({ user: loginDataRef.current.username }))
       router.push('/')
     } catch (error) {
       if ((error as AxiosError).response?.status === 401) return alert('Entered wrong password')
