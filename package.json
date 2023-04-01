@@ -12,7 +12,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.11",
-    "@mui/material": "^5.11.14",
+    "@mui/material": "^5.11.15",
     "@tailwindcss/line-clamp": "^0.4.2",
     "@types/node": "18.15.10",
     "@types/react": "18.0.29",
