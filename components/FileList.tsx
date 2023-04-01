@@ -1,6 +1,6 @@
 import { FileServerFile } from '@/lib/types'
 import { useRouter } from 'next/router'
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { Dispatch, RefObject, SetStateAction, useEffect, useRef } from 'react'
 import prettyBytes from 'pretty-bytes'
 import CircularProgress from '@mui/material/CircularProgress'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -19,11 +19,45 @@ export default function FileList(
     fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
     contextMenu:  FileServerFile | 'directory' | null; 
     setContextMenu: Dispatch<SetStateAction<FileServerFile | 'directory' | null>>; 
-    selectedFile:  FileServerFile | null; 
-    setSelectedFile: Dispatch<SetStateAction<FileServerFile | null>>; 
+    selectedFile:  FileServerFile[] | null; 
+    setSelectedFile: Dispatch<SetStateAction<FileServerFile[] | null>>; 
   }
 ) {
+  const startingFileSelect = useRef<number | null>(null)
+
   const router = useRouter()
+
+  useEffect(() => {
+    const preventShiftSelect = (e: any) => {
+      document.onselectstart = function() {
+        return !(e.key == "Shift" && e.shiftKey);
+      }
+    }
+
+    ["keyup","keydown"].forEach((event) => {
+      window.addEventListener(event, preventShiftSelect)
+    })
+
+    return () => {
+      ["keyup","keydown"].forEach((event) => {
+        window.removeEventListener(event, preventShiftSelect)
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    const copySelected = (e: KeyboardEvent) => {
+
+      if (e.key == 'c' && e.ctrlKey && selectedFile) { //TODO: Change to copy files or links to files
+        navigator.clipboard.writeText(selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`)
+      }
+    }
+
+    document.addEventListener("keydown", copySelected)
+
+    return () => document.removeEventListener("keydown", copySelected)
+  }, [selectedFile])
+
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
       <div className='flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
@@ -55,6 +89,20 @@ export default function FileList(
     )
   }
 
+  function handleSelect(e: any, file: FileServerFile, index: number) {
+    if (!(fileArr instanceof Array)) return
+    if (e.shiftKey && selectedFile?.[0]) {
+      let selectedFiles
+      if (index > startingFileSelect.current!) {
+        selectedFiles = fileArr.slice(startingFileSelect.current!, index + 1)
+      } else selectedFiles = fileArr.slice(index, startingFileSelect.current! + 1)
+      setSelectedFile(selectedFiles)
+    } else {
+      startingFileSelect.current = index
+      setSelectedFile([file])
+    }
+  }
+
   return (
     <div
       ref={fileListRef}
@@ -70,10 +118,10 @@ export default function FileList(
         return (
           <div
             key={index}
-            onClick={() => setSelectedFile(file)}
+            onClick={(e) => handleSelect(e, file, index)}
             onDoubleClick={() => file.isDirectory ? router.push(`/files${file.path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
             onContextMenu={() => setContextMenu(file)}
-            className={`flex text-lg rounded-md cursor-default ${(contextMenu == file || selectedFile == file) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
+            className={`flex text-lg rounded-md cursor-default ${(contextMenu == file || selectedFile?.includes(file)) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
           >
             <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
             <span className='p-3 flex-grow'>{file.name}</span>

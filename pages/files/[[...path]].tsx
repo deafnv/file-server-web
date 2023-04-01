@@ -17,7 +17,7 @@ export default function Files() {
   const folderDetailsRef = useRef<HTMLDivElement>(null)
   const folderDetailsDropdownRef = useRef<HTMLMenuElement>(null)
 
-  const [selectedFile, setSelectedFile] = useState<FileServerFile | null>(null)
+  const [selectedFile, setSelectedFile] = useState<FileServerFile[] | null>(null)
   const [contextMenu, setContextMenu] = useState<FileServerFile | 'directory' | null>(null)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
   const [modal, setModal] = useState(false)
@@ -102,23 +102,6 @@ export default function Files() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  useEffect(() => {
-
-  }, [])
-
-  useEffect(() => {
-    const copySelected = (e: KeyboardEvent) => {
-
-      if (e.key == 'c' && e.ctrlKey && selectedFile) {
-        navigator.clipboard.writeText(selectedFile.isDirectory ? `${location.origin}/files${selectedFile.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile.path}`)
-      }
-    }
-
-    document.addEventListener("keydown", copySelected)
-
-    return () => document.removeEventListener("keydown", copySelected)
-  }, [selectedFile])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const formData = new FormData()
