@@ -39,7 +39,6 @@ export default function Login() {
         }
       )
 
-      setCookie('token', data, { httpOnly: true })
       setCookie('userdata', JSON.stringify({ user: loginDataRef.current.username }))
       router.push('/')
     } catch (error) {

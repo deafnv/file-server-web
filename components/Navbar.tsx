@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import Loading from './LoadingComponent'
 import { useLoading } from './LoadingContext'
 import { getCookie, deleteCookie } from 'cookies-next'
-import { decode } from 'jsonwebtoken'
+import axios from 'axios'
 
 export default function Navbar() {
 	const router = useRouter()
@@ -37,8 +37,10 @@ export default function Navbar() {
 		}
 	}, [router.asPath])
 
-	function handleLogout() {
-		deleteCookie('token')
+	async function handleLogout() {
+		await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/delete`, {
+			withCredentials: true
+		})
 		deleteCookie('userdata')
 		router.reload()
 	}
