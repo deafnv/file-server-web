@@ -69,7 +69,10 @@ export default function FileList(
       headers: {
         "Content-Type": "multipart/form-data"
       },
-      withCredentials: true
+      withCredentials: true,
+      onUploadProgress: (progressEvent) => {
+        
+      }
     }).catch((err: any) => {
       console.log(err)
     })
