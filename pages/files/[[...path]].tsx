@@ -1,8 +1,7 @@
 import Head from 'next/head'
 import axios from 'axios'
 import Link from 'next/link'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useDropzone } from 'react-dropzone'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { FileServerFile } from '@/lib/types'
@@ -103,14 +102,6 @@ export default function Files() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const formData = new FormData()
-    acceptedFiles.forEach((file) => {
-      formData.append('files', file)
-    })
-  }, [])
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({onDrop})
-
   function handleFolderDetails() {
     if (!folderDetailsRef.current || !folderDetailsDropdownRef.current) return
     const { top, left } = folderDetailsRef.current.getBoundingClientRect()
@@ -179,14 +170,6 @@ export default function Files() {
             selectedFile={selectedFile}
             setSelectedFile={setSelectedFile}
           />
-          {/* <div {...getRootProps()}>
-            <input {...getInputProps()} />
-            {
-              isDragActive ?
-                <p>Drop the files here ...</p> :
-                <p>Drag 'n' drop some files here, or click to select files</p>
-            }
-          </div> */}
         </section>
         <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} router={router} />
         <FolderDetails />

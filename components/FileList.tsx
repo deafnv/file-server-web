@@ -1,6 +1,7 @@
 import { FileServerFile } from '@/lib/types'
 import { useRouter } from 'next/router'
-import { Dispatch, RefObject, SetStateAction, useEffect, useRef } from 'react'
+import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useCallback } from 'react'
+import { useDropzone } from 'react-dropzone'
 import prettyBytes from 'pretty-bytes'
 import CircularProgress from '@mui/material/CircularProgress'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -12,6 +13,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt'
 import AudioFileIcon from '@mui/icons-material/AudioFile'
 import ArticleIcon from '@mui/icons-material/Article'
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
+import axios from 'axios'
 
 export default function FileList(
   { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile }: 
@@ -47,7 +49,6 @@ export default function FileList(
 
   useEffect(() => {
     const copySelected = (e: KeyboardEvent) => {
-
       if (e.key == 'c' && e.ctrlKey && selectedFile) { //TODO: Change to copy files or links to files
         navigator.clipboard.writeText(selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`)
       }
@@ -57,6 +58,25 @@ export default function FileList(
 
     return () => document.removeEventListener("keydown", copySelected)
   }, [selectedFile])
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const formData = new FormData()
+    acceptedFiles.forEach((file) => {
+      formData.append('upload-file', file)
+    })
+
+    const uploadres = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${router.asPath.replace('/files', '')}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      },
+      withCredentials: true
+    }).catch((err: any) => {
+      console.log(err)
+    })
+
+    console.log(uploadres)
+  }, [router.asPath])
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({onDrop, noClick: true})
 
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
@@ -105,9 +125,11 @@ export default function FileList(
 
   return (
     <div
+      {...getRootProps()}
       ref={fileListRef}
-      className='flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'
+      className={`relative flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none`}
     >
+      <input {...getInputProps()} />
       <div className='sticky top-0 mb-1 flex text-lg border-b-[1px] bg-black'>
         <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'></span>
         <span className='p-3 flex-grow'>Name</span>
