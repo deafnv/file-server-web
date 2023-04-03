@@ -1,13 +1,19 @@
 import Head from 'next/head'
 import axios from 'axios'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import { FileServerFile } from '@/lib/types'
+import { FileServerFile, UploadProgress } from '@/lib/types'
 import ContextMenu from '@/components/ContextMenu'
-import FileList from '@/components/FileList'
 import ModalTemplate from '@/components/ModalTemplate'
+import FileList from '@/components/FileList'
+import LinearProgressWithLabel from '@/components/LinearProgressWithLabel'
+import { useDropzone } from 'react-dropzone'
+import isEqual from 'lodash/isEqual'
+import Button from '@mui/material/Button'
+import { getCookie } from 'cookies-next'
+import LoggedOutWarning from '@/components/LoggedOutWarn'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -15,11 +21,15 @@ export default function Files() {
   const contextMenuRef = useRef<HTMLMenuElement>(null)
   const folderDetailsRef = useRef<HTMLDivElement>(null)
   const folderDetailsDropdownRef = useRef<HTMLMenuElement>(null)
+  const filesToUpload = useRef<File[]>([])
 
   const [selectedFile, setSelectedFile] = useState<FileServerFile[] | null>(null)
   const [contextMenu, setContextMenu] = useState<FileServerFile | 'directory' | null>(null)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
   const [modal, setModal] = useState(false)
+  const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
+  const [uploadQueue, setUploadQueue] = useState<File[] | null>(null)
+  const [loggedOutWarning, setLoggedOutWarning] = useState(false)
 
   const router = useRouter()
 
@@ -113,6 +123,63 @@ export default function Files() {
     folderDetailsDropdownRef.current.style.left = `${left}px`
   }
 
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (!getCookie('userdata')) {
+      setLoggedOutWarning(true)
+      return
+    }
+    if (!filesToUpload.current.length) {
+      filesToUpload.current = filesToUpload.current.concat(acceptedFiles)
+      setUploadQueue(filesToUpload.current)
+      
+      while (filesToUpload.current.length !== 0) {
+        const fileToUpload = filesToUpload.current[0]
+        filesToUpload.current = filesToUpload.current.filter(file => !isEqual(file, fileToUpload))!
+        setUploadQueue(filesToUpload.current)
+        const formData = new FormData()
+        formData.append('upload-file', fileToUpload)
+
+        try {
+          const uploadres = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${router.asPath.replace('/files', '')}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            },
+            withCredentials: true,
+            onUploadProgress: (progressEvent) => {
+              if (!progressEvent.total) return
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setCurrentUploadProgress({
+                name: fileToUpload.name,
+                progress: percentCompleted
+              })
+            }
+          })
+
+          await getData() //TODO: Remove once server websocket for live updates is set up
+        } catch (err) {
+          setCurrentUploadProgress(null)
+          alert(`Error for file ${fileToUpload.name}. The server is probably down somehow.`)
+          console.log(err)
+        }
+        setCurrentUploadProgress(null)
+      } 
+    } else {
+      filesToUpload.current = filesToUpload.current.concat(acceptedFiles)
+      setUploadQueue(filesToUpload.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.asPath])
+  
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({onDrop, noClick: true})
+  
+  function handleOpenFileDialog() {
+    if (getCookie('userdata')) {
+      open()
+    } else {
+      setLoggedOutWarning(true)
+    }
+  }
+
   return (
     <>
       <Head>
@@ -125,9 +192,27 @@ export default function Files() {
             <span className='p-2 text-lg hover:bg-black cursor-pointer'>Storage Space</span>
           </div>
           <div className='flex flex-col h-full w-full'>
-            <h6 className='ml-3 text-lg'>Notifications</h6>
-            <div className='h-full w-full bg-black rounded-md'>
-              
+            <h6 className='ml-3 text-lg'>Uploads {currentUploadProgress ? `(${uploadQueue?.length! + 1})` : null}</h6>
+            <div className='flex flex-col gap-1 p-1 h-full w-full bg-black rounded-md overflow-auto'>
+              {currentUploadProgress &&
+              <div className='p-2 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'>
+                {currentUploadProgress.name}
+                <LinearProgressWithLabel variant='determinate' value={currentUploadProgress.progress} />
+              </div>}
+              {uploadQueue?.map((file, index) => (
+                <div 
+                  key={index}
+                  className='flex flex-col p-2 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'
+                >
+                  {file.name}
+                  <span className='text-gray-600 text-sm font-normal'>Queued</span>
+                </div>
+              ))}
+              {(!currentUploadProgress && !uploadQueue?.length) &&
+              <div className='flex flex-col gap-2 self-center my-auto'>
+                No active uploads.
+                <Button variant='outlined' color='secondary' onClick={handleOpenFileDialog}>Upload Files</Button>
+              </div>}
             </div>
           </div>
         </section>
@@ -176,12 +261,17 @@ export default function Files() {
             setContextMenu={setContextMenu}
             selectedFile={selectedFile}
             setSelectedFile={setSelectedFile}
-            getData={getData}
+            getRootProps={getRootProps}
+            getInputProps={getInputProps}
           />
         </section>
         <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} router={router} />
         <FolderDetails />
         {modal && <Modal />}
+        <LoggedOutWarning 
+          loggedOutWarning={loggedOutWarning}
+          setLoggedOutWarning={setLoggedOutWarning}
+        />
       </main>
     </>
   )

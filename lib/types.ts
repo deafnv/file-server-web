@@ -1,3 +1,6 @@
+import { Dispatch, RefObject, SetStateAction } from 'react'
+import { DropzoneInputProps, DropzoneRootProps } from 'react-dropzone';
+
 interface NavLinksWithDropdown {
 	name: string;
   posLeft: string;
@@ -21,4 +24,19 @@ export interface FileServerFile {
   modified: string;
   isDirectory: boolean;
   size: number;
+}
+
+export interface UploadProgress {
+  name: string;
+  progress: number;
+}
+
+export interface FileListProps { 
+  fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
+  contextMenu:  FileServerFile | 'directory' | null; 
+  setContextMenu: Dispatch<SetStateAction<FileServerFile | 'directory' | null>>; 
+  selectedFile:  FileServerFile[] | null; 
+  setSelectedFile: Dispatch<SetStateAction<FileServerFile[] | null>>;
+  getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;
+  getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
 }

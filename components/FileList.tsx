@@ -1,7 +1,6 @@
-import { FileServerFile } from '@/lib/types'
+import { FileListProps, FileServerFile, UploadProgress } from '@/lib/types'
 import { useRouter } from 'next/router'
-import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useCallback } from 'react'
-import { useDropzone } from 'react-dropzone'
+import { useEffect, useRef } from 'react'
 import prettyBytes from 'pretty-bytes'
 import CircularProgress from '@mui/material/CircularProgress'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -13,22 +12,11 @@ import ListAltIcon from '@mui/icons-material/ListAlt'
 import AudioFileIcon from '@mui/icons-material/AudioFile'
 import ArticleIcon from '@mui/icons-material/Article'
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
-import axios from 'axios'
-import isEqual from 'lodash/isEqual'
 
 export default function FileList(
-  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, getData }: 
-  { 
-    fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
-    contextMenu:  FileServerFile | 'directory' | null; 
-    setContextMenu: Dispatch<SetStateAction<FileServerFile | 'directory' | null>>; 
-    selectedFile:  FileServerFile[] | null; 
-    setSelectedFile: Dispatch<SetStateAction<FileServerFile[] | null>>;
-    getData: () => Promise<void>;
-  }
+  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, getRootProps, getInputProps  }: FileListProps
 ) {
   const startingFileSelect = useRef<number | null>(null)
-  const filesToUpload = useRef<File[]>([])
 
   const router = useRouter()
 
@@ -62,45 +50,19 @@ export default function FileList(
     return () => document.removeEventListener("keydown", copySelected)
   }, [selectedFile])
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    console.log(filesToUpload.current.length)
-    if (!filesToUpload.current.length) {
-      filesToUpload.current = filesToUpload.current.concat(acceptedFiles)
-      console.log(filesToUpload.current)
-      while (filesToUpload.current.length !== 0) {
-        const fileToUpload = filesToUpload.current[0]
-        const formData = new FormData()
-        formData.append('upload-file', fileToUpload)
-
-        try {
-          const uploadres = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${router.asPath.replace('/files', '')}`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data"
-            },
-            withCredentials: true,
-            onUploadProgress: (progressEvent) => {
-              if (!progressEvent.total) return
-              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-              console.log(`Upload progress ${fileToUpload.name}: ${percentCompleted}%`)
-            }
-          })
-
-          await getData() //TODO: Remove once server websocket for live updates is set up
-        } catch (err) {
-          alert(`Error for file ${fileToUpload.name}`)
-          console.log(err)
-        }
-        
-        filesToUpload.current = filesToUpload.current.filter(file => !isEqual(file, fileToUpload))!
-        console.log(filesToUpload.current)
-      } 
+  function handleSelect(e: any, file: FileServerFile, index: number) {
+    if (!(fileArr instanceof Array)) return
+    if (e.shiftKey && selectedFile?.[0]) {
+      let selectedFiles
+      if (index > startingFileSelect.current!) {
+        selectedFiles = fileArr.slice(startingFileSelect.current!, index + 1)
+      } else selectedFiles = fileArr.slice(index, startingFileSelect.current! + 1)
+      setSelectedFile(selectedFiles)
     } else {
-      filesToUpload.current = filesToUpload.current.concat(acceptedFiles)
+      startingFileSelect.current = index
+      setSelectedFile([file])
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.asPath])
-  
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({onDrop, noClick: true})
+  }
 
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
@@ -131,20 +93,6 @@ export default function FileList(
         </div>
       </div>
     )
-  }
-
-  function handleSelect(e: any, file: FileServerFile, index: number) {
-    if (!(fileArr instanceof Array)) return
-    if (e.shiftKey && selectedFile?.[0]) {
-      let selectedFiles
-      if (index > startingFileSelect.current!) {
-        selectedFiles = fileArr.slice(startingFileSelect.current!, index + 1)
-      } else selectedFiles = fileArr.slice(index, startingFileSelect.current! + 1)
-      setSelectedFile(selectedFiles)
-    } else {
-      startingFileSelect.current = index
-      setSelectedFile([file])
-    }
   }
 
   return (
