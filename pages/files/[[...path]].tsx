@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import Link from 'next/link'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
@@ -158,7 +158,11 @@ export default function Files() {
           await getData() //TODO: Remove once server websocket for live updates is set up
         } catch (err) {
           setCurrentUploadProgress(null)
-          alert(`Error for file ${fileToUpload.name}. The server is probably down somehow.`)
+          if ((err as any as AxiosError).response?.status == 401) {
+            alert(`Error uploading, unauthorized. Try logging back in again.`)
+          } else {
+            alert(`Error for file ${fileToUpload.name}. The server is probably down somehow.`)
+          }
           console.log(err)
         }
         setCurrentUploadProgress(null)

@@ -1,4 +1,4 @@
-import { FileListProps, FileServerFile, UploadProgress } from '@/lib/types'
+import { FileListProps, FileServerFile } from '@/lib/types'
 import { useRouter } from 'next/router'
 import { useEffect, useRef } from 'react'
 import prettyBytes from 'pretty-bytes'
