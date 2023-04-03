@@ -8,12 +8,11 @@ import { FileServerFile, UploadProgress } from '@/lib/types'
 import ContextMenu from '@/components/ContextMenu'
 import ModalTemplate from '@/components/ModalTemplate'
 import FileList from '@/components/FileList'
-import LinearProgressWithLabel from '@/components/LinearProgressWithLabel'
 import { useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
-import Button from '@mui/material/Button'
 import { getCookie } from 'cookies-next'
 import LoggedOutWarning from '@/components/LoggedOutWarn'
+import UploadsList from '@/components/UploadsList'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -195,30 +194,11 @@ export default function Files() {
           <div className=''>
             <span className='p-2 text-lg hover:bg-black cursor-pointer'>Storage Space</span>
           </div>
-          <div className='flex flex-col h-full w-full'>
-            <h6 className='ml-3 text-lg'>Uploads {currentUploadProgress ? `(${uploadQueue?.length! + 1})` : null}</h6>
-            <div className='flex flex-col gap-1 p-1 h-full w-full bg-black rounded-md overflow-auto'>
-              {currentUploadProgress &&
-              <div className='p-2 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'>
-                {currentUploadProgress.name}
-                <LinearProgressWithLabel variant='determinate' value={currentUploadProgress.progress} />
-              </div>}
-              {uploadQueue?.map((file, index) => (
-                <div 
-                  key={index}
-                  className='flex flex-col p-2 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'
-                >
-                  {file.name}
-                  <span className='text-gray-600 text-sm font-normal'>Queued</span>
-                </div>
-              ))}
-              {(!currentUploadProgress && !uploadQueue?.length) &&
-              <div className='flex flex-col gap-2 self-center my-auto'>
-                No active uploads.
-                <Button variant='outlined' color='secondary' onClick={handleOpenFileDialog}>Upload Files</Button>
-              </div>}
-            </div>
-          </div>
+          <UploadsList 
+            currentUploadProgress={currentUploadProgress}
+            uploadQueue={uploadQueue}
+            handleOpenFileDialog={handleOpenFileDialog}
+          />
         </section>
         <section className='px-6 sm:px-12 py-8 h-[calc(100dvh-60px)] bg-slate-600'>
           <span className='flex items-center text-xl'>

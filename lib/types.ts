@@ -40,3 +40,9 @@ export interface FileListProps {
   getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
 }
+
+export interface UploadsListProps {
+  currentUploadProgress: UploadProgress | null;
+  uploadQueue: File[] | null;
+  handleOpenFileDialog: () => void;
+}
