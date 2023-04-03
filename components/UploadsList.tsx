@@ -5,7 +5,7 @@ import { UploadsListProps } from "@/lib/types"
 export default function UploadsList({ currentUploadProgress, uploadQueue, handleOpenFileDialog }: UploadsListProps) {
   return (
     <div className='flex flex-col h-full w-full'>
-      <h6 className='ml-3 text-lg'>Uploads {currentUploadProgress ? `(${uploadQueue?.length! + 1})` : null}</h6>
+      <h6 className='ml-3 text-lg'>Uploads {currentUploadProgress && `(${uploadQueue?.length! + 1})`}</h6>
       <div className='flex flex-col gap-1 p-1 h-full w-full bg-black rounded-md overflow-auto'>
         {currentUploadProgress &&
         <div className='p-2 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'>

@@ -31,6 +31,11 @@ export interface UploadProgress {
   progress: number;
 }
 
+export interface StorageSpaceRes {
+  free: number;
+  size: number;
+}
+
 export interface FileListProps { 
   fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
   contextMenu:  FileServerFile | 'directory' | null; 

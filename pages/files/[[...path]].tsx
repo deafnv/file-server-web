@@ -13,6 +13,7 @@ import isEqual from 'lodash/isEqual'
 import { getCookie } from 'cookies-next'
 import LoggedOutWarning from '@/components/LoggedOutWarn'
 import UploadsList from '@/components/UploadsList'
+import StorageSpace from '@/components/StorageSpace'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -29,6 +30,7 @@ export default function Files() {
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<File[] | null>(null)
   const [loggedOutWarning, setLoggedOutWarning] = useState(false)
+  
 
   const router = useRouter()
 
@@ -190,10 +192,11 @@ export default function Files() {
         <meta name="description" content="File Server" />
       </Head>
       <main className="grid sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] pt-[60px] h-screen">
-        <section className='hidden sm:grid grid-flow-row grid-rows-2 items-center px-2 py-4 h-[calc(100dvh-60px)] bg-gray-700'>
-          <div className=''>
-            <span className='p-2 text-lg hover:bg-black cursor-pointer'>Storage Space</span>
+        <section className='hidden sm:grid grid-flow-row grid-rows-[40%_10%_50%] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)] bg-gray-700'>
+          <div className='h-full w-full'>
+            <h6 className='ml-3 text-lg'>File Tree</h6>
           </div>
+          <StorageSpace />
           <UploadsList 
             currentUploadProgress={currentUploadProgress}
             uploadQueue={uploadQueue}
