@@ -14,18 +14,21 @@ import AudioFileIcon from '@mui/icons-material/AudioFile'
 import ArticleIcon from '@mui/icons-material/Article'
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
 import axios from 'axios'
+import isEqual from 'lodash/isEqual'
 
 export default function FileList(
-  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile }: 
+  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, getData }: 
   { 
     fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
     contextMenu:  FileServerFile | 'directory' | null; 
     setContextMenu: Dispatch<SetStateAction<FileServerFile | 'directory' | null>>; 
     selectedFile:  FileServerFile[] | null; 
-    setSelectedFile: Dispatch<SetStateAction<FileServerFile[] | null>>; 
+    setSelectedFile: Dispatch<SetStateAction<FileServerFile[] | null>>;
+    getData: () => Promise<void>;
   }
 ) {
   const startingFileSelect = useRef<number | null>(null)
+  const filesToUpload = useRef<File[]>([])
 
   const router = useRouter()
 
@@ -60,25 +63,43 @@ export default function FileList(
   }, [selectedFile])
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const formData = new FormData()
-    acceptedFiles.forEach((file) => {
-      formData.append('upload-file', file)
-    })
+    console.log(filesToUpload.current.length)
+    if (!filesToUpload.current.length) {
+      filesToUpload.current = filesToUpload.current.concat(acceptedFiles)
+      console.log(filesToUpload.current)
+      while (filesToUpload.current.length !== 0) {
+        const fileToUpload = filesToUpload.current[0]
+        const formData = new FormData()
+        formData.append('upload-file', fileToUpload)
 
-    const uploadres = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${router.asPath.replace('/files', '')}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      },
-      withCredentials: true,
-      onUploadProgress: (progressEvent) => {
+        try {
+          const uploadres = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${router.asPath.replace('/files', '')}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            },
+            withCredentials: true,
+            onUploadProgress: (progressEvent) => {
+              if (!progressEvent.total) return
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              console.log(`Upload progress ${fileToUpload.name}: ${percentCompleted}%`)
+            }
+          })
+
+          await getData() //TODO: Remove once server websocket for live updates is set up
+        } catch (err) {
+          alert(`Error for file ${fileToUpload.name}`)
+          console.log(err)
+        }
         
-      }
-    }).catch((err: any) => {
-      console.log(err)
-    })
-
-    console.log(uploadres)
+        filesToUpload.current = filesToUpload.current.filter(file => !isEqual(file, fileToUpload))!
+        console.log(filesToUpload.current)
+      } 
+    } else {
+      filesToUpload.current = filesToUpload.current.concat(acceptedFiles)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
+  
   const { getRootProps, getInputProps, isDragActive } = useDropzone({onDrop, noClick: true})
 
   if (fileArr == null || fileArr == 'Error loading data from server') {

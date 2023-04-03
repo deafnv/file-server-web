@@ -23,23 +23,24 @@ export default function Files() {
 
   const router = useRouter()
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const { path } = router.query
-        paramsRef.current = path as string[]
-        const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`)
-        setFileArr(fileArrData.data.sort((a: FileServerFile, b: FileServerFile) => {
-          if (a.isDirectory && b.isDirectory) return a.name.localeCompare(b.name)
-          if (a.isDirectory && !b.isDirectory) return -1
-          if (!a.isDirectory && b.isDirectory) return 1
-          return a.name.localeCompare(b.name)
-        }))
-      } catch (error) {
-        console.log(error)
-        setFileArr('Error loading data from server')
-      }
+  const getData = async () => {
+    try {
+      const { path } = router.query
+      paramsRef.current = path as string[]
+      const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`)
+      setFileArr(fileArrData.data.sort((a: FileServerFile, b: FileServerFile) => {
+        if (a.isDirectory && b.isDirectory) return a.name.localeCompare(b.name)
+        if (a.isDirectory && !b.isDirectory) return -1
+        if (!a.isDirectory && b.isDirectory) return 1
+        return a.name.localeCompare(b.name)
+      }))
+    } catch (error) {
+      console.log(error)
+      setFileArr('Error loading data from server')
     }
+  }
+
+  useEffect(() => {
     getData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
@@ -126,7 +127,7 @@ export default function Files() {
           <div className='flex flex-col h-full w-full'>
             <h6 className='ml-3 text-lg'>Notifications</h6>
             <div className='h-full w-full bg-black rounded-md'>
-
+              
             </div>
           </div>
         </section>
@@ -175,6 +176,7 @@ export default function Files() {
             setContextMenu={setContextMenu}
             selectedFile={selectedFile}
             setSelectedFile={setSelectedFile}
+            getData={getData}
           />
         </section>
         <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} router={router} />
