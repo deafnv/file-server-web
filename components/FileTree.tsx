@@ -44,43 +44,70 @@ export default function FileTree() {
       </div>
     </div>
   )
+}
 
-  function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/' }: FileTreeProps) {
-    function handleClick(filePath: string) {
-      console.log(filePath)
-    }
-
-    return (
-      <ul className="flex flex-col w-full">
-        {Object.keys(fileTree).map((fileName) => {
-          const subtree = fileTree[fileName]
-          const filePath = path.join(prevDir, fileName)
-          return (
-            <li 
-              style={{
-                //? This seems really weird, spacing aren't consistent
-                width: `calc(100% - ${level * 6}px)`
-              }} 
-              key={fileName}
-              className="ml-auto mr-0"
-            >
-              <div className="flex items-center">
-                <ExpandMoreIcon 
-                  className="cursor-pointer rounded-sm hover:bg-slate-400"
-                />
-                <span 
-                  title={fileName}
-                  onClick={() => handleClick(filePath)}
-                  className="h-full w-full p-1 line-clamp-1 cursor-pointer rounded-sm hover:bg-slate-400"
-                >
-                  {fileName}
-                </span>
-              </div>
-              <FileTreeComponent fileTree={subtree} level={level + 1} onFileClick={onFileClick} prevDir={filePath} />
-            </li>
-          )
-        })}
-      </ul>
-    )
+function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', expand1 }: FileTreeProps) {
+  const [expand, setExpand] = useState<string[]>([])
+    
+  function handleClick(filePath: string) {
+    console.log(filePath)
   }
+
+  function handleArrowClick(filePath: string) {
+    if (expand.includes(filePath)) {
+      setExpand(expand.filter(item => item !== filePath))
+    } else {
+      setExpand(expand.concat(filePath))
+    }
+  }
+
+  return (
+    <ul 
+      style={{ display: (expand1?.includes(prevDir) || level == 0) ? 'block' : 'none' }}
+      className="flex flex-col w-full"
+    >
+      {Object.keys(fileTree).sort().map((fileName) => {
+        const subtree = fileTree[fileName]
+        const subtreeHasFolders = !!Object.keys(subtree).length
+        const filePath = path.join(prevDir, fileName)
+        return (
+          <li 
+            style={{
+              //? This seems really weird, spacing aren't consistent
+              width: `calc(100% - ${level * 6}px)`
+            }} 
+            key={fileName}
+            className="ml-auto mr-0"
+          >
+            <div className="flex items-center">
+              <span className={`rounded-sm transition-transform ${subtreeHasFolders ? 'cursor-pointer hover:bg-slate-400' : ''}`}>
+                <ExpandMoreIcon 
+                  style={{
+                    transform: expand.includes(filePath) ? 'initial' : 'rotate(-90deg)',
+                    visibility: subtreeHasFolders ? 'visible' : 'hidden'
+                  }}
+                  onClick={() => handleArrowClick(filePath)}
+                  className="transition-transform"
+                />
+              </span>
+              <span 
+                title={fileName}
+                onClick={() => handleClick(filePath)}
+                className="h-full w-full p-1 line-clamp-1 cursor-pointer rounded-sm hover:bg-slate-400"
+              >
+                {fileName}
+              </span>
+            </div>
+            <FileTreeComponent 
+              fileTree={subtree} 
+              level={level + 1} 
+              onFileClick={onFileClick} 
+              prevDir={filePath} 
+              expand1={expand}
+            />
+          </li>
+        )
+      })}
+    </ul>
+  )
 }

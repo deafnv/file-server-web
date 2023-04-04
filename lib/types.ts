@@ -61,4 +61,5 @@ export interface FileTreeProps {
   level?: number;
   prevDir?: string;
   onFileClick?: (filePath: string) => void;
+  expand1?: string[];
 };

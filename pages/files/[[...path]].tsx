@@ -192,7 +192,7 @@ export default function Files() {
         <meta name="description" content="File Server" />
       </Head>
       <main className="grid sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] pt-[60px] h-screen">
-        <section className='hidden sm:grid grid-flow-row grid-rows-[50%_10%_40%] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)] w-full  bg-gray-700'>
+        <section className='hidden sm:grid grid-flow-row grid-rows-[40%_10%_50%] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)] bg-gray-700'>
           <FileTree />
           <StorageSpace />
           <UploadsList 
