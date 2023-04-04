@@ -6,7 +6,6 @@ import { useRouter } from 'next/router'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { FileServerFile, UploadProgress } from '@/lib/types'
 import ContextMenu from '@/components/ContextMenu'
-import ModalTemplate from '@/components/ModalTemplate'
 import FileList from '@/components/FileList'
 import { useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
@@ -15,6 +14,7 @@ import LoggedOutWarning from '@/components/LoggedOutWarn'
 import UploadsList from '@/components/UploadsList'
 import StorageSpace from '@/components/StorageSpace'
 import FileTree from '@/components/FileTree'
+import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -25,12 +25,12 @@ export default function Files() {
   const filesToUpload = useRef<File[]>([])
 
   const [selectedFile, setSelectedFile] = useState<FileServerFile[] | null>(null)
-  const [contextMenu, setContextMenu] = useState<FileServerFile | 'directory' | null>(null)
+  const [contextMenu, setContextMenu] = useState<'file' | 'directory' | null>(null)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
-  const [modal, setModal] = useState(false)
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<File[] | null>(null)
   const [loggedOutWarning, setLoggedOutWarning] = useState(false)
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState<FileServerFile[] | null>(null)
 
   const router = useRouter()
 
@@ -70,7 +70,7 @@ export default function Files() {
         setContextMenu('directory')
       }
       if (!contextMenuRef.current) return
-      setSelectedFile(null)
+      
       contextMenuRef.current.style.top = `${e.pageY}px`
       contextMenuRef.current.style.left = `${e.pageX}px`
     }
@@ -250,9 +250,20 @@ export default function Files() {
             getInputProps={getInputProps}
           />
         </section>
-        <ContextMenu contextMenuRef={contextMenuRef} contextMenu={contextMenu} setContextMenu={setContextMenu} router={router} />
+        <ContextMenu 
+          contextMenuRef={contextMenuRef} 
+          contextMenu={contextMenu} 
+          setContextMenu={setContextMenu} 
+          selectedFile={selectedFile}
+          router={router} 
+          setOpenDeleteConfirm={setOpenDeleteConfirm}
+        />
         <FolderDetails />
-        {modal && <Modal />}
+        <ConfirmDelete 
+          openDeleteConfirm={openDeleteConfirm} 
+          setOpenDeleteConfirm={setOpenDeleteConfirm} 
+          getData={getData}
+        />
         <LoggedOutWarning 
           loggedOutWarning={loggedOutWarning}
           setLoggedOutWarning={setLoggedOutWarning}
@@ -295,18 +306,6 @@ export default function Files() {
           </button>
         </li>
       </menu>
-    )
-  }
-
-  function Modal() {
-    return (
-      <ModalTemplate>
-        <h3 className='text-2xl'>New folder</h3>
-				<div className='flex gap-4'>
-					<button onClick={() => {}} className='px-3 py-1 input-submit'>Cancel</button>
-          <button onClick={() => {}} className='px-3 py-1 input-submit'>Create</button>
-				</div>
-      </ModalTemplate>
     )
   }
 }

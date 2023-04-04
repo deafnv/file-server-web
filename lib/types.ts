@@ -42,8 +42,8 @@ export interface FileTreeRes {
 
 export interface FileListProps { 
   fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
-  contextMenu:  FileServerFile | 'directory' | null; 
-  setContextMenu: Dispatch<SetStateAction<FileServerFile | 'directory' | null>>; 
+  contextMenu:  'file' | 'directory' | null; 
+  setContextMenu: Dispatch<SetStateAction<'file' | 'directory' | null>>; 
   selectedFile:  FileServerFile[] | null; 
   setSelectedFile: Dispatch<SetStateAction<FileServerFile[] | null>>;
   getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;

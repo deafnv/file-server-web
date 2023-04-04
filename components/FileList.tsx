@@ -64,6 +64,13 @@ export default function FileList(
     }
   }
 
+  function handleOnContextMenu(file: FileServerFile) {
+    if (!selectedFile || selectedFile.length <= 1) {
+      setSelectedFile([file])
+    }
+    setContextMenu('file')
+  }
+
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
       <div className='flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
@@ -114,8 +121,8 @@ export default function FileList(
             key={index}
             onClick={(e) => handleSelect(e, file, index)}
             onDoubleClick={() => file.isDirectory ? router.push(`/files${file.path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
-            onContextMenu={() => setContextMenu(file)}
-            className={`flex text-lg rounded-md cursor-default ${(contextMenu == file || selectedFile?.includes(file)) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
+            onContextMenu={() => handleOnContextMenu(file)}
+            className={`flex text-lg rounded-md cursor-default ${selectedFile?.includes(file) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
           >
             <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
             <span className='p-3 flex-grow'>{file.name}</span>
