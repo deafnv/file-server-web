@@ -63,7 +63,7 @@ function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', ex
       style={{ display: (expand1?.includes(prevDir) || level == 0) ? 'block' : 'none' }}
       className="flex flex-col w-full"
     >
-      {Object.keys(fileTree).sort().map((fileName) => {
+      {Object.keys(fileTree).sort((a, b) => a.localeCompare(b)).map((fileName) => {
         const subtree = fileTree[fileName]
         const subtreeHasFolders = !!Object.keys(subtree).length
         const filePath = path.join(prevDir, fileName)
