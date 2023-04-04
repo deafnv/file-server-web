@@ -4,7 +4,7 @@ import { NextRouter } from 'next/router'
 import { Dispatch, RefObject, SetStateAction } from 'react'
 
 export default function ContextMenu(
-  { contextMenuRef, contextMenu, setContextMenu, selectedFile, router, setLoggedOutWarning, setOpenDeleteConfirm, setOpenRenameDialog, setOpenNewFolderDialog }: 
+  { contextMenuRef, contextMenu, setContextMenu, selectedFile, router, setLoggedOutWarning, setOpenDeleteConfirm, setOpenRenameDialog, setOpenNewFolderDialog, setOpenMoveFileDialog }: 
   { 
     contextMenuRef: RefObject<HTMLMenuElement>; 
     contextMenu: 'file' | 'directory' | null; 
@@ -15,6 +15,7 @@ export default function ContextMenu(
     setOpenDeleteConfirm: Dispatch<SetStateAction<FileServerFile[] | null>>;
     setOpenRenameDialog: Dispatch<SetStateAction<FileServerFile | null>>;
     setOpenNewFolderDialog: Dispatch<SetStateAction<string | null>>;
+    setOpenMoveFileDialog: Dispatch<SetStateAction<FileServerFile[] | null>>;
   }
 ) {
   function handleNewFolder() {
@@ -62,6 +63,15 @@ export default function ContextMenu(
       setLoggedOutWarning(true)
     }
   }
+  
+  function handleMove() {
+    if (!selectedFile) return
+    if (getCookie('userdata')) {
+      setOpenMoveFileDialog(selectedFile)
+    } else {
+      setLoggedOutWarning(true)
+    }
+  }
 
   return (
     <menu
@@ -92,6 +102,11 @@ export default function ContextMenu(
       <li className="flex justify-center h-8 rounded-sm hover:bg-slate-500">
         <button onClick={handleRename} className="w-full">
           Rename
+        </button>
+      </li>
+      <li className="flex justify-center h-8 rounded-sm hover:bg-slate-500">
+        <button onClick={handleMove} className="w-full">
+          Move
         </button>
       </li>
     </menu>

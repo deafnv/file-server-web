@@ -17,6 +17,7 @@ import FileTree from '@/components/FileTree'
 import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 import Rename from '@/components/dialogs/Rename'
 import NewFolder from '@/components/dialogs/NewFolder'
+import MoveFile from '@/components/dialogs/MoveFile'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -35,6 +36,7 @@ export default function Files() {
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState<FileServerFile[] | null>(null)
   const [openRenameDialog, setOpenRenameDialog] = useState<FileServerFile | null>(null)
   const [openNewFolderDialog, setOpenNewFolderDialog] = useState<string | null>(null)
+  const [openMoveFileDialog, setOpenMoveFileDialog] = useState<FileServerFile[] | null>(null)
 
   const router = useRouter()
 
@@ -264,6 +266,7 @@ export default function Files() {
           setOpenDeleteConfirm={setOpenDeleteConfirm}
           setOpenRenameDialog={setOpenRenameDialog}
           setOpenNewFolderDialog={setOpenNewFolderDialog}
+          setOpenMoveFileDialog={setOpenMoveFileDialog}
         />
         <FolderDetails />
         <ConfirmDelete 
@@ -279,6 +282,11 @@ export default function Files() {
         <NewFolder
           openNewFolderDialog={openNewFolderDialog}
           setOpenNewFolderDialog={setOpenNewFolderDialog}
+          getData={getData}
+        />
+        <MoveFile
+          openMoveFileDialog={openMoveFileDialog}
+          setOpenMoveFileDialog={setOpenMoveFileDialog}
           getData={getData}
         />
         <LoggedOutWarning 
