@@ -50,7 +50,7 @@ export default function FileList(
     return () => document.removeEventListener("keydown", copySelected)
   }, [selectedFile])
 
-  function handleSelect(e: any, file: FileServerFile, index: number) {
+  function handleSelect(e: React.MouseEvent, file: FileServerFile, index: number) {
     if (!(fileArr instanceof Array)) return
     if (e.shiftKey && selectedFile?.[0]) {
       let selectedFiles
@@ -69,6 +69,13 @@ export default function FileList(
       setSelectedFile([file])
     }
     setContextMenu('file')
+  }
+
+  function handleAuxClick(e: React.MouseEvent, file: FileServerFile) {
+    if (e.button === 1) {
+      e.preventDefault()
+      window.open(file.isDirectory ? `/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`, '_blank')
+    }
   }
 
   if (fileArr == null || fileArr == 'Error loading data from server') {
@@ -122,6 +129,7 @@ export default function FileList(
             onClick={(e) => handleSelect(e, file, index)}
             onDoubleClick={() => file.isDirectory ? router.push(`/files${file.path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
             onContextMenu={() => handleOnContextMenu(file)}
+            onMouseDown={(e) => handleAuxClick(e, file)}
             className={`flex text-lg rounded-md cursor-default ${selectedFile?.includes(file) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
           >
             <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
