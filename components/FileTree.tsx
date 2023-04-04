@@ -4,6 +4,7 @@ import axios from "axios"
 import { useState, useEffect } from "react"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import path from "path"
+import Link from "next/link"
 
 export default function FileTree() {
   const [fileTree, setFileTree] = useState<FileTreeRes | null>()
@@ -48,12 +49,8 @@ export default function FileTree() {
 
 function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', expand1 }: FileTreeProps) {
   const [expand, setExpand] = useState<string[]>([])
-    
-  function handleClick(filePath: string) {
-    console.log(filePath)
-  }
 
-  function handleArrowClick(filePath: string) {
+  function handleClick(filePath: string) {
     if (expand.includes(filePath)) {
       setExpand(expand.filter(item => item !== filePath))
     } else {
@@ -86,17 +83,18 @@ function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', ex
                     transform: expand.includes(filePath) ? 'initial' : 'rotate(-90deg)',
                     visibility: subtreeHasFolders ? 'visible' : 'hidden'
                   }}
-                  onClick={() => handleArrowClick(filePath)}
+                  onClick={() => handleClick(filePath)}
                   className="transition-transform"
                 />
               </span>
-              <span 
+              <Link 
+                href={`/files${filePath}`}
                 title={fileName}
                 onClick={() => handleClick(filePath)}
                 className="h-full w-full p-1 line-clamp-1 cursor-pointer rounded-sm hover:bg-slate-400"
               >
                 {fileName}
-              </span>
+              </Link>
             </div>
             <FileTreeComponent 
               fileTree={subtree} 
