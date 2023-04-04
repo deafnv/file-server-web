@@ -36,6 +36,10 @@ export interface StorageSpaceRes {
   size: number;
 }
 
+export interface FileTreeRes {
+  [key: string]: FileTreeRes;
+}
+
 export interface FileListProps { 
   fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
   contextMenu:  FileServerFile | 'directory' | null; 
@@ -51,3 +55,10 @@ export interface UploadsListProps {
   uploadQueue: File[] | null;
   handleOpenFileDialog: () => void;
 }
+
+export interface FileTreeProps {
+  fileTree: FileTreeRes;
+  level?: number;
+  prevDir?: string;
+  onFileClick?: (filePath: string) => void;
+};
