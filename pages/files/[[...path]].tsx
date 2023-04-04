@@ -16,6 +16,7 @@ import StorageSpace from '@/components/StorageSpace'
 import FileTree from '@/components/FileTree'
 import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 import Rename from '@/components/dialogs/Rename'
+import NewFolder from '@/components/dialogs/NewFolder'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -33,6 +34,7 @@ export default function Files() {
   const [loggedOutWarning, setLoggedOutWarning] = useState(false)
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState<FileServerFile[] | null>(null)
   const [openRenameDialog, setOpenRenameDialog] = useState<FileServerFile | null>(null)
+  const [openNewFolderDialog, setOpenNewFolderDialog] = useState<string | null>(null)
 
   const router = useRouter()
 
@@ -261,6 +263,7 @@ export default function Files() {
           setLoggedOutWarning={setLoggedOutWarning}
           setOpenDeleteConfirm={setOpenDeleteConfirm}
           setOpenRenameDialog={setOpenRenameDialog}
+          setOpenNewFolderDialog={setOpenNewFolderDialog}
         />
         <FolderDetails />
         <ConfirmDelete 
@@ -271,6 +274,11 @@ export default function Files() {
         <Rename 
           openRenameDialog={openRenameDialog}
           setOpenRenameDialog={setOpenRenameDialog}
+          getData={getData}
+        />
+        <NewFolder
+          openNewFolderDialog={openNewFolderDialog}
+          setOpenNewFolderDialog={setOpenNewFolderDialog}
           getData={getData}
         />
         <LoggedOutWarning 

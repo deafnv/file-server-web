@@ -46,10 +46,10 @@ export default function ConfirmDelete(
         Confirm delete? 
       </DialogTitle>
       <DialogActions>
-        <Button onClick={handleDelete}>Yes</Button>
         <Button onClick={() => setOpenDeleteConfirm(null)} autoFocus>
           No
         </Button>
+        <Button onClick={handleDelete}>Yes</Button>
       </DialogActions>
     </Dialog>
   )

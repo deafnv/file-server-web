@@ -4,7 +4,7 @@ import { NextRouter } from 'next/router'
 import { Dispatch, RefObject, SetStateAction } from 'react'
 
 export default function ContextMenu(
-  { contextMenuRef, contextMenu, setContextMenu, selectedFile, router, setLoggedOutWarning, setOpenDeleteConfirm, setOpenRenameDialog }: 
+  { contextMenuRef, contextMenu, setContextMenu, selectedFile, router, setLoggedOutWarning, setOpenDeleteConfirm, setOpenRenameDialog, setOpenNewFolderDialog }: 
   { 
     contextMenuRef: RefObject<HTMLMenuElement>; 
     contextMenu: 'file' | 'directory' | null; 
@@ -14,8 +14,17 @@ export default function ContextMenu(
     setLoggedOutWarning: Dispatch<SetStateAction<boolean>>;
     setOpenDeleteConfirm: Dispatch<SetStateAction<FileServerFile[] | null>>;
     setOpenRenameDialog: Dispatch<SetStateAction<FileServerFile | null>>;
+    setOpenNewFolderDialog: Dispatch<SetStateAction<string | null>>;
   }
 ) {
+  function handleNewFolder() {
+    if (getCookie('userdata')) {
+      setOpenNewFolderDialog(router.asPath.replace('/files', ''))
+    } else {
+      setLoggedOutWarning(true)
+    }
+  }
+  
   if (contextMenu == 'directory' || !contextMenu || !selectedFile?.length) {
     return (
       <menu
@@ -23,7 +32,7 @@ export default function ContextMenu(
         className={`${!contextMenu ? 'hidden' : ''} absolute min-w-[12rem] z-10 p-3 shadow-lg shadow-gray-700 bg-slate-200 text-black text-lg rounded-md border-black border-solid border-2 context-menu-directory`}
       >
         <li className="flex justify-center h-8 rounded-sm hover:bg-slate-500">
-          <button onClick={() => console.log(router.asPath.replace('/files', ''))} className="w-full">
+          <button onClick={handleNewFolder} className="w-full">
             New Folder
           </button>
         </li>
