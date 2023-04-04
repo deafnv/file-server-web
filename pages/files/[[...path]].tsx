@@ -258,6 +258,7 @@ export default function Files() {
           setContextMenu={setContextMenu} 
           selectedFile={selectedFile}
           router={router} 
+          setLoggedOutWarning={setLoggedOutWarning}
           setOpenDeleteConfirm={setOpenDeleteConfirm}
           setOpenRenameDialog={setOpenRenameDialog}
         />

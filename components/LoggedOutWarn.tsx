@@ -23,7 +23,7 @@ export default function LoggedOutWarning(
       onClose={handleClose}
       autoHideDuration={6000}
     >
-      <Alert severity='error'>
+      <Alert severity='error' className='text-red-400 bg-white'>
         You must be logged in to do that
       </Alert>
     </Snackbar>

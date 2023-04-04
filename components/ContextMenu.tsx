@@ -1,15 +1,17 @@
 import { FileServerFile } from '@/lib/types'
+import { getCookie } from 'cookies-next';
 import { NextRouter } from 'next/router'
 import { Dispatch, RefObject, SetStateAction } from 'react'
 
 export default function ContextMenu(
-  { contextMenuRef, contextMenu, setContextMenu, selectedFile, router, setOpenDeleteConfirm, setOpenRenameDialog }: 
+  { contextMenuRef, contextMenu, setContextMenu, selectedFile, router, setLoggedOutWarning, setOpenDeleteConfirm, setOpenRenameDialog }: 
   { 
     contextMenuRef: RefObject<HTMLMenuElement>; 
     contextMenu: 'file' | 'directory' | null; 
     setContextMenu: Dispatch<SetStateAction<'file' | 'directory' | null>>;
     selectedFile: FileServerFile[] | null;
     router: NextRouter;
+    setLoggedOutWarning: Dispatch<SetStateAction<boolean>>;
     setOpenDeleteConfirm: Dispatch<SetStateAction<FileServerFile[] | null>>;
     setOpenRenameDialog: Dispatch<SetStateAction<FileServerFile | null>>;
   }
@@ -35,6 +37,23 @@ export default function ContextMenu(
     setContextMenu(null)
   }
 
+  function handleDelete() {
+    if (getCookie('userdata')) {
+      setOpenDeleteConfirm(selectedFile)
+    } else {
+      setLoggedOutWarning(true)
+    }
+  }
+
+  function handleRename() {
+    if (!selectedFile) return
+    if (getCookie('userdata')) {
+      setOpenRenameDialog(selectedFile[0])
+    } else {
+      setLoggedOutWarning(true)
+    }
+  }
+
   return (
     <menu
       ref={contextMenuRef}
@@ -57,12 +76,12 @@ export default function ContextMenu(
       </li>
       <hr className="my-2 border-gray-500 border-t-[1px]" />
       <li className="flex justify-center h-8 rounded-sm hover:bg-slate-500">
-        <button onClick={() => setOpenDeleteConfirm(selectedFile)} className="w-full">
+        <button onClick={handleDelete} className="w-full">
           Delete
         </button>
       </li>
       <li className="flex justify-center h-8 rounded-sm hover:bg-slate-500">
-        <button onClick={() => setOpenRenameDialog(selectedFile[0])} className="w-full">
+        <button onClick={handleRename} className="w-full">
           Rename
         </button>
       </li>
