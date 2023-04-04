@@ -3,7 +3,7 @@ import { NextRouter } from 'next/router'
 import { Dispatch, RefObject, SetStateAction } from 'react'
 
 export default function ContextMenu(
-  { contextMenuRef, contextMenu, setContextMenu, selectedFile, router, setOpenDeleteConfirm }: 
+  { contextMenuRef, contextMenu, setContextMenu, selectedFile, router, setOpenDeleteConfirm, setOpenRenameDialog }: 
   { 
     contextMenuRef: RefObject<HTMLMenuElement>; 
     contextMenu: 'file' | 'directory' | null; 
@@ -11,9 +11,10 @@ export default function ContextMenu(
     selectedFile: FileServerFile[] | null;
     router: NextRouter;
     setOpenDeleteConfirm: Dispatch<SetStateAction<FileServerFile[] | null>>;
+    setOpenRenameDialog: Dispatch<SetStateAction<FileServerFile | null>>;
   }
 ) {
-  if (contextMenu == 'directory' || !contextMenu) {
+  if (contextMenu == 'directory' || !contextMenu || !selectedFile?.length) {
     return (
       <menu
         ref={contextMenuRef}
@@ -32,11 +33,6 @@ export default function ContextMenu(
     if (!contextMenu || contextMenu == 'directory') return
     navigator.clipboard.writeText(selectedFile?.[0].isDirectory ? `/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile?.[0].path}`)
     setContextMenu(null)
-  }
-
-  function handleDelete() {
-    if (!contextMenu || contextMenu == 'directory') return
-    setOpenDeleteConfirm(selectedFile)
   }
 
   return (
@@ -61,12 +57,12 @@ export default function ContextMenu(
       </li>
       <hr className="my-2 border-gray-500 border-t-[1px]" />
       <li className="flex justify-center h-8 rounded-sm hover:bg-slate-500">
-        <button onClick={handleDelete} className="w-full">
+        <button onClick={() => setOpenDeleteConfirm(selectedFile)} className="w-full">
           Delete
         </button>
       </li>
       <li className="flex justify-center h-8 rounded-sm hover:bg-slate-500">
-        <button onClick={() => {}} className="w-full">
+        <button onClick={() => setOpenRenameDialog(selectedFile[0])} className="w-full">
           Rename
         </button>
       </li>
