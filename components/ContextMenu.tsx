@@ -19,7 +19,7 @@ export default function ContextMenu(
 ) {
   function handleNewFolder() {
     if (getCookie('userdata')) {
-      setOpenNewFolderDialog(router.asPath.replace('/files', ''))
+      setOpenNewFolderDialog((router.query.path as string[]).join('/'))
     } else {
       setLoggedOutWarning(true)
     }
