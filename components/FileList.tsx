@@ -27,16 +27,36 @@ export default function FileList(
       }
     }
 
+    //* Select all files Ctrl + A
+    const keyDownListener = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key == 'a') e.preventDefault()
+      if (e.ctrlKey && e.key == 'a' && fileArr && typeof fileArr !== 'string' && document.activeElement == fileListRef.current) {
+        e.preventDefault()
+        setSelectedFile(fileArr)
+      }
+    }
+
     ["keyup","keydown"].forEach((event) => {
       window.addEventListener(event, preventShiftSelect)
     })
+    document.addEventListener("keydown", keyDownListener)
 
     return () => {
       ["keyup","keydown"].forEach((event) => {
         window.removeEventListener(event, preventShiftSelect)
       })
+      document.removeEventListener("keydown", keyDownListener)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  //* Reset selected file on focus out file list
+  useEffect(() => {
+    if (document.activeElement != fileListRef.current) {
+      setSelectedFile([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [document.activeElement])
 
   useEffect(() => {
     const copySelected = (e: KeyboardEvent) => {

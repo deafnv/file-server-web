@@ -97,27 +97,23 @@ export default function Files() {
       }
     }
 
-    const mouseDown = (e: MouseEvent) => {
+    const preventSelect = (e: MouseEvent) => {
       //? I literally have no idea what this does
       if (e.detail > 1 && fileListRef.current?.contains(e.target as HTMLElement)) {
         e.preventDefault()
-      }
-
-      if (e.target == fileListRef.current) {
-        setSelectedFile([])
       }
     }
 
     const routeChangeStart = () => setContextMenu(null)
 
-    document.addEventListener("mousedown", mouseDown)
+    document.addEventListener("mousedown", preventSelect)
     document.addEventListener("contextmenu", customContextMenu)
     document.addEventListener("click", exitMenus)
 
     router.events.on('routeChangeStart', routeChangeStart)
     
     return () => {
-      document.removeEventListener("mousedown", mouseDown)
+      document.removeEventListener("mousedown", preventSelect)
       document.removeEventListener("contextmenu", customContextMenu)
       document.removeEventListener("click", exitMenus)
 
