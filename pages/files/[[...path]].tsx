@@ -65,9 +65,11 @@ export default function Files() {
     onSelectionChange: (box) => {
       const scrollAwareBox: Box = {
         ...box,
-        top: box.top + window.scrollY,
-        left: box.left + window.scrollX
+        height: box.height,
+        top: box.top + fileListRef.current?.scrollTop!,
+        left: box.left + fileListRef.current?.scrollLeft!
       }
+      console.log(scrollAwareBox)
 
       const indexesToSelect: number[] = [];
       fileArrPos.current.forEach((file, index) => {
@@ -105,6 +107,7 @@ export default function Files() {
 
   useEffect(() => {
     if (fileListRef.current) {
+      fileArrPos.current = []
       Array.from(fileListRef.current.children).forEach((item, index) => {
         if (index == 0) return
         const { left, top, width, height } = item.getBoundingClientRect()
@@ -116,6 +119,7 @@ export default function Files() {
         })
       })
     }
+    console.log(fileArrPos)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileListRef.current, fileArr])
 
