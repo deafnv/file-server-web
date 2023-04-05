@@ -18,11 +18,6 @@ import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 import Rename from '@/components/dialogs/Rename'
 import NewFolder from '@/components/dialogs/NewFolder'
 import MoveFile from '@/components/dialogs/MoveFile'
-import {
-  Box,
-  boxesIntersect,
-  useSelectionContainer
-} from '@air/react-drag-to-select'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -31,7 +26,6 @@ export default function Files() {
   const folderDetailsRef = useRef<HTMLDivElement>(null)
   const folderDetailsDropdownRef = useRef<HTMLMenuElement>(null)
   const filesToUpload = useRef<File[]>([])
-  const fileArrPos = useRef<Box[]>([])
 
   const [selectedFile, setSelectedFile] = useState<FileServerFile[]>([])
   const [contextMenu, setContextMenu] = useState<'file' | 'directory' | null>(null)
@@ -45,43 +39,6 @@ export default function Files() {
   const [openMoveFileDialog, setOpenMoveFileDialog] = useState<FileServerFile[] | null>(null)
 
   const router = useRouter()
-  const { DragSelection } = useSelectionContainer({
-    selectionProps: {
-      style: {
-        zIndex: 10000
-      }
-    },
-    shouldStartSelecting: (target) => {
-      if (target instanceof HTMLElement) {
-        let el = target
-        while (el.parentElement && !el.dataset.disableselect) {
-          el = el.parentElement
-        }
-        return !!el.dataset.disableselect
-      }
-      return true
-    },
-    onSelectionStart: () => document.getSelection()?.empty(),
-    onSelectionChange: (box) => {
-      const scrollAwareBox: Box = {
-        ...box,
-        height: box.height,
-        top: box.top + fileListRef.current?.scrollTop!,
-        left: box.left + fileListRef.current?.scrollLeft!
-      }
-      console.log(scrollAwareBox)
-
-      const indexesToSelect: number[] = [];
-      fileArrPos.current.forEach((file, index) => {
-        if (boxesIntersect(scrollAwareBox, file)) {
-          indexesToSelect.push(index)
-        }
-      })
-
-      if (fileArr instanceof Array)
-        setSelectedFile(fileArr.slice().filter((item, index) => indexesToSelect.includes(index)))
-    }
-  })
 
   const getData = async () => {
     try {
@@ -104,24 +61,6 @@ export default function Files() {
     getData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
-
-  useEffect(() => {
-    if (fileListRef.current) {
-      fileArrPos.current = []
-      Array.from(fileListRef.current.children).forEach((item, index) => {
-        if (index == 0) return
-        const { left, top, width, height } = item.getBoundingClientRect()
-        fileArrPos.current.push({
-          left,
-          top,
-          width,
-          height
-        })
-      })
-    }
-    console.log(fileArrPos)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileListRef.current, fileArr])
 
   useEffect(() => {
     const customContextMenu = (e: MouseEvent) => {
@@ -262,8 +201,7 @@ export default function Files() {
         <title>File Server</title>
         <meta name="description" content="File Server" />
       </Head>
-      <main className="grid sm:grid-cols-[0%_30%_70%] lg:grid-cols-[0%_25%_75%] xl:grid-cols-[0%_20%_80%] pt-[60px] h-screen">
-        <DragSelection />
+      <main className="grid sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] pt-[60px] h-screen">
         <section className='hidden sm:grid grid-flow-row grid-rows-[45%_10%_45%] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)] bg-gray-700'>
           <FileTree />
           <StorageSpace />

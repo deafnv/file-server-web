@@ -12,6 +12,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt'
 import AudioFileIcon from '@mui/icons-material/AudioFile'
 import ArticleIcon from '@mui/icons-material/Article'
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
+import DragSelectionArea from '@/components/DragSelection'
 
 export default function FileList(
   { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, getRootProps, getInputProps  }: FileListProps
@@ -140,7 +141,7 @@ export default function FileList(
       {...getRootProps()}
       data-disableselect={false}
       ref={fileListRef}
-      onBlur={handleBlur}
+    
       className={`relative flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none`}
     >
       <div className='sticky top-0 mb-1 flex text-lg border-b-[1px] bg-black'>
@@ -153,6 +154,7 @@ export default function FileList(
         return (
           <div
             key={index}
+            data-isfile
             onClick={(e) => handleSelect(e, file, index)}
             onDoubleClick={() => file.isDirectory ? router.push(`/files${file.path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
             onContextMenu={() => handleOnContextMenu(file)}
@@ -182,6 +184,11 @@ export default function FileList(
           </div>
         )
       })}
+      <DragSelectionArea 
+        fileListRef={fileListRef} 
+        fileArr={fileArr}
+        setSelectedFile={setSelectedFile}
+      />
       <input {...getInputProps()} />
     </div>
   )

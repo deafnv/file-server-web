@@ -1,4 +1,4 @@
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { Dispatch, RefObject, SetStateAction, MutableRefObject } from 'react'
 import { DropzoneInputProps, DropzoneRootProps } from 'react-dropzone';
 
 interface NavLinksWithDropdown {
@@ -40,6 +40,18 @@ export interface FileTreeRes {
   [key: string]: FileTreeRes;
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export interface Box {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 export interface FileListProps { 
   fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
   contextMenu:  'file' | 'directory' | null; 
@@ -63,3 +75,9 @@ export interface FileTreeProps {
   onFileClick?: (filePath: string) => void;
   expand1?: string[];
 };
+
+export interface DragSelectionAreaProps {
+  fileListRef: RefObject<HTMLDivElement>;
+  fileArr: string | FileServerFile[] | null;
+  setSelectedFile:  Dispatch<SetStateAction<FileServerFile[]>>;
+}
