@@ -44,7 +44,6 @@ export default function FileList(
     //* Select all files Ctrl + A
     const keyDownListener = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key == 'a') e.preventDefault()
-      console.log(document.activeElement == fileListRef.current)
       if (e.ctrlKey && e.key == 'a' && fileArr && typeof fileArr !== 'string' && document.activeElement == fileListRef.current) {
         e.preventDefault()
         setSelectedFile(fileArr)
@@ -161,12 +160,17 @@ export default function FileList(
             className={`flex text-lg rounded-md cursor-default ${selectedFile?.includes(file) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
           >
             <span className='m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
-            <span 
+            <div 
               title={file.name}
-              className='m-3 flex-grow line-clamp-1  overflow-hidden'
+              className='flex-grow line-clamp-1  overflow-hidden'
             >
-              {file.name}
-            </span>
+              <span 
+                onClick={() => console.log(file.name)}
+                className='flex p-3 w-fit'
+              >
+                {file.name}
+              </span>
+            </div>
             <span className='m-3 min-w-[8rem]'>{prettyBytes(file.size)}</span>
             <span className='hidden lg:block m-3 min-w-[10rem]'>
               {new Date(file.created).toLocaleDateString('en-US', {

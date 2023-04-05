@@ -18,6 +18,7 @@ import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 import Rename from '@/components/dialogs/Rename'
 import NewFolder from '@/components/dialogs/NewFolder'
 import MoveFile from '@/components/dialogs/MoveFile'
+import { useSelectionContainer } from '@air/react-drag-to-select'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -39,6 +40,24 @@ export default function Files() {
   const [openMoveFileDialog, setOpenMoveFileDialog] = useState<FileServerFile[] | null>(null)
 
   const router = useRouter()
+  const { DragSelection } = useSelectionContainer({
+    selectionProps: {
+      style: {
+        visibility: 'hidden',
+        zIndex: 10000
+      }
+    },
+    shouldStartSelecting: (target) => {
+      if (target instanceof HTMLElement) {
+        let el = target
+        while (el.parentElement && !el.dataset.disableselect) {
+          el = el.parentElement
+        }
+        return el.dataset.disableselect !== "true"
+      }
+      return false
+    }
+  })
 
   const getData = async () => {
     try {
@@ -201,7 +220,8 @@ export default function Files() {
         <title>File Server</title>
         <meta name="description" content="File Server" />
       </Head>
-      <main className="grid sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] pt-[60px] h-screen">
+      <main className="grid sm:grid-cols-[0%_30%_70%] lg:grid-cols-[0%_25%_75%] xl:grid-cols-[0%_20%_80%] pt-[60px] h-screen">
+        <DragSelection />
         <section className='hidden sm:grid grid-flow-row grid-rows-[45%_10%_45%] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)] bg-gray-700'>
           <FileTree />
           <StorageSpace />
