@@ -58,6 +58,8 @@ export default function FileList(
         selectedFiles = fileArr.slice(startingFileSelect.current!, index + 1)
       } else selectedFiles = fileArr.slice(index, startingFileSelect.current! + 1)
       setSelectedFile(selectedFiles)
+    } else if (e.ctrlKey) {
+      setSelectedFile(selectedFile.concat([file]))
     } else {
       startingFileSelect.current = index
       setSelectedFile([file])
@@ -65,7 +67,7 @@ export default function FileList(
   }
 
   function handleOnContextMenu(file: FileServerFile) {
-    if (!selectedFile || selectedFile.length <= 1) {
+    if (selectedFile.length <= 1) {
       setSelectedFile([file])
     }
     setContextMenu('file')
@@ -117,10 +119,10 @@ export default function FileList(
     >
       <input {...getInputProps()} />
       <div className='sticky top-0 mb-1 flex text-lg border-b-[1px] bg-black'>
-        <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'></span>
-        <span className='p-3 flex-grow'>Name</span>
-        <span className='p-3 min-w-[10rem]'>Size</span>
-        <span className='p-3 min-w-[10rem]'>Created At</span>
+        <span className='m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'></span>
+        <span className='m-3 flex-grow'>Name</span>
+        <span className='m-3 min-w-[8rem]'>Size</span>
+        <span className='hidden lg:block m-3 min-w-[10rem]'>Created At</span>
       </div>
       {fileArr.map((file, index) => {
         return (
@@ -132,10 +134,15 @@ export default function FileList(
             onMouseDown={(e) => handleAuxClick(e, file)}
             className={`flex text-lg rounded-md cursor-default ${selectedFile?.includes(file) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
           >
-            <span className='p-3 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
-            <span className='p-3 flex-grow'>{file.name}</span>
-            <span className='p-3 min-w-[10rem]'>{prettyBytes(file.size)}</span>
-            <span className='p-3 min-w-[10rem]'>
+            <span className='m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
+            <span 
+              title={file.name}
+              className='m-3 flex-grow line-clamp-1  overflow-hidden'
+            >
+              {file.name}
+            </span>
+            <span className='m-3 min-w-[8rem]'>{prettyBytes(file.size)}</span>
+            <span className='hidden lg:block m-3 min-w-[10rem]'>
               {new Date(file.created).toLocaleDateString('en-US', {
                 day: 'numeric',
                 month: 'long',

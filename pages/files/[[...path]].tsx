@@ -27,7 +27,7 @@ export default function Files() {
   const folderDetailsDropdownRef = useRef<HTMLMenuElement>(null)
   const filesToUpload = useRef<File[]>([])
 
-  const [selectedFile, setSelectedFile] = useState<FileServerFile[] | null>(null)
+  const [selectedFile, setSelectedFile] = useState<FileServerFile[]>([])
   const [contextMenu, setContextMenu] = useState<'file' | 'directory' | null>(null)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
@@ -73,6 +73,7 @@ export default function Files() {
 
       e.preventDefault()
       if (target == fileListRef.current) {
+        setSelectedFile([])
         setContextMenu('directory')
       }
       if (!contextMenuRef.current) return
@@ -96,22 +97,27 @@ export default function Files() {
       }
     }
 
-    const preventSelect = (e: MouseEvent) => {
+    const mouseDown = (e: MouseEvent) => {
+      //? I literally have no idea what this does
       if (e.detail > 1 && fileListRef.current?.contains(e.target as HTMLElement)) {
-        e.preventDefault();
+        e.preventDefault()
+      }
+
+      if (e.target == fileListRef.current) {
+        setSelectedFile([])
       }
     }
 
     const routeChangeStart = () => setContextMenu(null)
 
-    document.addEventListener("mousedown", preventSelect)
+    document.addEventListener("mousedown", mouseDown)
     document.addEventListener("contextmenu", customContextMenu)
     document.addEventListener("click", exitMenus)
 
     router.events.on('routeChangeStart', routeChangeStart)
     
     return () => {
-      document.removeEventListener("mousedown", preventSelect)
+      document.removeEventListener("mousedown", mouseDown)
       document.removeEventListener("contextmenu", customContextMenu)
       document.removeEventListener("click", exitMenus)
 
