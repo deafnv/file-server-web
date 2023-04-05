@@ -27,36 +27,37 @@ export default function FileList(
       }
     }
 
+    ["keyup","keydown"].forEach((event) => {
+      window.addEventListener(event, preventShiftSelect)
+    })
+    
+
+    return () => {
+      ["keyup","keydown"].forEach((event) => {
+        window.removeEventListener(event, preventShiftSelect)
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
     //* Select all files Ctrl + A
     const keyDownListener = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key == 'a') e.preventDefault()
+      console.log(document.activeElement == fileListRef.current)
       if (e.ctrlKey && e.key == 'a' && fileArr && typeof fileArr !== 'string' && document.activeElement == fileListRef.current) {
         e.preventDefault()
         setSelectedFile(fileArr)
       }
     }
 
-    ["keyup","keydown"].forEach((event) => {
-      window.addEventListener(event, preventShiftSelect)
-    })
     document.addEventListener("keydown", keyDownListener)
 
     return () => {
-      ["keyup","keydown"].forEach((event) => {
-        window.removeEventListener(event, preventShiftSelect)
-      })
       document.removeEventListener("keydown", keyDownListener)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  //* Reset selected file on focus out file list
-  useEffect(() => {
-    if (document.activeElement != fileListRef.current) {
-      setSelectedFile([])
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [document.activeElement])
+  }, [fileListRef.current, fileArr])
 
   useEffect(() => {
     const copySelected = (e: KeyboardEvent) => {
@@ -100,6 +101,10 @@ export default function FileList(
     }
   }
 
+  function handleBlur() {
+    if (!contextMenu) setSelectedFile([])
+  }
+
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
       <div className='flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
@@ -135,6 +140,7 @@ export default function FileList(
     <div
       {...getRootProps()}
       ref={fileListRef}
+      onBlur={handleBlur}
       className={`relative flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none`}
     >
       <input {...getInputProps()} />
