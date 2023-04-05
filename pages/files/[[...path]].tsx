@@ -18,7 +18,11 @@ import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 import Rename from '@/components/dialogs/Rename'
 import NewFolder from '@/components/dialogs/NewFolder'
 import MoveFile from '@/components/dialogs/MoveFile'
-import { useSelectionContainer } from '@air/react-drag-to-select'
+import {
+  Box,
+  boxesIntersect,
+  useSelectionContainer
+} from '@air/react-drag-to-select'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -27,6 +31,7 @@ export default function Files() {
   const folderDetailsRef = useRef<HTMLDivElement>(null)
   const folderDetailsDropdownRef = useRef<HTMLMenuElement>(null)
   const filesToUpload = useRef<File[]>([])
+  const fileArrPos = useRef<Box[]>([])
 
   const [selectedFile, setSelectedFile] = useState<FileServerFile[]>([])
   const [contextMenu, setContextMenu] = useState<'file' | 'directory' | null>(null)
@@ -43,7 +48,6 @@ export default function Files() {
   const { DragSelection } = useSelectionContainer({
     selectionProps: {
       style: {
-        visibility: 'hidden',
         zIndex: 10000
       }
     },
@@ -53,9 +57,27 @@ export default function Files() {
         while (el.parentElement && !el.dataset.disableselect) {
           el = el.parentElement
         }
-        return el.dataset.disableselect !== "true"
+        return !!el.dataset.disableselect
       }
-      return false
+      return true
+    },
+    onSelectionStart: () => document.getSelection()?.empty(),
+    onSelectionChange: (box) => {
+      const scrollAwareBox: Box = {
+        ...box,
+        top: box.top + window.scrollY,
+        left: box.left + window.scrollX
+      }
+
+      const indexesToSelect: number[] = [];
+      fileArrPos.current.forEach((file, index) => {
+        if (boxesIntersect(scrollAwareBox, file)) {
+          indexesToSelect.push(index)
+        }
+      })
+
+      if (fileArr instanceof Array)
+        setSelectedFile(fileArr.slice().filter((item, index) => indexesToSelect.includes(index)))
     }
   })
 
@@ -80,6 +102,22 @@ export default function Files() {
     getData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
+
+  useEffect(() => {
+    if (fileListRef.current) {
+      Array.from(fileListRef.current.children).forEach((item, index) => {
+        if (index == 0) return
+        const { left, top, width, height } = item.getBoundingClientRect()
+        fileArrPos.current.push({
+          left,
+          top,
+          width,
+          height
+        })
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileListRef.current, fileArr])
 
   useEffect(() => {
     const customContextMenu = (e: MouseEvent) => {
@@ -129,14 +167,14 @@ export default function Files() {
 
     document.addEventListener("mousedown", mouseDown)
     document.addEventListener("contextmenu", customContextMenu)
-    document.addEventListener("click", exitMenus)
+    document.addEventListener("mousedown", exitMenus)
 
     router.events.on('routeChangeStart', routeChangeStart)
     
     return () => {
       document.removeEventListener("mousedown", mouseDown)
       document.removeEventListener("contextmenu", customContextMenu)
-      document.removeEventListener("click", exitMenus)
+      document.removeEventListener("mousedown", exitMenus)
 
       router.events.off('routeChangeStart', routeChangeStart)
     }
