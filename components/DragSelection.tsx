@@ -18,18 +18,21 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
         x: e.clientX,
         y: e.clientY
       }
-      console.log(mousePos.current)
 
       if (dragAreaRef.current!.style.display == 'block') {
         requestAnimationFrame(() => {
           //? Calculate two boxes, one for visible hightlight, offset because of file list, and another for intersect calculation
           const visibleBox = calculateSelectionBox({ 
-            startPoint: startPos.current, 
+            startPoint: {
+              x: startPos.current.x - offsetLeft,
+              y: startPos.current.y - offsetTop
+            }, 
             endPoint: {
-              x: mousePos.current.x,
-              y: mousePos.current.y + fileListRef.current!.scrollTop
+              x: mousePos.current.x - offsetLeft,
+              y: mousePos.current.y + fileListRef.current!.scrollTop - offsetTop
             } 
           })
+          console.log(visibleBox)
           
           boxPos.current = calculateSelectionBox({ 
             startPoint: startPos.current, 
@@ -39,13 +42,12 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
             } 
           })
           
-          dragAreaRef.current!.style.left = `${boxPos.current.left}px`
-          dragAreaRef.current!.style.top = `${boxPos.current.top}px`
-          dragAreaRef.current!.style.width = `${boxPos.current.width}px`
-          dragAreaRef.current!.style.height = `${boxPos.current.height}px`
+          dragAreaRef.current!.style.left = `${visibleBox.left}px`
+          dragAreaRef.current!.style.top = `${visibleBox.top}px`
+          dragAreaRef.current!.style.width = `${visibleBox.width}px`
+          dragAreaRef.current!.style.height = `${visibleBox.height}px`
         })
         
-        console.log(boxPos.current)
 
         const indexesToSelect: number[] = [];
         fileArrPos.current.forEach((file, index) => {
