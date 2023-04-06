@@ -24,6 +24,10 @@ export default function DragSelectionArea({ fileListRef, fileArr, selectedFile, 
 
       if (dragAreaRef.current!.style.display == 'block') {
         requestAnimationFrame(() => {
+          //* Disable summoning previous drag selection if ctrl is not pressed when starting a new drag
+          if (isDragging && !ctrlKeyPressed.current) 
+            currentDragSelectedFile.current = []
+
           //? Calculate two boxes, one for visible hightlight, offset because of file list, and another for intersect calculation
           const visibleBox = calculateSelectionBox({ 
             startPoint: {
