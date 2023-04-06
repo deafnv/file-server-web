@@ -22,6 +22,9 @@ const theme = createTheme({
     },
     mode: 'dark'
   },
+  typography: {
+    fontFamily: `-apple-system, BlinkMacSystemFont, Quicksand, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif`
+  }
 });
 
 export default function App({ Component, pageProps }: AppProps) {

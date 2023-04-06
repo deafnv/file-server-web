@@ -4,12 +4,14 @@ import Link from 'next/link'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import { FileServerFile, UploadProgress } from '@/lib/types'
-import ContextMenu from '@/components/ContextMenu'
-import FileList from '@/components/FileList'
 import { useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
 import { getCookie } from 'cookies-next'
+import ContextMenu from '@/components/ContextMenu'
+import FileList from '@/components/FileList'
 import LoggedOutWarning from '@/components/LoggedOutWarn'
 import UploadsList from '@/components/UploadsList'
 import StorageSpace from '@/components/StorageSpace'
@@ -24,7 +26,6 @@ export default function Files() {
   const fileListRef = useRef<HTMLDivElement>(null)
   const contextMenuRef = useRef<HTMLMenuElement>(null)
   const folderDetailsRef = useRef<HTMLDivElement>(null)
-  const folderDetailsDropdownRef = useRef<HTMLMenuElement>(null)
   const filesToUpload = useRef<File[]>([])
 
   const [selectedFile, setSelectedFile] = useState<FileServerFile[]>([])
@@ -37,6 +38,9 @@ export default function Files() {
   const [openRenameDialog, setOpenRenameDialog] = useState<FileServerFile | null>(null)
   const [openNewFolderDialog, setOpenNewFolderDialog] = useState<string | null>(null)
   const [openMoveFileDialog, setOpenMoveFileDialog] = useState<FileServerFile[] | null>(null)
+  const [folderDetailsAnchor, setFolderDetailsAnchor] = useState<HTMLElement | null>(null)
+
+  const folderDetailsOpen = Boolean(folderDetailsAnchor)
 
   const router = useRouter()
 
@@ -89,12 +93,6 @@ export default function Files() {
           setContextMenu(null)
         }
       }
-
-      if (folderDetailsDropdownRef.current){
-        if (!folderDetailsRef.current?.contains(target) && !folderDetailsDropdownRef.current.contains(target)) {
-          folderDetailsDropdownRef.current.style.display = 'none'
-        }
-      }
     }
 
     const preventSelect = (e: MouseEvent) => {
@@ -121,16 +119,6 @@ export default function Files() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  function handleFolderDetails() {
-    if (!folderDetailsRef.current || !folderDetailsDropdownRef.current) return
-    const { top, left } = folderDetailsRef.current.getBoundingClientRect()
-    const height = folderDetailsRef.current.offsetHeight
-    
-    folderDetailsDropdownRef.current.style.display = 'block'
-    folderDetailsDropdownRef.current.style.top = `${top + height}px`
-    folderDetailsDropdownRef.current.style.left = `${left}px`
-  }
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!getCookie('userdata')) {
@@ -193,14 +181,22 @@ export default function Files() {
     }
   }
 
+  function handleFolderDetailsOpen(e: React.MouseEvent<HTMLDivElement>) {
+    setFolderDetailsAnchor(e.currentTarget)
+  }
+
+  function handleFolderDetailsClose() {
+    setFolderDetailsAnchor(null)
+  }
+
   return (
     <>
       <Head>
         <title>File Server</title>
         <meta name="description" content="File Server" />
       </Head>
-      <main className="grid sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] pt-[60px] h-screen">
-        <section className='hidden sm:grid grid-flow-row grid-rows-[45%_10%_45%] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)] bg-gray-700'>
+      <main className="grid sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] p-3 pt-[60px] h-screen">
+        <section className='hidden sm:grid grid-flow-row grid-rows-[45%_10%_45%] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
           <FileTree />
           <StorageSpace />
           <UploadsList 
@@ -209,7 +205,7 @@ export default function Files() {
             handleOpenFileDialog={handleOpenFileDialog}
           />
         </section>
-        <section className='px-6 sm:px-12 py-8 h-[calc(100dvh-60px)] bg-slate-600'>
+        <section className='px-6 sm:px-6 py-8 h-[calc(100dvh-60px)]'>
           <span className='flex items-center text-xl'>
             <Link 
               href={''}
@@ -225,7 +221,7 @@ export default function Files() {
                     <div 
                       key={index}
                       ref={folderDetailsRef}
-                      onClick={handleFolderDetails}
+                      onClick={handleFolderDetailsOpen}
                       className='flex items-center p-2 rounded-md cursor-pointer hover:bg-gray-500'
                     >
                       <span>{param}</span>
@@ -258,6 +254,18 @@ export default function Files() {
             getInputProps={getInputProps}
           />
         </section>
+        <Menu 
+          anchorEl={folderDetailsAnchor}
+          open={folderDetailsOpen}
+          onClose={handleFolderDetailsClose}
+        >
+          <MenuItem onClick={() => {}}>New folder</MenuItem>
+          <hr className='my-1'></hr>
+          <MenuItem onClick={() => {}}>Encode MKV</MenuItem>
+          <MenuItem onClick={() => {}}>Extract captions</MenuItem>
+          <MenuItem onClick={() => {}}>Convert Captions</MenuItem>
+          <MenuItem onClick={() => {}}>Generate manifests</MenuItem>
+        </Menu>
         <ContextMenu 
           contextMenuRef={contextMenuRef} 
           contextMenu={contextMenu} 
@@ -270,7 +278,6 @@ export default function Files() {
           setOpenNewFolderDialog={setOpenNewFolderDialog}
           setOpenMoveFileDialog={setOpenMoveFileDialog}
         />
-        <FolderDetails />
         <ConfirmDelete 
           openDeleteConfirm={openDeleteConfirm} 
           setOpenDeleteConfirm={setOpenDeleteConfirm} 
@@ -298,41 +305,4 @@ export default function Files() {
       </main>
     </>
   )
-
-  function FolderDetails() {
-    return (
-      <menu
-        ref={folderDetailsDropdownRef}
-        style={{ display: 'none' }}
-        className="absolute min-w-[12rem] z-10 py-2 shadow-lg shadow-gray-700 bg-slate-200 text-black text-lg rounded-md folder-details"
-      >
-        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
-          <button onClick={() => console.log(router.asPath.replace('/files', ''))} className="w-full">
-            New folder
-          </button>
-        </li>
-        <hr className="my-2 border-gray-500 border-t-[1px]" />
-        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
-          <button onClick={() => {}} className="w-full">
-            Encode MKV
-          </button>
-        </li>
-        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
-          <button onClick={() => {}} className="w-full">
-            Extract captions
-          </button>
-        </li>
-        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
-          <button onClick={() => {}} className="w-full">
-            Convert captions
-          </button>
-        </li>
-        <li className="flex justify-center h-8 rounded-sm hover:bg-gray-400">
-          <button onClick={() => {}} className="w-full">
-            Generate manifests
-          </button>
-        </li>
-      </menu>
-    )
-  }
 }

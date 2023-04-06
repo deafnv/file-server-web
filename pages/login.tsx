@@ -54,7 +54,7 @@ export default function Login() {
         <meta name="description" content="File Server" />
       </Head>
       <main className="flex items-center justify-center mx-auto h-[calc(100dvh-60px)] w-[30rem]">
-        <div className="flex flex-col items-center px-24 py-12 h-[40%] w-full bg-zinc-600 drop-shadow-md shadow-md shadow-black rounded-lg">
+        <div className="flex flex-col items-center px-24 py-12 h-[40%] w-full bg-gray-900 drop-shadow-md shadow-md shadow-black rounded-lg">
           <h3 className="text-3xl font-bold mb-6">Login</h3>
           <form
             onSubmit={handleLogin}
@@ -66,7 +66,7 @@ export default function Login() {
               onChange={(e) => loginDataRef.current.username = e.target.value} 
               fullWidth
               type="text"
-              className="bg-gray-200 rounded-md"
+              className="rounded-md"
             />
             <TextField 
               label="Password" 
@@ -75,7 +75,7 @@ export default function Login() {
               fullWidth
               type={showPassword ? 'text' : 'password'}
               autoComplete="off"
-              className="bg-gray-200 rounded-md"
+              className="rounded-md"
               InputProps={{
                 endAdornment: (
                 <InputAdornment position="end">

@@ -147,7 +147,7 @@ export default function FileList(
       data-disableselect={false}
       ref={fileListRef}
       onBlur={handleBlur}
-      className={`relative flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none`}
+      className={`relative flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none`}
     >
       <div className='sticky z-10 top-0 mb-1 flex text-lg border-b-[1px] bg-black'>
         <span className='m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'></span>

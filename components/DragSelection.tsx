@@ -22,7 +22,7 @@ export default function DragSelectionArea({ fileListRef, fileArr, selectedFile, 
         y: e.clientY
       }
 
-      if (dragAreaRef.current!.style.display == 'block') {
+      if (dragAreaRef.current?.style.display == 'block') {
         requestAnimationFrame(() => {
           //* Disable summoning previous drag selection if ctrl is not pressed when starting a new drag
           if (isDragging && !ctrlKeyPressed.current) 
