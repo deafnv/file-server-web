@@ -67,7 +67,7 @@ export default function Files() {
   }
 
   useEffect(() => {
-    getData()
+    if(router.isReady) getData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
 
@@ -81,14 +81,21 @@ export default function Files() {
       if (!fileListRef.current || !fileListRef.current.contains(target)) return
 
       e.preventDefault()
-      if (target == fileListRef.current) {
-        setSelectedFile([])
-        setContextMenu('directory')
-      }
+
+      if (contextMenu == 'directory') setSelectedFile([])
+
       if (!contextMenuRef.current) return
+
+      const isFarRight = e.pageX + contextMenuRef.current.offsetWidth > window.innerWidth
+      const isFarBottom = e.pageY + contextMenuRef.current.scrollHeight > window.innerHeight
       
-      contextMenuRef.current.style.top = `${e.pageY}px`
-      contextMenuRef.current.style.left = `${e.pageX}px`
+      if (isFarRight || isFarBottom) {
+        contextMenuRef.current.style.top = `${(isFarBottom ? e.pageY - contextMenuRef.current.scrollHeight : e.pageY) - (isFarRight ? 0 : 10)}px`
+        contextMenuRef.current.style.left = `${isFarRight ? e.pageX - contextMenuRef.current.offsetWidth : e.pageX}px`
+      } else {
+        contextMenuRef.current.style.top = `${e.pageY}px`
+        contextMenuRef.current.style.left = `${e.pageX}px`
+      }
     }
     
     const exitMenus = (e: MouseEvent) => {
@@ -123,7 +130,7 @@ export default function Files() {
       router.events.off('routeChangeStart', routeChangeStart)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [contextMenuRef.current])
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!getCookie('userdata')) {

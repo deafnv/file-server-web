@@ -45,9 +45,16 @@ export default function FileList(
   }, [])
 
   useEffect(() => {
-    //* Set upload overlay height
-    if (dragOverlayRef.current) dragOverlayRef.current.style.height = `${fileListRef.current?.scrollHeight}px`
+    //* Set upload overlay height, hacky way of getting file list's scrollHeight
+    if (dragOverlayRef.current) {
+      dragOverlayRef.current.style.position = 'fixed'
+      dragOverlayRef.current.style.height = `${fileListRef.current?.scrollHeight}px`
+      dragOverlayRef.current.style.position = 'absolute'
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dragOverlayRef.current, fileArr])
 
+  useEffect(() => {
     //* Select all files Ctrl + A
     const keyDownListener = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key == 'a') e.preventDefault()
@@ -168,6 +175,7 @@ export default function FileList(
       onBlur={handleBlur}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
+      onContextMenu={(e) => {if (e.target == fileListRef.current) setContextMenu('directory')}}
       className={`relative flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none`}
     >
       <div className='sticky z-10 top-0 mb-1 flex text-lg border-b-[1px] bg-black'>
