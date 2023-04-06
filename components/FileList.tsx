@@ -12,13 +12,15 @@ import ListAltIcon from '@mui/icons-material/ListAlt'
 import AudioFileIcon from '@mui/icons-material/AudioFile'
 import ArticleIcon from '@mui/icons-material/Article'
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
+import FileUploadIcon from '@mui/icons-material/FileUpload'
 import DragSelectionArea from '@/components/DragSelection'
 import isEqual from 'lodash/isEqual'
 
 export default function FileList(
-  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, getRootProps, getInputProps  }: FileListProps
+  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, getRootProps, getInputProps }: FileListProps
 ) {
   const startingFileSelect = useRef<number | null>(null)
+  const dragOverlayRef = useRef<HTMLDivElement>(null)
 
   const router = useRouter()
 
@@ -43,6 +45,9 @@ export default function FileList(
   }, [])
 
   useEffect(() => {
+    //* Set upload overlay height
+    if (dragOverlayRef.current) dragOverlayRef.current.style.height = `${fileListRef.current?.scrollHeight}px`
+
     //* Select all files Ctrl + A
     const keyDownListener = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key == 'a') e.preventDefault()
@@ -62,7 +67,7 @@ export default function FileList(
 
   useEffect(() => {
     const copySelected = (e: KeyboardEvent) => {
-      if (e.key == 'c' && e.ctrlKey && selectedFile) { //TODO: Change to copy files or links to files
+      if (e.key == 'c' && e.ctrlKey && selectedFile.length) { //TODO: Change to copy files or links to files
         navigator.clipboard.writeText(selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`)
       }
     }
@@ -141,12 +146,28 @@ export default function FileList(
     )
   }
 
+  function handleDragOver(e: React.DragEvent) {
+    if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current) {
+      dragOverlayRef.current.style.opacity = '1'
+    }
+  }
+  
+  function handleDragLeave(e: React.DragEvent) {
+    if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current) {
+      dragOverlayRef.current.style.opacity = '0'
+    }
+  }
+
   return (
     <div
-      {...getRootProps()}
+      {...getRootProps({
+        onDrop: (e) => {if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current) dragOverlayRef.current.style.opacity = '0'}
+      })}
       data-disableselect={false}
       ref={fileListRef}
       onBlur={handleBlur}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
       className={`relative flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none`}
     >
       <div className='sticky z-10 top-0 mb-1 flex text-lg border-b-[1px] bg-black'>
@@ -196,6 +217,16 @@ export default function FileList(
         setSelectedFile={setSelectedFile}
         startingFileSelect={startingFileSelect}
       />
+      <div 
+        ref={dragOverlayRef}
+        className='absolute top-0 left-0 z-20 h-full w-full pointer-events-none opacity-0 transition-all duration-100'
+      >
+        <div className='z-20 h-full w-full bg-blue-300 border-2 border-solid border-blue-500 opacity-30 pointer-events-none' />
+        <span className='flex flex-col items-center gap-2 fixed top-[90%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 text-2xl bg-sky-600 rounded-md'>
+          Drop files to upload
+          <FileUploadIcon fontSize='large' />
+        </span>
+      </div>
       <input {...getInputProps()} />
     </div>
   )
