@@ -77,7 +77,7 @@ function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', ex
             className="ml-auto mr-0"
           >
             <div className="flex items-center">
-              <span className={`rounded-sm transition-transform ${subtreeHasFolders ? 'cursor-pointer hover:bg-slate-400' : ''}`}>
+              <span className={`rounded-sm transition-colors duration-75 ${subtreeHasFolders ? 'cursor-pointer hover:bg-slate-400' : ''}`}>
                 <ExpandMoreIcon 
                   style={{
                     transform: expand.includes(filePath) ? 'initial' : 'rotate(-90deg)',
@@ -91,7 +91,7 @@ function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', ex
                 href={`/files${filePath}`}
                 title={fileName}
                 onClick={() => handleClick(filePath)}
-                className="h-full w-full p-1 line-clamp-1 cursor-pointer rounded-sm hover:bg-slate-400"
+                className="h-full w-full p-1 line-clamp-1 cursor-pointer rounded-sm transition-colors duration-75 hover:bg-slate-400"
               >
                 {fileName}
               </Link>

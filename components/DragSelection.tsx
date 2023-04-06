@@ -154,7 +154,7 @@ export default function DragSelectionArea({ fileListRef, fileArr, selectedFile, 
   return (
     <div 
       ref={dragAreaRef}
-      className='absolute bg-blue-500 opacity-40 pointer-events-none'
+      className='absolute z-0 bg-blue-500 border-2 border-solid border-blue-700 opacity-40 pointer-events-none'
     >
 
     </div>

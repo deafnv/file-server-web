@@ -27,13 +27,13 @@ const theme = createTheme({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <HeadCommon />
-        <LoadingProvider>
-          <Navbar />
-          <Component {...pageProps} />
-        </LoadingProvider>
-      </ThemeProvider>
+      <LoadingProvider>
+        <ThemeProvider theme={theme}>
+          <HeadCommon />
+            <Navbar />
+            <Component {...pageProps} />
+        </ThemeProvider>
+      </LoadingProvider>
     </>
   )
 }

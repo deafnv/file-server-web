@@ -97,26 +97,23 @@ export default function Files() {
       }
     }
 
-    const mouseDown = (e: MouseEvent) => {
+    const preventSelect = (e: MouseEvent) => {
       //? I literally have no idea what this does
       if (e.detail > 1 && fileListRef.current?.contains(e.target as HTMLElement)) {
         e.preventDefault()
       }
-
-      //* Reset select on mousedown empty space folder
-      if (e.target == fileListRef.current) setSelectedFile([])
     }
 
     const routeChangeStart = () => setContextMenu(null)
 
-    document.addEventListener("mousedown", mouseDown)
+    document.addEventListener("mousedown", preventSelect)
     document.addEventListener("contextmenu", customContextMenu)
     document.addEventListener("mousedown", exitMenus)
 
     router.events.on('routeChangeStart', routeChangeStart)
     
     return () => {
-      document.removeEventListener("mousedown", mouseDown)
+      document.removeEventListener("mousedown", preventSelect)
       document.removeEventListener("contextmenu", customContextMenu)
       document.removeEventListener("mousedown", exitMenus)
 
@@ -216,7 +213,7 @@ export default function Files() {
           <span className='flex items-center text-xl'>
             <Link 
               href={''}
-              className='p-2 rounded-md hover:bg-gray-500'
+              className='p-2 rounded-md transition-colors duration-75 hover:bg-gray-500'
             >
               Files
             </Link>
