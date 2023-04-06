@@ -1,7 +1,7 @@
-import { Box, DragSelectionAreaProps, Point } from '@/lib/types'
+import { Box, DragSelectionAreaProps, FileServerFile, Point } from '@/lib/types'
 import { useRef, useEffect } from 'react'
 
-export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFile }: DragSelectionAreaProps) {
+export default function DragSelectionArea({ fileListRef, fileArr, selectedFile, setSelectedFile, startingFileSelect }: DragSelectionAreaProps) {
   const mousePos = useRef<Point>({ x: 0, y: 0 })
   const startPos = useRef<Point>({ x: 0, y: 0 })
   const boxPos = useRef<Box>({ left: 0, height: 0, top: 0, width: 0 })
@@ -9,6 +9,8 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
   const fileArrPos = useRef<Box[]>([])
   const isDragging = useRef(false)
   const initialFileListScrollHeight = useRef(0)
+  const ctrlKeyPressed = useRef(false)
+  const currentDragSelectedFile = useRef<FileServerFile[]>([])
   const dragAreaRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -52,16 +54,27 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
           } else if (fileListRef.current!.offsetTop > mousePos.current.y && fileListRef.current!.scrollHeight == initialFileListScrollHeight.current){
             fileListRef.current?.scrollBy({ top: -10, behavior: 'auto' })
           }
-  
-          const indexesToSelect: number[] = [];
-          fileArrPos.current.forEach((file, index) => {
-            if (boxesIntersect(boxPos.current, file) && isDragging) {
-              indexesToSelect.push(index)
+
+          //* Minimum drag selection size to start selecting
+          if (parseInt(dragAreaRef.current!.style.height) > 8 || parseInt(dragAreaRef.current!.style.width) > 8) {
+            const indexesToSelect: number[] = [];
+            fileArrPos.current.forEach((file, index) => {
+              if (boxesIntersect(boxPos.current, file) && isDragging) {
+                indexesToSelect.push(index)
+              }
+            })
+    
+            if (fileArr instanceof Array) {
+              //* Ctrl key drag select like file explorer
+              if (ctrlKeyPressed.current) {
+                const selectedFilesCurrent = fileArr.filter((item, index) => indexesToSelect.includes(index))
+                const inverse = currentDragSelectedFile.current.filter((item) => selectedFilesCurrent.includes(item))
+                setSelectedFile(currentDragSelectedFile.current.concat(selectedFilesCurrent).filter((item) => !inverse.includes(item)))
+              } else {
+                setSelectedFile(fileArr.filter((item, index) => indexesToSelect.includes(index)))
+              }
             }
-          })
-  
-          if (fileArr instanceof Array)
-            setSelectedFile(fileArr.slice().filter((item, index) => indexesToSelect.includes(index)))
+          }
         })
       }
     }
@@ -70,6 +83,7 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
       if (!fileListRef.current?.contains(e.target as HTMLElement) || e.button != 0) return
       isDragging.current = true
       window.getSelection()?.empty()
+      currentDragSelectedFile.current = selectedFile
       document.body.style.userSelect = 'none'
       dragAreaRef.current!.style.left = `0px`
       dragAreaRef.current!.style.top = `0px`
@@ -95,17 +109,25 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
       document.body.style.userSelect = 'initial'
     }
 
+    const ctrlKeyDown = (e: KeyboardEvent) => e.ctrlKey ? ctrlKeyPressed.current = true : null
+
+    const ctrlKeyUp = (e: KeyboardEvent) => e.ctrlKey ? null : ctrlKeyPressed.current = false
+
     document.addEventListener("mousemove", recordMousePos)
     document.addEventListener("mousedown", dragStart)
     document.addEventListener("mouseup", dragEnd)
+    document.addEventListener("keydown", ctrlKeyDown)
+    document.addEventListener("keyup", ctrlKeyUp)
 
     return () => {
       document.removeEventListener("mousemove", recordMousePos)
       document.removeEventListener("mousedown", dragStart)
       document.removeEventListener("mouseup", dragEnd)
+      document.removeEventListener("keydown", ctrlKeyDown)
+      document.removeEventListener("keyup", ctrlKeyUp)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileListRef.current, fileArr])
+  }, [fileListRef.current, fileArr, selectedFile])
   
   useEffect(() => {
     if (fileListRef.current) {

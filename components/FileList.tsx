@@ -13,6 +13,7 @@ import AudioFileIcon from '@mui/icons-material/AudioFile'
 import ArticleIcon from '@mui/icons-material/Article'
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
 import DragSelectionArea from '@/components/DragSelection'
+import isEqual from 'lodash/isEqual'
 
 export default function FileList(
   { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, getRootProps, getInputProps  }: FileListProps
@@ -80,7 +81,11 @@ export default function FileList(
       } else selectedFiles = fileArr.slice(index, startingFileSelect.current! + 1)
       setSelectedFile(selectedFiles)
     } else if (e.ctrlKey) {
-      setSelectedFile(selectedFile.concat([file]))
+      //* Ctrl select functionality
+      if (selectedFile.includes(file))
+        setSelectedFile(selectedFile.filter(item => !isEqual(item, file)))
+      else 
+        setSelectedFile(selectedFile.concat([file]))
     } else {
       startingFileSelect.current = index
       setSelectedFile([file])
@@ -187,7 +192,9 @@ export default function FileList(
       <DragSelectionArea 
         fileListRef={fileListRef} 
         fileArr={fileArr}
+        selectedFile={selectedFile}
         setSelectedFile={setSelectedFile}
+        startingFileSelect={startingFileSelect}
       />
       <input {...getInputProps()} />
     </div>

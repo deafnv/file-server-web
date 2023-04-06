@@ -103,6 +103,7 @@ export default function Files() {
         e.preventDefault()
       }
 
+      //* Reset select on mousedown empty space folder
       if (e.target == fileListRef.current) setSelectedFile([])
     }
 
