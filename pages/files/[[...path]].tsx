@@ -366,6 +366,7 @@ export default function Files() {
             setContextMenu={setContextMenu}
             selectedFile={selectedFile}
             setSelectedFile={setSelectedFile}
+            setProcessInfo={setProcessInfo}
             getRootProps={getRootProps}
             getInputProps={getInputProps}
           />
@@ -377,6 +378,7 @@ export default function Files() {
           setContextMenu={setContextMenu} 
           selectedFile={selectedFile}
           router={router} 
+          setProcessInfo={setProcessInfo}
           setLoggedOutWarning={setLoggedOutWarning}
           setOpenDeleteConfirm={setOpenDeleteConfirm}
           setOpenRenameDialog={setOpenRenameDialog}

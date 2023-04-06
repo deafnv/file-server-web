@@ -17,7 +17,7 @@ import DragSelectionArea from '@/components/DragSelection'
 import isEqual from 'lodash/isEqual'
 
 export default function FileList(
-  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, getRootProps, getInputProps }: FileListProps
+  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, setProcessInfo, getRootProps, getInputProps }: FileListProps
 ) {
   const startingFileSelect = useRef<number | null>(null)
   const dragOverlayRef = useRef<HTMLDivElement>(null)
@@ -73,15 +73,17 @@ export default function FileList(
   }, [fileListRef.current, fileArr])
 
   useEffect(() => {
-    const copySelected = (e: KeyboardEvent) => {
+    const copySelected = async (e: KeyboardEvent) => {
       if (e.key == 'c' && e.ctrlKey && selectedFile.length) { //TODO: Change to copy files or links to files
-        navigator.clipboard.writeText(selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`)
+        await navigator.clipboard.writeText(selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`)
+        setProcessInfo('Link copied to clipboard')
       }
     }
 
     document.addEventListener("keydown", copySelected)
 
     return () => document.removeEventListener("keydown", copySelected)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile])
 
   function handleSelect(e: React.MouseEvent, file: FileServerFile, index: number) {

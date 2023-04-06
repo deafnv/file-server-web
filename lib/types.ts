@@ -58,6 +58,7 @@ export interface FileListProps {
   setContextMenu: Dispatch<SetStateAction<'file' | 'directory' | null>>; 
   selectedFile:  FileServerFile[]; 
   setSelectedFile: Dispatch<SetStateAction<FileServerFile[]>>;
+  setProcessInfo: Dispatch<SetStateAction<string>>;
   getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
 }
