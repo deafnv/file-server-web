@@ -88,7 +88,7 @@ export default function FileList(
   }
 
   function handleOnContextMenu(file: FileServerFile) {
-    if (selectedFile.length <= 1) {
+    if (selectedFile.length <= 1 || !selectedFile.includes(file)) {
       setSelectedFile([file])
     }
     setContextMenu('file')
@@ -141,7 +141,7 @@ export default function FileList(
       {...getRootProps()}
       data-disableselect={false}
       ref={fileListRef}
-    
+      onBlur={handleBlur}
       className={`relative flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none`}
     >
       <div className='sticky top-0 mb-1 flex text-lg border-b-[1px] bg-black'>

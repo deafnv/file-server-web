@@ -8,6 +8,7 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
   const startDragScrollTop = useRef(0)
   const fileArrPos = useRef<Box[]>([])
   const isDragging = useRef(false)
+  const initialFileListScrollHeight = useRef(0)
   const dragAreaRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -32,7 +33,6 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
               y: mousePos.current.y + fileListRef.current!.scrollTop - offsetTop
             } 
           })
-          console.log(visibleBox)
           
           boxPos.current = calculateSelectionBox({ 
             startPoint: startPos.current, 
@@ -46,25 +46,30 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
           dragAreaRef.current!.style.top = `${visibleBox.top}px`
           dragAreaRef.current!.style.width = `${visibleBox.width}px`
           dragAreaRef.current!.style.height = `${visibleBox.height}px`
-        })
-        
 
-        const indexesToSelect: number[] = [];
-        fileArrPos.current.forEach((file, index) => {
-          if (boxesIntersect(boxPos.current, file) && isDragging) {
-            indexesToSelect.push(index)
+          if ((fileListRef.current!.offsetTop + fileListRef.current!.clientHeight) < mousePos.current.y && fileListRef.current!.scrollHeight == initialFileListScrollHeight.current) {
+            fileListRef.current?.scrollBy({ top: 10, behavior: 'auto' })
+          } else if (fileListRef.current!.offsetTop > mousePos.current.y && fileListRef.current!.scrollHeight == initialFileListScrollHeight.current){
+            fileListRef.current?.scrollBy({ top: -10, behavior: 'auto' })
           }
+  
+          const indexesToSelect: number[] = [];
+          fileArrPos.current.forEach((file, index) => {
+            if (boxesIntersect(boxPos.current, file) && isDragging) {
+              indexesToSelect.push(index)
+            }
+          })
+  
+          if (fileArr instanceof Array)
+            setSelectedFile(fileArr.slice().filter((item, index) => indexesToSelect.includes(index)))
         })
-
-        if (fileArr instanceof Array)
-          setSelectedFile(fileArr.slice().filter((item, index) => indexesToSelect.includes(index)))
       }
     }
 
     const dragStart = (e: MouseEvent) => {
-      if (!fileListRef.current?.contains(e.target as HTMLElement)) return
-      setSelectedFile([])
+      if (!fileListRef.current?.contains(e.target as HTMLElement) || e.button != 0) return
       isDragging.current = true
+      window.getSelection()?.empty()
       document.body.style.userSelect = 'none'
       dragAreaRef.current!.style.left = `0px`
       dragAreaRef.current!.style.top = `0px`
@@ -114,6 +119,8 @@ export default function DragSelectionArea({ fileListRef, fileArr, setSelectedFil
           height
         })
       })
+
+      initialFileListScrollHeight.current = fileListRef.current.scrollHeight
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileListRef.current, fileArr])
