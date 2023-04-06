@@ -2,11 +2,11 @@ import { Dispatch, SetStateAction } from 'react'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
 
-export default function LoggedOutWarning(
-  { loggedOutWarning, setLoggedOutWarning }: 
+export default function ProcessError(
+  { processError, setProcessError }: 
   {
-    loggedOutWarning: boolean;
-    setLoggedOutWarning: Dispatch<SetStateAction<boolean>>;
+    processError: string;
+    setProcessError: Dispatch<SetStateAction<string>>;
   }
 ) {
   function handleClose(event?: React.SyntheticEvent | Event, reason?: string) {
@@ -14,17 +14,17 @@ export default function LoggedOutWarning(
       return
     }
 
-    setLoggedOutWarning(false)
+    setProcessError('')
   }
   
   return (
     <Snackbar
-      open={loggedOutWarning}
+      open={!!processError}
       onClose={handleClose}
       autoHideDuration={6000}
     >
       <Alert severity='error' className='text-red-400 font-bold bg-white'>
-        You must be logged in to do that
+        {processError}
       </Alert>
     </Snackbar>
   )

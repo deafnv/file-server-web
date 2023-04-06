@@ -112,7 +112,7 @@ export default function FileList(
 
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
-      <div className='flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
+      <div className='flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
         <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
           <span className='p-3 flex-grow'>Name</span>
           <span className='p-3 min-w-[10rem]'>Size</span>
@@ -128,7 +128,7 @@ export default function FileList(
 
   if (!(fileArr instanceof Array)) {
     return (
-      <div className='flex flex-col m-4 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
+      <div className='flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
         <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
           <span className='p-3 flex-grow'>Name</span>
           <span className='p-3 min-w-[10rem]'>Size</span>
