@@ -8,6 +8,7 @@ import path from "path"
 export default function MoveFileTree({ selectFolder, setSelectFolder }: { selectFolder: string; setSelectFolder: Dispatch<SetStateAction<string>> }) {
   const [fileTree, setFileTree] = useState<FileTreeRes | null>()
 
+  //TODO: Deprecated getFileTree function, replace with fileTree from main component
   useEffect(() => {
     const getFileTree = async () => {
       try {

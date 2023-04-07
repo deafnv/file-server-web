@@ -1,27 +1,11 @@
 import { FileTreeProps, FileTreeRes } from "@/lib/types"
 import CircularProgress from "@mui/material/CircularProgress"
-import axios from "axios"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import path from "path"
 import Link from "next/link"
 
-export default function FileTree() {
-  const [fileTree, setFileTree] = useState<FileTreeRes | null>()
-
-  useEffect(() => {
-    const getFileTree = async () => {
-      try {
-        const fileTreeResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/filetree`)
-        setFileTree(fileTreeResponse.data)
-      } catch (error) {
-        console.log(error)
-        setFileTree(null)
-      }
-    }
-    getFileTree()
-  }, [])
-
+export default function FileTree({ fileTree }: { fileTree: FileTreeRes | null | undefined }) {
   return (
     <div className='flex flex-col pb-6 h-full'>
       <h6 className='ml-3 text-lg'>File Tree</h6>

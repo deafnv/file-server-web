@@ -1,12 +1,10 @@
 import Head from 'next/head'
 import axios, { AxiosError } from 'axios'
-import Link from 'next/link'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import { FileServerFile, UploadProgress } from '@/lib/types'
+import { FileServerFile, FileTreeRes, UploadProgress } from '@/lib/types'
 import { useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
 import { getCookie } from 'cookies-next'
@@ -23,17 +21,19 @@ import MoveFile from '@/components/dialogs/MoveFile'
 import ProcessInfo from '@/components/ProcessInfo'
 import ProcessError from '@/components/ProcessError'
 import path from 'path'
+import FilePath from '@/components/FilePath'
+import { getData } from '@/lib/methods'
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
   const fileListRef = useRef<HTMLDivElement>(null)
   const contextMenuRef = useRef<HTMLMenuElement>(null)
-  const folderDetailsRef = useRef<HTMLDivElement>(null)
   const filesToUpload = useRef<File[]>([])
 
   const [selectedFile, setSelectedFile] = useState<FileServerFile[]>([])
   const [contextMenu, setContextMenu] = useState<'file' | 'directory' | null>(null)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
+  const [fileTree, setFileTree] = useState<FileTreeRes | null>()
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<File[] | null>(null)
   const [loggedOutWarning, setLoggedOutWarning] = useState(false)
@@ -49,25 +49,8 @@ export default function Files() {
 
   const router = useRouter()
 
-  const getData = async () => {
-    try {
-      const { path } = router.query
-      paramsRef.current = path as string[]
-      const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`)
-      setFileArr(fileArrData.data.sort((a: FileServerFile, b: FileServerFile) => {
-        if (a.isDirectory && b.isDirectory) return a.name.localeCompare(b.name)
-        if (a.isDirectory && !b.isDirectory) return -1
-        if (!a.isDirectory && b.isDirectory) return 1
-        return a.name.localeCompare(b.name)
-      }))
-    } catch (error) {
-      console.log(error)
-      setFileArr('Error loading data from server')
-    }
-  }
-
   useEffect(() => {
-    if(router.isReady) getData()
+    if(router.isReady) getData(setFileArr, setFileTree, router, paramsRef)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
 
@@ -164,7 +147,7 @@ export default function Files() {
             }
           })
 
-          await getData() //TODO: Remove once server websocket for live updates is set up
+          await getData(setFileArr, setFileTree, router, paramsRef) //TODO: Remove once server websocket for live updates is set up
         } catch (err) {
           setCurrentUploadProgress(null)
           if ((err as any as AxiosError).response?.status == 401) {
@@ -313,7 +296,7 @@ export default function Files() {
       </Head>
       <main className="grid sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] p-3 pt-[60px] h-screen">
         <section className='hidden sm:grid grid-flow-row grid-rows-[45%_10%_45%] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
-          <FileTree />
+          <FileTree fileTree={fileTree} />
           <StorageSpace />
           <UploadsList 
             currentUploadProgress={currentUploadProgress}
@@ -322,43 +305,10 @@ export default function Files() {
           />
         </section>
         <section className='px-6 sm:px-6 py-8 h-[calc(100dvh-60px)]'>
-          <span className='flex items-center text-xl'>
-            <Link 
-              href={''}
-              className='p-2 rounded-md transition-colors duration-75 hover:bg-gray-500'
-            >
-              Files
-            </Link>
-            {paramsRef.current?.map((param, index) => {
-              if (index == paramsRef.current.length - 1)
-                return (
-                  <>
-                    /
-                    <div 
-                      key={index}
-                      ref={folderDetailsRef}
-                      onClick={handleFolderDetailsOpen}
-                      className='flex items-center p-2 rounded-md cursor-pointer hover:bg-gray-500'
-                    >
-                      <span>{param}</span>
-                      <ArrowDropDownIcon />
-                    </div>
-                  </>
-                )
-              return (
-                <>
-                  /
-                  <Link 
-                    key={index}
-                    href={paramsRef.current?.slice(0, index + 1).join('/')}
-                    className='p-2 rounded-md hover:bg-gray-500'
-                  >
-                    {param}
-                  </Link>
-                </>
-              )
-            })}
-          </span>
+          <FilePath 
+            paramsRef={paramsRef} 
+            handleFolderDetailsOpen={handleFolderDetailsOpen}
+          />
           <FileList
             fileArr={fileArr} 
             fileListRef={fileListRef} 
@@ -369,7 +319,7 @@ export default function Files() {
             setProcessInfo={setProcessInfo}
             getRootProps={getRootProps}
             getInputProps={getInputProps}
-            getData={getData}
+            getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
           />
         </section>
         <FolderDetails />
@@ -389,22 +339,22 @@ export default function Files() {
         <ConfirmDelete 
           openDeleteConfirm={openDeleteConfirm} 
           setOpenDeleteConfirm={setOpenDeleteConfirm} 
-          getData={getData}
+          getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
         />
         <Rename 
           openRenameDialog={openRenameDialog}
           setOpenRenameDialog={setOpenRenameDialog}
-          getData={getData}
+          getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
         />
         <NewFolder
           openNewFolderDialog={openNewFolderDialog}
           setOpenNewFolderDialog={setOpenNewFolderDialog}
-          getData={getData}
+          getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
         />
         <MoveFile
           openMoveFileDialog={openMoveFileDialog}
           setOpenMoveFileDialog={setOpenMoveFileDialog}
-          getData={getData}
+          getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
         />
         <LoggedOutWarning 
           loggedOutWarning={loggedOutWarning}

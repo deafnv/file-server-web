@@ -7,7 +7,10 @@ import ListAltIcon from '@mui/icons-material/ListAlt'
 import AudioFileIcon from '@mui/icons-material/AudioFile'
 import ArticleIcon from '@mui/icons-material/Article'
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
-import { FileServerFile } from './types'
+import { FileServerFile, FileTreeRes } from './types'
+import { Dispatch, SetStateAction, MutableRefObject } from 'react'
+import axios from 'axios'
+import { NextRouter } from 'next/router'
 
 export function getIcon(file: FileServerFile) {
   if (file.isDirectory) return (<FolderIcon />)
@@ -23,6 +26,36 @@ export function getIcon(file: FileServerFile) {
   if (['xlsx', 'xls', 'csv'].includes(extension)) return <ListAltIcon />
   if (['ass', 'srt', 'vtt'].includes(extension)) return <ClosedCaptionIcon />
   return null
+}
+
+export const getData = async (
+  setFileArr: Dispatch<SetStateAction<string | FileServerFile[] | null>>,
+  setFileTree: Dispatch<SetStateAction<FileTreeRes | null | undefined>>,
+  router: NextRouter,
+  paramsRef: MutableRefObject<string[]>
+) => {
+  try {
+    const { path } = router.query
+    paramsRef.current = path as string[]
+    const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`)
+    setFileArr(fileArrData.data.sort((a: FileServerFile, b: FileServerFile) => {
+      if (a.isDirectory && b.isDirectory) return a.name.localeCompare(b.name)
+      if (a.isDirectory && !b.isDirectory) return -1
+      if (!a.isDirectory && b.isDirectory) return 1
+      return a.name.localeCompare(b.name)
+    }))
+  } catch (error) {
+    console.log(error)
+    setFileArr('Error loading data from server')
+  }
+
+  try {
+    const fileTreeResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/filetree`)
+    setFileTree(fileTreeResponse.data)
+  } catch (error) {
+    console.log(error)
+    setFileTree(null)
+  }
 }
 
 export const sleep = (s = 1) => new Promise((r) => setTimeout(r, s * 1000))
