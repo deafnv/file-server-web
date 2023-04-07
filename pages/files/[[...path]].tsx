@@ -369,6 +369,7 @@ export default function Files() {
             setProcessInfo={setProcessInfo}
             getRootProps={getRootProps}
             getInputProps={getInputProps}
+            getData={getData}
           />
         </section>
         <FolderDetails />
