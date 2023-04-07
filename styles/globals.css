@@ -147,7 +147,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .context-menu {
 	height: 14.2rem;
-	width: 15rem;
+	width: 13rem;
 	animation: openMenu 150ms ease-out;
 }
 
@@ -164,7 +164,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .context-menu-directory {
 	height: 3.5rem;
-	width: 15rem;
+	width: 13rem;
 	animation: openMenuDirectory 150ms ease-out;
 }
 

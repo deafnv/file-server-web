@@ -84,7 +84,7 @@ export default function DragSelectionArea({ fileListRef, fileArr, selectedFile, 
     }
 
     const dragStart = (e: MouseEvent) => {
-      if (!fileListRef.current?.contains(e.target as HTMLElement) || e.button != 0) return
+      if (!fileListRef.current?.contains(e.target as HTMLElement) || e.button != 0 || (e.target as HTMLElement).getAttribute('data-isfilename') == 'true') return
       isDragging.current = true
       window.getSelection()?.empty()
       currentDragSelectedFile.current = selectedFile

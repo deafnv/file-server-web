@@ -1,4 +1,4 @@
-import { FileListProps, FileServerFile } from '@/lib/types'
+import { FileListProps, FileServerFile, Point } from '@/lib/types'
 import { useRouter } from 'next/router'
 import { useEffect, useRef } from 'react'
 import prettyBytes from 'pretty-bytes'
@@ -21,10 +21,44 @@ export default function FileList(
 ) {
   const startingFileSelect = useRef<number | null>(null)
   const dragOverlayRef = useRef<HTMLDivElement>(null)
+  const fileRefs = useRef<Array<{
+    file: FileServerFile,
+    ref: HTMLDivElement
+  }>>([])
+  const isDraggingFile = useRef(false)
+  const mousePos = useRef<Point>({ x: 0, y: 0 })
+  const startPos = useRef<Point>({ x: 0, y: 0 })
 
   const router = useRouter()
 
   useEffect(() => {
+    const moveDraggedFile = (e: MouseEvent) => {
+      mousePos.current = {
+        x: e.clientX,
+        y: e.clientY
+      }
+      
+      if (isDraggingFile.current) {
+        const closestFileHovered = fileRefs.current.filter(item => (e.target as HTMLElement).closest("[data-isfile]") == item.ref)
+        if (closestFileHovered.length) {
+          console.log(closestFileHovered[0].file.name)
+        }
+      }
+    }
+
+    const dropFile = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const targetParent = target.parentElement as HTMLElement
+
+      if (isDraggingFile.current) {
+        const closestFileDropped = fileRefs.current.filter(item => (e.target as HTMLElement).closest("[data-isfile]") == item.ref)
+        if (closestFileDropped.length ) {
+          console.log('Dropped on file ' + closestFileDropped[0].file.name)
+        }
+        isDraggingFile.current = false
+      }
+    }
+
     const preventShiftSelect = (e: any) => {
       document.onselectstart = function() {
         return !(e.key == "Shift" && e.shiftKey);
@@ -34,12 +68,15 @@ export default function FileList(
     ["keyup","keydown"].forEach((event) => {
       window.addEventListener(event, preventShiftSelect)
     })
-    
+    document.addEventListener("mousemove", moveDraggedFile)
+    document.addEventListener("mouseup", dropFile)
 
     return () => {
       ["keyup","keydown"].forEach((event) => {
         window.removeEventListener(event, preventShiftSelect)
       })
+      document.removeEventListener("mousemove", moveDraggedFile)
+      document.removeEventListener("mouseup", dropFile)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -86,26 +123,6 @@ export default function FileList(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile])
 
-  function handleSelect(e: React.MouseEvent, file: FileServerFile, index: number) {
-    if (!(fileArr instanceof Array)) return
-    if (e.shiftKey && selectedFile?.[0]) {
-      let selectedFiles
-      if (index > startingFileSelect.current!) {
-        selectedFiles = fileArr.slice(startingFileSelect.current!, index + 1)
-      } else selectedFiles = fileArr.slice(index, startingFileSelect.current! + 1)
-      setSelectedFile(selectedFiles)
-    } else if (e.ctrlKey) {
-      //* Ctrl select functionality
-      if (selectedFile.includes(file))
-        setSelectedFile(selectedFile.filter(item => !isEqual(item, file)))
-      else 
-        setSelectedFile(selectedFile.concat([file]))
-    } else {
-      startingFileSelect.current = index
-      setSelectedFile([file])
-    }
-  }
-
   function handleOnContextMenu(file: FileServerFile) {
     if (selectedFile.length <= 1 || !selectedFile.includes(file)) {
       setSelectedFile([file])
@@ -113,10 +130,43 @@ export default function FileList(
     setContextMenu('file')
   }
 
-  function handleAuxClick(e: React.MouseEvent, file: FileServerFile) {
+  function handleSelect(e: React.MouseEvent, file: FileServerFile, index: number) {
+    const selectItem = () => {
+      if (fileArr instanceof Array) {
+        if (e.shiftKey && selectedFile?.[0]) {
+          let selectedFiles
+          if (index > startingFileSelect.current!) {
+            selectedFiles = fileArr.slice(startingFileSelect.current!, index + 1)
+          } else selectedFiles = fileArr.slice(index, startingFileSelect.current! + 1)
+          setSelectedFile(selectedFiles)
+        } else if (e.ctrlKey) {
+          //* Ctrl select functionality
+          if (selectedFile.includes(file))
+            setSelectedFile(selectedFile.filter(item => !isEqual(item, file)))
+          else 
+            setSelectedFile(selectedFile.concat([file]))
+        } else {
+          startingFileSelect.current = index
+          setSelectedFile([file])
+        }
+      }
+    }
+
     if (e.button === 1) {
       e.preventDefault()
       window.open(file.isDirectory ? `/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`, '_blank')
+    }
+    
+    if (e.button === 0 && (e.target as HTMLElement).getAttribute('data-isfilename') == 'true') {
+      const fileMouseDowned = fileRefs.current.filter(item => item.ref == e.currentTarget)[0]
+      if (selectedFile.includes(fileMouseDowned.file)) {
+        isDraggingFile.current = true
+      } else {
+        selectItem()
+        isDraggingFile.current = true
+      }
+    } else if (e.button === 0 && (e.currentTarget as HTMLElement).getAttribute('data-isfile') == 'true') {
+      selectItem()
     }
   }
 
@@ -178,7 +228,7 @@ export default function FileList(
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onContextMenu={(e) => {if (e.target == fileListRef.current) setContextMenu('directory')}}
-      className={`relative flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none`}
+      className={`relative flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none`}
     >
       <div className='sticky z-10 top-0 mb-1 flex text-lg border-b-[1px] bg-black'>
         <span className='m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'></span>
@@ -190,27 +240,29 @@ export default function FileList(
         return (
           <div
             key={index}
+            ref={ref => {if (ref) fileRefs.current[index] = { file, ref }}}
             data-isfile
-            onClick={(e) => handleSelect(e, file, index)}
+            data-filehierarchy
             onDoubleClick={() => file.isDirectory ? router.push(`/files${file.path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
             onContextMenu={() => handleOnContextMenu(file)}
-            onMouseDown={(e) => handleAuxClick(e, file)}
+            onMouseDown={(e) => handleSelect(e, file, index)}
             className={`flex text-lg rounded-md cursor-default ${selectedFile?.includes(file) ? 'bg-gray-500' : ''} outline outline-0 outline-gray-500 hover:outline-1`}
           >
             <span className='m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
             <div 
+              data-filehierarchy
               title={file.name}
               className='flex-grow line-clamp-1  overflow-hidden'
             >
               <span 
-                onClick={() => console.log(file.name)}
+                data-isfilename
                 className='flex p-3 w-fit'
               >
                 {file.name}
               </span>
             </div>
-            <span className='m-3 min-w-[8rem]'>{prettyBytes(file.size)}</span>
-            <span className='hidden lg:block m-3 min-w-[10rem]'>
+            <span className='p-3 min-w-[8rem]'>{prettyBytes(file.size)}</span>
+            <span className='hidden lg:block p-3 min-w-[10rem]'>
               {new Date(file.created).toLocaleDateString('en-US', {
                 day: 'numeric',
                 month: 'long',
