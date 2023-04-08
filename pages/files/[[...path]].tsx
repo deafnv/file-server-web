@@ -196,7 +196,12 @@ export default function Files() {
         return
       }
       try {
-        const encodeResponse = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/encodequeue/add/${(router.query.path as string[])?.join('/') ?? ''}`, { withCredentials: true })
+        const encodeResponse = await axios({
+          method: 'POST',
+          url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/encodequeue/add/${(router.query.path as string[])?.join('/') ?? ''}`,
+          data: {},
+          withCredentials: true
+        })
         if (encodeResponse.data.data) {
           setProcessInfo(`Added files to queue, ${encodeResponse.data.data.length} file(s) failed to add`)
         } else {
