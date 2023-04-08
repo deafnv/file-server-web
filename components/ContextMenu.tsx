@@ -21,7 +21,7 @@ export default function ContextMenu(
 ) {
   function handleNewFolder() {
     if (getCookie('userdata')) {
-      setOpenNewFolderDialog((router.query.path as string[]).join('/'))
+      setOpenNewFolderDialog((router.query.path as string[] ?? []).join('/'))
     } else {
       setLoggedOutWarning(true)
     }
@@ -30,6 +30,7 @@ export default function ContextMenu(
   if (contextMenu == 'directory' || !contextMenu || !selectedFile?.length) {
     return (
       <menu
+        data-cy='context-menu'
         ref={contextMenuRef}
         className={`${!contextMenu ? 'hidden' : ''} absolute min-w-[12rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] context-menu-directory`}
       >
@@ -77,6 +78,7 @@ export default function ContextMenu(
 
   return (
     <menu
+      data-cy='context-menu'
       ref={contextMenuRef}
       className="absolute text-left min-w-[12rem] w-[4rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] context-menu"
     >

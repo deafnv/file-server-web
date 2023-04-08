@@ -39,6 +39,7 @@ export default function ConfirmDelete(
 
   return (
     <Dialog
+      data-cy="dialog-delete"
       open={!!openDeleteConfirm}
       onClose={() => setOpenDeleteConfirm(null)}
     >

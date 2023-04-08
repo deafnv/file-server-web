@@ -290,6 +290,7 @@ export default function FileList(
       {...getRootProps({
         onDrop: (e) => {if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current) dragOverlayRef.current.style.opacity = '0'}
       })}
+      data-cy='file-list'
       data-disableselect={false}
       ref={fileListRef}
       onBlur={handleBlur}
@@ -369,6 +370,7 @@ export default function FileList(
         </div>
       </div>
       <div 
+        data-cy='dragged-file'
         ref={dragOverlayRef}
         className='absolute top-0 left-0 z-20 h-full w-full pointer-events-none opacity-0 transition-all duration-100'
       >

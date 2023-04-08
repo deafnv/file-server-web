@@ -61,6 +61,7 @@ export default function Login() {
             className="flex flex-col items-center gap-4 w-full"
           >
             <TextField 
+              data-cy="username"
               label="Username" 
               variant="filled" 
               onChange={(e) => loginDataRef.current.username = e.target.value} 
@@ -69,6 +70,7 @@ export default function Login() {
               className="rounded-md"
             />
             <TextField 
+              data-cy="password"
               label="Password" 
               variant="filled" 
               onChange={(e) => loginDataRef.current.password = e.target.value}
@@ -91,6 +93,7 @@ export default function Login() {
               }}
             />
             <Button 
+              data-cy="submit"
               variant="contained"
               type="submit"
               className="w-1/2 text-lg bg-slate-400"

@@ -50,6 +50,7 @@ export default function NewFolder(
       </DialogTitle>
       <DialogContent>
         <TextField
+          data-cy="new-folder-input"
           autoFocus
           margin="dense"
           type="text"
@@ -63,7 +64,12 @@ export default function NewFolder(
         <Button onClick={() => setOpenNewFolderDialog(null)}>
           Cancel
         </Button>
-        <Button onClick={handleRename}>Create</Button>
+        <Button 
+          data-cy="new-folder-submit"
+          onClick={handleRename}
+        >
+          Create
+        </Button>
       </DialogActions>
     </Dialog>
   )
