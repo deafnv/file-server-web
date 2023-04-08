@@ -23,6 +23,9 @@ import ProcessError from '@/components/ProcessError'
 import path from 'path'
 import FilePath from '@/components/FilePath'
 import { getData } from '@/lib/methods'
+import { io, Socket } from 'socket.io-client'
+
+let socket: Socket
 
 export default function Files() {
   const paramsRef = useRef<string[]>([])
@@ -50,7 +53,22 @@ export default function Files() {
   const router = useRouter()
 
   useEffect(() => {
-    if(router.isReady) getData(setFileArr, setFileTree, router, paramsRef)
+    const socketHandler = (payload: any) => {
+      getData(setFileArr, setFileTree, router, paramsRef)
+    }
+
+    if(router.isReady) {
+      socket = io(process.env.NEXT_PUBLIC_FILE_SERVER_URL!)
+      socket.on('connect', () => {
+        getData(setFileArr, setFileTree, router, paramsRef)
+      })
+      
+      socket.on(`/${(router.query.path as string[])?.join('/') ?? ''}`, socketHandler)
+    }
+
+    return () => {
+      if (socket) socket.off(`/${(router.query.path as string[])?.join('/') ?? ''}`, socketHandler)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
 

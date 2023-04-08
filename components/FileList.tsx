@@ -27,7 +27,6 @@ export default function FileList(
   const { setLoading } = useLoading()
 
   useEffect(() => {
-    console.log(fileRefs.current)
     const preventShiftSelect = (e: any) => {
       document.onselectstart = function() {
         return !(e.key == "Shift" && e.shiftKey);
@@ -60,7 +59,6 @@ export default function FileList(
       })
       setLoading(false)
       setProcessInfo('')
-      getData() //TODO: Remove once server websocket for live updates is set up
     } catch (error) {
       alert(error)
       console.log(error)
@@ -81,7 +79,6 @@ export default function FileList(
           //* Make selected files greyed out while dragging them
           const selectedFileRefs = fileRefs.current.filter(item => selectedFile.includes(item.file))
           selectedFileRefs.forEach(item => {
-            console.log(item.file.name)
             item.ref.style.opacity = '0.3'
             item.ref.style.backgroundColor = 'gray'
           })

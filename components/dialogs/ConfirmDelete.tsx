@@ -29,7 +29,6 @@ export default function ConfirmDelete(
       })
       setLoading(false)
       setOpenDeleteConfirm(null)
-      getData() //TODO: Remove once server websocket for live updates is set up
     } catch (error) {
       alert(error)
       console.log(error)
