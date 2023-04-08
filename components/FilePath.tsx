@@ -9,6 +9,8 @@ export default function FilePath({ paramsRef, handleFolderDetailsOpen }: {
   return (
     <span className='flex items-center text-xl'>
       <Link 
+        data-isdirpath
+        data-path='/'
         href={''}
         className='p-2 rounded-md transition-colors duration-75 hover:bg-gray-500'
       >
@@ -22,6 +24,7 @@ export default function FilePath({ paramsRef, handleFolderDetailsOpen }: {
               /
               <div 
                 key={index}
+                title={param}
                 onClick={handleFolderDetailsOpen}
                 className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-gray-500 '
               >
@@ -34,7 +37,10 @@ export default function FilePath({ paramsRef, handleFolderDetailsOpen }: {
           <>
             /
             <Link 
+              data-isdirpath
+              data-path={`/${paramsRef.current?.slice(0, index + 1).join('/')}`}
               key={index}
+              title={param}
               href={paramsRef.current?.slice(0, index + 1).join('/')}
               className='px-2 py-1 rounded-md hover:bg-gray-500 line-clamp-1 break-words'
             >

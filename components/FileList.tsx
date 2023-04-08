@@ -27,6 +27,7 @@ export default function FileList(
   const { setLoading } = useLoading()
 
   useEffect(() => {
+    console.log(fileRefs.current)
     const preventShiftSelect = (e: any) => {
       document.onselectstart = function() {
         return !(e.key == "Shift" && e.shiftKey);
@@ -45,7 +46,7 @@ export default function FileList(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function moveFile(files: FileServerFile[], directory: FileServerFile) {
+  async function moveFile(files: FileServerFile[], directory: FileServerFile | string) {
     setLoading(true)
     try { 
       await axios({
@@ -53,7 +54,7 @@ export default function FileList(
         url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/move`,
         data: {
           pathToFiles: files?.map(file => file.path),
-          newPath: directory.path
+          newPath: typeof directory == 'string' ? directory : directory.path
         },
         withCredentials: true
       })
@@ -102,6 +103,7 @@ export default function FileList(
       }
 
       if (isDraggingFile.current) {
+        const closestPathDropped = (e.target as HTMLElement).closest("[data-isdirpath]")
         const closestFileDropped = fileRefs.current.filter(item => (e.target as HTMLElement).closest("[data-isfile]") == item.ref)
         //* If dropped on file, and has been dragged for at least 150ms
         if (closestFileDropped.length && (performance.now() - 150 > isDraggingFile.current)) {
@@ -109,13 +111,22 @@ export default function FileList(
           if (draggedFileRef.current) {
             if (closestFileDropped[0].file.isDirectory){
               draggedFileRef.current.style.visibility = 'hidden'
-
               if (!selectedFile.includes(closestFileDropped[0].file))
                 moveFile(selectedFile, closestFileDropped[0].file)
             } else {
               //* Do nothing and move back dragged file to its spot (didnt drag into folder)
               draggedFileRef.current.style.visibility = 'hidden'
             }
+            stopDrag()
+          }
+        } else if (closestPathDropped && (performance.now() - 150 > isDraggingFile.current)) {
+          //* If dropped on file path at the top
+          const pathAttribute = closestPathDropped.getAttribute('data-path')
+          if (draggedFileRef.current) {
+            if (pathAttribute) {
+              draggedFileRef.current.style.visibility = 'hidden'
+              moveFile(selectedFile, pathAttribute)
+            } else draggedFileRef.current.style.visibility = 'hidden'
             stopDrag()
           }
         } else {
