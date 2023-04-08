@@ -7,7 +7,7 @@ import Link from "next/link"
 
 export default function FileTree({ fileTree }: { fileTree: FileTreeRes | null | undefined }) {
   return (
-    <div className='flex flex-col pb-6 h-full'>
+    <div className='flex flex-col h-full'>
       <h6 className='ml-3 text-lg'>File Tree</h6>
       <div className="relative flex flex-col p-2 h-full bg-black rounded-md overflow-auto overflow-x-hidden">
         {fileTree ?

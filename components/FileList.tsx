@@ -241,7 +241,7 @@ export default function FileList(
 
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
-      <div className='flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
+      <div className='flex flex-col m-0 md:m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
         <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
           <span className='p-3 flex-grow'>Name</span>
           <span className='p-3 min-w-[10rem]'>Size</span>
@@ -257,7 +257,7 @@ export default function FileList(
 
   if (!(fileArr instanceof Array)) {
     return (
-      <div className='flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
+      <div className='flex flex-col m-0 md:m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
         <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
           <span className='p-3 flex-grow'>Name</span>
           <span className='p-3 min-w-[10rem]'>Size</span>
@@ -294,13 +294,13 @@ export default function FileList(
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onContextMenu={(e) => {if (e.target == fileListRef.current) setContextMenu('directory')}}
-      className={`relative flex flex-col m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none`}
+      className={`relative flex flex-col m-0 md:m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none`}
     >
-      <div className='sticky z-10 top-0 mb-1 flex text-lg border-b-[1px] bg-black'>
-        <span className='m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'></span>
-        <span className='m-3 flex-grow'>Name</span>
-        <span className='m-3 min-w-[8rem]'>Size</span>
-        <span className='hidden lg:block m-3 min-w-[10rem]'>Created At</span>
+      <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
+        <span className='hidden lg:block p-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'></span>
+        <span className='p-3 flex-grow'>Name</span>
+        <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>Size</span>
+        <span className='hidden lg:block p-3 min-w-[10rem]'>Created At</span>
       </div>
       {fileArr.map((file, index) => {
         return (
@@ -315,9 +315,9 @@ export default function FileList(
             style={{
               backgroundColor: selectedFile?.includes(file) ? 'rgb(107 114 128)' : 'unset'
             }}
-            className={`flex text-lg rounded-md cursor-default outline outline-0 outline-gray-500 hover:outline-1`}
+            className={`flex text-base md:text-lg rounded-md cursor-default outline outline-0 outline-gray-500 hover:outline-1`}
           >
-            <span className='m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
+            <span className='hidden lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
             <div 
               data-filehierarchy
               title={file.name}
@@ -330,7 +330,7 @@ export default function FileList(
                 {file.name}
               </span>
             </div>
-            <span className='p-3 min-w-[8rem]'>{prettyBytes(file.size)}</span>
+            <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>{prettyBytes(file.size)}</span>
             <span className='hidden lg:block p-3 min-w-[10rem]'>
               {new Date(file.created).toLocaleDateString('en-US', {
                 day: 'numeric',

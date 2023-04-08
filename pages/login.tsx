@@ -54,11 +54,11 @@ export default function Login() {
         <meta name="description" content="File Server" />
       </Head>
       <main className="flex items-center justify-center mx-auto h-[calc(100dvh-60px)] w-[30rem]">
-        <div className="flex flex-col items-center px-24 py-12 h-[40%] w-full bg-gray-900 drop-shadow-md shadow-md shadow-black rounded-lg">
+        <div className="flex flex-col items-center  py-12 min-h-[40%] w-full bg-gray-900 drop-shadow-md shadow-md shadow-black rounded-lg">
           <h3 className="text-3xl font-bold mb-6">Login</h3>
           <form
             onSubmit={handleLogin}
-            className="flex flex-col items-center gap-4 w-full"
+            className="flex flex-col items-center gap-4 w-[75%] sm:w-[70%] md:w-[60%]"
           >
             <TextField 
               data-cy="username"

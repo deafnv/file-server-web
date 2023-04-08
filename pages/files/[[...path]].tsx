@@ -323,8 +323,8 @@ export default function Files() {
         <title>File Server</title>
         <meta name="description" content="File Server" />
       </Head>
-      <main className="grid sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] p-3 pt-[60px] h-screen">
-        <section className='hidden sm:grid grid-flow-row grid-rows-[45%_10%_45%] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
+      <main className="grid gap sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] mt-[60px] p-0 md:pt-0 md:p-3 h-[calc(100dvh-60px)]">
+        <section className='hidden sm:grid gap-3 grid-flow-row grid-rows-[0.45fr_0.1fr_0.45fr] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
           <FileTree fileTree={fileTree} />
           <StorageSpace />
           <UploadsList 
@@ -333,7 +333,7 @@ export default function Files() {
             handleOpenFileDialog={handleOpenFileDialog}
           />
         </section>
-        <section className='px-6 sm:px-6 py-8 h-[calc(100dvh-60px)]'>
+        <section className='px-4 sm:px-6 pt-0 pb-4 md:py-8 h-[calc(100dvh-60px)]'>
           <FilePath 
             paramsRef={paramsRef} 
             handleFolderDetailsOpen={handleFolderDetailsOpen}
