@@ -30,7 +30,6 @@ export function getIcon(file: FileServerFile) {
 
 export const getData = async (
   setFileArr: Dispatch<SetStateAction<string | FileServerFile[] | null>>,
-  setFileTree: Dispatch<SetStateAction<FileTreeRes | null | undefined>>,
   router: NextRouter,
   paramsRef: MutableRefObject<string[]>
 ) => {
@@ -48,7 +47,9 @@ export const getData = async (
     console.log(error)
     setFileArr('Error loading data from server')
   }
+}
 
+export const getFileTree = async (setFileTree: Dispatch<SetStateAction<FileTreeRes | null | undefined>>) => {
   try {
     const fileTreeResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/filetree`)
     setFileTree(fileTreeResponse.data)

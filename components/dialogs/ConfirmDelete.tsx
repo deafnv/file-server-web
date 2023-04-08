@@ -8,10 +8,9 @@ import { useLoading } from '../LoadingContext'
 import axios from 'axios'
 
 export default function ConfirmDelete(
-  { openDeleteConfirm, setOpenDeleteConfirm, getData }: {
+  { openDeleteConfirm, setOpenDeleteConfirm }: {
     openDeleteConfirm: FileServerFile[] | null;
     setOpenDeleteConfirm: Dispatch<SetStateAction<FileServerFile[] | null>>;
-    getData: () => Promise<void>;
   }
 ) {
   const { setLoading } = useLoading()

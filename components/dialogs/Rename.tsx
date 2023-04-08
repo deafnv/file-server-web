@@ -10,10 +10,9 @@ import { useLoading } from '../LoadingContext'
 import axios from 'axios'
 
 export default function Rename(
-  { openRenameDialog, setOpenRenameDialog, getData }: {
+  { openRenameDialog, setOpenRenameDialog }: {
     openRenameDialog: FileServerFile | null;
     setOpenRenameDialog: Dispatch<SetStateAction<FileServerFile | null>>;
-    getData: () => Promise<void>;
   }
 ) {
   const textValue = useRef('')

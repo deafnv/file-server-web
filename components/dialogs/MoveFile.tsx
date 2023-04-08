@@ -6,14 +6,14 @@ import Button from '@mui/material/Button'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { useLoading } from '../LoadingContext'
 import axios from 'axios'
-import { FileServerFile } from '@/lib/types'
+import { FileServerFile, FileTreeRes } from '@/lib/types'
 import MoveFileTree from './MoveFileTree'
 
 export default function MoveFile(
-  { openMoveFileDialog, setOpenMoveFileDialog, getData }: {
+  { fileTree, openMoveFileDialog, setOpenMoveFileDialog }: {
+    fileTree: FileTreeRes | null | undefined;
     openMoveFileDialog: FileServerFile[] | null;
     setOpenMoveFileDialog: Dispatch<SetStateAction<FileServerFile[] | null>>;
-    getData: () => Promise<void>;
   }
 ) {
   const [selectFolder, setSelectFolder] = useState('')
@@ -52,6 +52,7 @@ export default function MoveFile(
       </DialogTitle>
       <DialogContent className='h-[45rem]'>
         <MoveFileTree 
+          fileTree={fileTree}
           selectFolder={selectFolder} 
           setSelectFolder={setSelectFolder} 
         />

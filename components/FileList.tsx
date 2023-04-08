@@ -12,7 +12,7 @@ import { useLoading } from './LoadingContext'
 import axios from 'axios'
 
 export default function FileList(
-  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, setProcessInfo, getRootProps, getInputProps, getData }: FileListProps
+  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, setProcessInfo, getRootProps, getInputProps }: FileListProps
 ) {
   const startingFileSelect = useRef<number | null>(null)
   const dragOverlayRef = useRef<HTMLDivElement>(null)

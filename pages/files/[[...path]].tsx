@@ -22,7 +22,7 @@ import ProcessInfo from '@/components/ProcessInfo'
 import ProcessError from '@/components/ProcessError'
 import path from 'path'
 import FilePath from '@/components/FilePath'
-import { getData } from '@/lib/methods'
+import { getData, getFileTree } from '@/lib/methods'
 import { io, Socket } from 'socket.io-client'
 
 let socket: Socket
@@ -53,21 +53,30 @@ export default function Files() {
   const router = useRouter()
 
   useEffect(() => {
-    const socketHandler = (payload: any) => {
-      getData(setFileArr, setFileTree, router, paramsRef)
+    const socketListHandler = (payload: any) => {
+      getData(setFileArr, router, paramsRef)
+    }
+
+    const socketTreeHandler = () => {
+      getFileTree(setFileTree)
     }
 
     if(router.isReady) {
       socket = io(process.env.NEXT_PUBLIC_FILE_SERVER_URL!)
       socket.on('connect', () => {
-        getData(setFileArr, setFileTree, router, paramsRef)
+        getData(setFileArr, router, paramsRef)
+        getFileTree(setFileTree)
       })
       
-      socket.on(`/${(router.query.path as string[])?.join('/') ?? ''}`, socketHandler)
+      socket.on(`/${(router.query.path as string[])?.join('/') ?? ''}`, socketListHandler)
+      socket.on('filetree', socketTreeHandler)
     }
 
     return () => {
-      if (socket) socket.off(`/${(router.query.path as string[])?.join('/') ?? ''}`, socketHandler)
+      if (socket) {
+        socket.off(`/${(router.query.path as string[])?.join('/') ?? ''}`, socketListHandler)
+        socket.off('filetree', socketTreeHandler)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
@@ -164,8 +173,6 @@ export default function Files() {
               })
             }
           })
-
-          await getData(setFileArr, setFileTree, router, paramsRef) //TODO: Remove once server websocket for live updates is set up
         } catch (err) {
           setCurrentUploadProgress(null)
           if ((err as any as AxiosError).response?.status == 401) {
@@ -348,7 +355,6 @@ export default function Files() {
             setProcessInfo={setProcessInfo}
             getRootProps={getRootProps}
             getInputProps={getInputProps}
-            getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
           />
         </section>
         <FolderDetails />
@@ -368,22 +374,19 @@ export default function Files() {
         <ConfirmDelete 
           openDeleteConfirm={openDeleteConfirm} 
           setOpenDeleteConfirm={setOpenDeleteConfirm} 
-          getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
         />
         <Rename 
           openRenameDialog={openRenameDialog}
           setOpenRenameDialog={setOpenRenameDialog}
-          getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
         />
         <NewFolder
           openNewFolderDialog={openNewFolderDialog}
           setOpenNewFolderDialog={setOpenNewFolderDialog}
-          getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
         />
         <MoveFile
+          fileTree={fileTree}
           openMoveFileDialog={openMoveFileDialog}
           setOpenMoveFileDialog={setOpenMoveFileDialog}
-          getData={() => getData(setFileArr, setFileTree, router, paramsRef)}
         />
         <LoggedOutWarning 
           loggedOutWarning={loggedOutWarning}

@@ -9,10 +9,9 @@ import { useLoading } from '../LoadingContext'
 import axios from 'axios'
 
 export default function NewFolder(
-  { openNewFolderDialog, setOpenNewFolderDialog, getData }: {
+  { openNewFolderDialog, setOpenNewFolderDialog }: {
     openNewFolderDialog: string | null;
     setOpenNewFolderDialog: Dispatch<SetStateAction<string | null>>;
-    getData: () => Promise<void>;
   }
 ) {
   const textValue = useRef('')

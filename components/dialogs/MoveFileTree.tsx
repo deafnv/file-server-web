@@ -1,27 +1,15 @@
 import { FileTreeProps, FileTreeRes } from "@/lib/types"
 import CircularProgress from "@mui/material/CircularProgress"
-import axios from "axios"
 import { useState, useEffect, Dispatch, SetStateAction } from "react"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import path from "path"
 
-export default function MoveFileTree({ selectFolder, setSelectFolder }: { selectFolder: string; setSelectFolder: Dispatch<SetStateAction<string>> }) {
-  const [fileTree, setFileTree] = useState<FileTreeRes | null>()
-
-  //TODO: Deprecated getFileTree function, replace with fileTree from main component
-  useEffect(() => {
-    const getFileTree = async () => {
-      try {
-        const fileTreeResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/filetree`)
-        setFileTree(fileTreeResponse.data)
-      } catch (error) {
-        console.log(error)
-        setFileTree(null)
-      }
-    }
-    getFileTree()
-  }, [])
-
+export default function MoveFileTree({ fileTree, selectFolder, setSelectFolder }: 
+{ 
+  fileTree: FileTreeRes | null | undefined;
+  selectFolder: string; 
+  setSelectFolder: Dispatch<SetStateAction<string>>;
+}) {
   return (
     <div className='flex flex-col pb-6 h-[40rem]'>
       <div className="relative flex flex-col p-2 h-full bg-black rounded-md overflow-auto overflow-x-hidden">
