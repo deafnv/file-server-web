@@ -331,7 +331,7 @@ export default function Files() {
         <meta name="description" content="File Server" />
       </Head>
       <main className="grid gap sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] mt-[60px] p-0 md:pt-0 md:p-3 h-[calc(100dvh-60px)]">
-        <section className='hidden sm:grid gap-3 grid-flow-row grid-rows-[0.45fr_0.1fr_0.45fr] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
+        <section className='hidden sm:grid gap-3 grid-flow-row grid-rows-[minmax(0,_0.45fr)_minmax(0,_0.1fr)_minmax(0,_0.45fr)] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
           <FileTree fileTree={fileTree} />
           <StorageSpace />
           <UploadsList 
