@@ -283,7 +283,13 @@ export default function Files() {
         open={folderDetailsOpen}
         onClose={handleFolderDetailsClose}
       >
-        <MenuItem onClick={() => setOpenNewFolderDialog((router.query.path as string[]).join('/'))}>New folder</MenuItem>
+        <MenuItem 
+          onClick={() => {
+            setOpenNewFolderDialog((router.query.path as string[])?.join('/') ?? '/')
+            setFolderDetailsAnchor(null)
+          }}>
+          New folder
+        </MenuItem>
         <hr className='my-1'></hr>
         <MenuItem onClick={handleEncode}>Encode MKV</MenuItem>
         <MenuItem onClick={handleExtract}>Extract captions</MenuItem>

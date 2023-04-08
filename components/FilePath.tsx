@@ -8,6 +8,7 @@ export default function FilePath({ paramsRef, handleFolderDetailsOpen }: {
 }) {
   return (
     <span className='flex items-center text-xl'>
+      {paramsRef.current ?
       <Link 
         data-isdirpath
         data-path='/'
@@ -15,7 +16,14 @@ export default function FilePath({ paramsRef, handleFolderDetailsOpen }: {
         className='p-2 rounded-md transition-colors duration-75 hover:bg-gray-500'
       >
         Files
-      </Link>
+      </Link> :
+      <div 
+        onClick={handleFolderDetailsOpen}
+        className='flex items-center p-2 rounded-md cursor-pointer hover:bg-gray-500 '
+      >
+        <span className='line-clamp-1 break-all'>Files</span>
+        <ArrowDropDownIcon />
+      </div>}
       {paramsRef.current?.map((param, index) => {
         //TODO: Limit to only show 4 previous paths, excluding Files
         if (index == paramsRef.current.length - 1)
@@ -26,9 +34,9 @@ export default function FilePath({ paramsRef, handleFolderDetailsOpen }: {
                 key={index}
                 title={param}
                 onClick={handleFolderDetailsOpen}
-                className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-gray-500 '
+                className='flex items-center px-2 rounded-md cursor-pointer hover:bg-gray-500 '
               >
-                <span className='line-clamp-1 break-all'>{param}</span>
+                <span className='line-clamp-1 my-2 break-all'>{param}</span>
                 <ArrowDropDownIcon />
               </div>
             </>
