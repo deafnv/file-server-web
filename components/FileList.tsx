@@ -110,7 +110,8 @@ export default function FileList(
             if (closestFileDropped[0].file.isDirectory){
               draggedFileRef.current.style.visibility = 'hidden'
 
-              moveFile(selectedFile, closestFileDropped[0].file)
+              if (!selectedFile.includes(closestFileDropped[0].file))
+                moveFile(selectedFile, closestFileDropped[0].file)
             } else {
               //* Do nothing and move back dragged file to its spot (didnt drag into folder)
               draggedFileRef.current.style.visibility = 'hidden'
