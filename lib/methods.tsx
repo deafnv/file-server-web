@@ -1,4 +1,5 @@
 import FolderIcon from '@mui/icons-material/Folder'
+import FolderZipIcon from '@mui/icons-material/FolderZip'
 import MovieIcon from '@mui/icons-material/Movie'
 import ImageIcon from '@mui/icons-material/Image'
 import CodeIcon from '@mui/icons-material/Code'
@@ -7,6 +8,8 @@ import ListAltIcon from '@mui/icons-material/ListAlt'
 import AudioFileIcon from '@mui/icons-material/AudioFile'
 import ArticleIcon from '@mui/icons-material/Article'
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
+import TerminalIcon from '@mui/icons-material/Terminal'
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { FileServerFile, FileTreeRes } from './types'
 import { Dispatch, SetStateAction, MutableRefObject } from 'react'
 import axios from 'axios'
@@ -17,6 +20,7 @@ export function getIcon(file: FileServerFile) {
   const splitName = file.name.split('.')
   const extension = splitName[splitName.length - 1]
   if (splitName.length == 1) return null
+  if (['zip', '7z', 'rar'].includes(extension)) return <FolderZipIcon />
   if (['doc', 'docx', 'txt', 'pdf'].includes(extension)) return <ArticleIcon />
   if (['mkv', 'mp4', 'webm', 'ogg'].includes(extension)) return <MovieIcon />
   if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) return <ImageIcon />
@@ -25,7 +29,8 @@ export function getIcon(file: FileServerFile) {
   if (['js', 'jsx', 'css', 'ts', 'tsx'].includes(extension)) return <CodeIcon />
   if (['xlsx', 'xls', 'csv'].includes(extension)) return <ListAltIcon />
   if (['ass', 'srt', 'vtt'].includes(extension)) return <ClosedCaptionIcon />
-  return null
+  if (['exe'].includes(extension)) return <TerminalIcon />
+  return <InsertDriveFileIcon />
 }
 
 export const getData = async (

@@ -9,7 +9,11 @@ export default function FileTree({ fileTree }: { fileTree: FileTreeRes | null | 
   return (
     <div className='flex flex-col h-full'>
       <h6 className='ml-3 text-lg'>File Tree</h6>
-      <div className="relative flex flex-col p-2 h-full bg-black rounded-md overflow-auto overflow-x-hidden">
+      <div 
+        data-isdirpath
+        data-path="/"
+        className="relative flex flex-col p-2 h-full bg-black rounded-md overflow-auto overflow-x-hidden"
+      >
         {fileTree ?
         <FileTreeComponent fileTree={fileTree} /> :
         fileTree == undefined ? 
@@ -72,6 +76,8 @@ function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', ex
                 />
               </span>
               <Link 
+                data-isdirpath
+                data-path={filePath}
                 href={`/files${filePath}`}
                 title={fileName}
                 onClick={() => handleClick(filePath)}
