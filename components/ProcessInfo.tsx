@@ -1,14 +1,13 @@
-import { Dispatch, SetStateAction } from 'react'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
+import { useAppContext } from '@/components/contexts/AppContext'
 
-export default function ProcessInfo(
-  { processInfo, setProcessInfo }: 
-  {
-    processInfo: string;
-    setProcessInfo: Dispatch<SetStateAction<string>>;
-  }
-) {
+export default function ProcessInfo() {
+  const {
+    processInfo,
+    setProcessInfo
+  } = useAppContext()
+
   function handleClose(event?: React.SyntheticEvent | Event, reason?: string) {
     if (reason === 'clickaway') {
       return

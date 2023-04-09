@@ -53,13 +53,8 @@ export interface Box {
 }
 
 export interface FileListProps { 
-  fileArr: FileServerFile[] | string | null; fileListRef: RefObject<HTMLDivElement>; 
-  contextMenu:  'file' | 'directory' | null; 
-  setContextMenu: Dispatch<SetStateAction<'file' | 'directory' | null>>; 
-  selectedFile:  FileServerFile[]; 
-  setSelectedFile: Dispatch<SetStateAction<FileServerFile[]>>;
-  setProcessInfo: Dispatch<SetStateAction<string>>;
-  setLoggedOutWarning: Dispatch<SetStateAction<boolean>>;
+  fileArr: FileServerFile[] | string | null; 
+  fileListRef: RefObject<HTMLDivElement>; 
   getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
 }

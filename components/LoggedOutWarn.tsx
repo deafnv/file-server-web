@@ -1,14 +1,13 @@
-import { Dispatch, SetStateAction } from 'react'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
+import { useAppContext } from '@/components/contexts/AppContext'
 
-export default function LoggedOutWarning(
-  { loggedOutWarning, setLoggedOutWarning }: 
-  {
-    loggedOutWarning: boolean;
-    setLoggedOutWarning: Dispatch<SetStateAction<boolean>>;
-  }
-) {
+export default function LoggedOutWarning() {
+  const {
+    loggedOutWarning,
+    setLoggedOutWarning
+  } = useAppContext()
+
   function handleClose(event?: React.SyntheticEvent | Event, reason?: string) {
     if (reason === 'clickaway') {
       return

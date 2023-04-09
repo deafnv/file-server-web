@@ -8,6 +8,7 @@ import { FileServerFile, FileTreeRes, UploadProgress } from '@/lib/types'
 import { useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
 import { getCookie } from 'cookies-next'
+import { useAppContext } from '@/components/contexts/AppContext'
 import ContextMenu from '@/components/ContextMenu'
 import FileList from '@/components/FileList'
 import LoggedOutWarning from '@/components/LoggedOutWarn'
@@ -20,7 +21,6 @@ import NewFolder from '@/components/dialogs/NewFolder'
 import MoveFile from '@/components/dialogs/MoveFile'
 import ProcessInfo from '@/components/ProcessInfo'
 import ProcessError from '@/components/ProcessError'
-import path from 'path'
 import FilePath from '@/components/FilePath'
 import { getData, getFileTree } from '@/lib/methods'
 import { io, Socket } from 'socket.io-client'
@@ -33,24 +33,22 @@ export default function Files() {
   const contextMenuRef = useRef<HTMLMenuElement>(null)
   const filesToUpload = useRef<File[]>([])
 
-  const [selectedFile, setSelectedFile] = useState<FileServerFile[]>([])
-  const [contextMenu, setContextMenu] = useState<'file' | 'directory' | null>(null)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
   const [fileTree, setFileTree] = useState<FileTreeRes | null>()
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<File[] | null>(null)
-  const [loggedOutWarning, setLoggedOutWarning] = useState(false)
-  const [processInfo, setProcessInfo] = useState('')
-  const [processError, setProcessError] = useState('')
-  const [openDeleteConfirm, setOpenDeleteConfirm] = useState<FileServerFile[] | null>(null)
-  const [openRenameDialog, setOpenRenameDialog] = useState<FileServerFile | null>(null)
-  const [openNewFolderDialog, setOpenNewFolderDialog] = useState<string | null>(null)
-  const [openMoveFileDialog, setOpenMoveFileDialog] = useState<FileServerFile[] | null>(null)
   const [folderDetailsAnchor, setFolderDetailsAnchor] = useState<HTMLElement | null>(null)
 
   const folderDetailsOpen = Boolean(folderDetailsAnchor)
 
   const router = useRouter()
+  const {
+    setSelectedFile,
+    contextMenu,
+    setContextMenu,
+    setLoggedOutWarning,
+    setOpenNewFolderDialog
+  } = useAppContext()
 
   useEffect(() => {
     const socketListHandler = (payload: any) => {
@@ -248,12 +246,6 @@ export default function Files() {
           <FileList
             fileArr={fileArr} 
             fileListRef={fileListRef} 
-            contextMenu={contextMenu} 
-            setContextMenu={setContextMenu}
-            selectedFile={selectedFile}
-            setSelectedFile={setSelectedFile}
-            setProcessInfo={setProcessInfo}
-            setLoggedOutWarning={setLoggedOutWarning}
             getRootProps={getRootProps}
             getInputProps={getInputProps}
           />
@@ -261,46 +253,15 @@ export default function Files() {
         <FolderDetails />
         <ContextMenu 
           contextMenuRef={contextMenuRef} 
-          contextMenu={contextMenu} 
-          setContextMenu={setContextMenu} 
-          selectedFile={selectedFile}
-          router={router} 
-          setProcessInfo={setProcessInfo}
-          setLoggedOutWarning={setLoggedOutWarning}
-          setOpenDeleteConfirm={setOpenDeleteConfirm}
-          setOpenRenameDialog={setOpenRenameDialog}
-          setOpenNewFolderDialog={setOpenNewFolderDialog}
-          setOpenMoveFileDialog={setOpenMoveFileDialog}
+          router={router}
         />
-        <ConfirmDelete 
-          openDeleteConfirm={openDeleteConfirm} 
-          setOpenDeleteConfirm={setOpenDeleteConfirm} 
-        />
-        <Rename 
-          openRenameDialog={openRenameDialog}
-          setOpenRenameDialog={setOpenRenameDialog}
-        />
-        <NewFolder
-          openNewFolderDialog={openNewFolderDialog}
-          setOpenNewFolderDialog={setOpenNewFolderDialog}
-        />
-        <MoveFile
-          fileTree={fileTree}
-          openMoveFileDialog={openMoveFileDialog}
-          setOpenMoveFileDialog={setOpenMoveFileDialog}
-        />
-        <LoggedOutWarning 
-          loggedOutWarning={loggedOutWarning}
-          setLoggedOutWarning={setLoggedOutWarning}
-        />
-        <ProcessInfo
-          processInfo={processInfo}
-          setProcessInfo={setProcessInfo}
-        />
-        <ProcessError
-          processError={processError}
-          setProcessError={setProcessError}
-        />
+        <ConfirmDelete />
+        <Rename />
+        <NewFolder />
+        <MoveFile fileTree={fileTree} />
+        <LoggedOutWarning />
+        <ProcessInfo />
+        <ProcessError />
       </main>
     </>
   )

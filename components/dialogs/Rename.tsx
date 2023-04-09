@@ -4,19 +4,18 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import { Dispatch, SetStateAction, useRef } from 'react'
-import { FileServerFile } from '@/lib/types'
-import { useLoading } from '../LoadingContext'
+import { useLoading } from '@/components/contexts/LoadingContext'
+import { useAppContext } from '@/components/contexts/AppContext'
+import { useRef } from 'react'
 import axios from 'axios'
 
-export default function Rename(
-  { openRenameDialog, setOpenRenameDialog }: {
-    openRenameDialog: FileServerFile | null;
-    setOpenRenameDialog: Dispatch<SetStateAction<FileServerFile | null>>;
-  }
-) {
+export default function Rename() {
   const textValue = useRef('')
   const { setLoading } = useLoading()
+  const {
+    openRenameDialog,
+    setOpenRenameDialog
+  } = useAppContext()
 
   async function handleRename() {
     setLoading(true)

@@ -2,18 +2,16 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import Button from '@mui/material/Button'
-import { Dispatch, SetStateAction } from 'react'
-import { FileServerFile } from '@/lib/types'
-import { useLoading } from '../LoadingContext'
+import { useLoading } from '@/components/contexts/LoadingContext'
 import axios from 'axios'
+import { useAppContext } from '@/components/contexts/AppContext'
 
-export default function ConfirmDelete(
-  { openDeleteConfirm, setOpenDeleteConfirm }: {
-    openDeleteConfirm: FileServerFile[] | null;
-    setOpenDeleteConfirm: Dispatch<SetStateAction<FileServerFile[] | null>>;
-  }
-) {
+export default function ConfirmDelete() {
   const { setLoading } = useLoading()
+  const {
+    openDeleteConfirm,
+    setOpenDeleteConfirm
+  } = useAppContext()
 
   async function handleDelete() {
     setLoading(true)

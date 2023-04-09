@@ -4,18 +4,18 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import { Dispatch, SetStateAction, useRef } from 'react'
-import { useLoading } from '../LoadingContext'
+import { useRef } from 'react'
+import { useLoading } from '@/components/contexts/LoadingContext'
+import { useAppContext } from '@/components/contexts/AppContext'
 import axios from 'axios'
 
-export default function NewFolder(
-  { openNewFolderDialog, setOpenNewFolderDialog }: {
-    openNewFolderDialog: string | null;
-    setOpenNewFolderDialog: Dispatch<SetStateAction<string | null>>;
-  }
-) {
+export default function NewFolder() {
   const textValue = useRef('')
   const { setLoading } = useLoading()
+  const {
+    openNewFolderDialog,
+    setOpenNewFolderDialog
+  } = useAppContext()
 
   async function handleRename() {
     setLoading(true)

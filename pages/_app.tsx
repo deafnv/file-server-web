@@ -1,10 +1,11 @@
 import type { AppProps } from 'next/app'
 import '@/styles/globals.css'
 import HeadCommon from '@/components/HeadCommon'
-import { LoadingProvider } from '@/components/LoadingContext'
+import { LoadingProvider } from '@/components/contexts/LoadingContext'
+import { AppContextProvider } from '@/components/contexts/AppContext'
 import Navbar from '@/components/Navbar'
 
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 
 const theme = createTheme({
   palette: {
@@ -32,9 +33,11 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <LoadingProvider>
         <ThemeProvider theme={theme}>
-          <HeadCommon />
+          <AppContextProvider>
+            <HeadCommon />
             <Navbar />
             <Component {...pageProps} />
+          </AppContextProvider>
         </ThemeProvider>
       </LoadingProvider>
     </>

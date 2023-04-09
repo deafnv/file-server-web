@@ -4,21 +4,20 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import Button from '@mui/material/Button'
 import { Dispatch, SetStateAction, useState } from 'react'
-import { useLoading } from '../LoadingContext'
+import { useLoading } from '@/components/contexts/LoadingContext'
 import axios from 'axios'
 import { FileServerFile, FileTreeRes } from '@/lib/types'
 import MoveFileTree from './MoveFileTree'
+import { useAppContext } from '@/components/contexts/AppContext'
 
-export default function MoveFile(
-  { fileTree, openMoveFileDialog, setOpenMoveFileDialog }: {
-    fileTree: FileTreeRes | null | undefined;
-    openMoveFileDialog: FileServerFile[] | null;
-    setOpenMoveFileDialog: Dispatch<SetStateAction<FileServerFile[] | null>>;
-  }
-) {
+export default function MoveFile({ fileTree }: { fileTree: FileTreeRes | null | undefined; }) {
   const [selectFolder, setSelectFolder] = useState('')
 
   const { setLoading } = useLoading()
+  const {
+    openMoveFileDialog,
+    setOpenMoveFileDialog
+  } = useAppContext()
 
   async function handleRename() {
     setLoading(true)

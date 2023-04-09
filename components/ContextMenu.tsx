@@ -1,24 +1,27 @@
-import { FileServerFile } from '@/lib/types'
-import { getCookie } from 'cookies-next';
+import { getCookie } from 'cookies-next'
 import { NextRouter } from 'next/router'
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { RefObject } from 'react'
+import { useAppContext } from '@/components/contexts/AppContext'
 
 export default function ContextMenu(
-  { contextMenuRef, contextMenu, setContextMenu, selectedFile, router, setProcessInfo, setLoggedOutWarning, setOpenDeleteConfirm, setOpenRenameDialog, setOpenNewFolderDialog, setOpenMoveFileDialog }: 
+  { contextMenuRef, router }: 
   { 
-    contextMenuRef: RefObject<HTMLMenuElement>; 
-    contextMenu: 'file' | 'directory' | null; 
-    setContextMenu: Dispatch<SetStateAction<'file' | 'directory' | null>>;
-    selectedFile: FileServerFile[] | null;
+    contextMenuRef: RefObject<HTMLMenuElement>;
     router: NextRouter;
-    setProcessInfo: Dispatch<SetStateAction<string>>;
-    setLoggedOutWarning: Dispatch<SetStateAction<boolean>>;
-    setOpenDeleteConfirm: Dispatch<SetStateAction<FileServerFile[] | null>>;
-    setOpenRenameDialog: Dispatch<SetStateAction<FileServerFile | null>>;
-    setOpenNewFolderDialog: Dispatch<SetStateAction<string | null>>;
-    setOpenMoveFileDialog: Dispatch<SetStateAction<FileServerFile[] | null>>;
   }
 ) {
+  const {
+    contextMenu,
+    setContextMenu,
+    selectedFile,
+    setLoggedOutWarning,
+    setOpenNewFolderDialog,
+    setProcessInfo,
+    setOpenDeleteConfirm,
+    setOpenRenameDialog,
+    setOpenMoveFileDialog
+  } = useAppContext()
+
   function handleNewFolder() {
     if (getCookie('userdata')) {
       setOpenNewFolderDialog((router.query.path as string[])?.join('/') ?? '/')

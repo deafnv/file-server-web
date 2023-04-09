@@ -1,20 +1,21 @@
-import { FileListProps, FileServerFile, Point } from '@/lib/types'
+import { FileListProps, FileServerFile } from '@/lib/types'
 import { useRouter } from 'next/router'
 import { useEffect, useRef } from 'react'
 import prettyBytes from 'pretty-bytes'
 import CircularProgress from '@mui/material/CircularProgress'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
-import FileCopyIcon from '@mui/icons-material/FileCopy';
+import FileCopyIcon from '@mui/icons-material/FileCopy'
 import DragSelectionArea from '@/components/DragSelection'
 import isEqual from 'lodash/isEqual'
 import { getIcon } from '@/lib/methods'
-import { useLoading } from './LoadingContext'
+import { useLoading } from '@/components/contexts/LoadingContext'
+import { useAppContext } from '@/components/contexts/AppContext'
 import axios from 'axios'
 import { getCookie } from 'cookies-next'
 import path from 'path'
 
 export default function FileList(
-  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, setProcessInfo, setLoggedOutWarning, getRootProps, getInputProps }: FileListProps
+  { fileArr, fileListRef, getRootProps, getInputProps }: FileListProps
 ) {
   const startingFileSelect = useRef<number | null>(null)
   const dragOverlayRef = useRef<HTMLDivElement>(null)
@@ -27,6 +28,14 @@ export default function FileList(
 
   const router = useRouter()
   const { setLoading } = useLoading()
+  const {
+    contextMenu,
+    setContextMenu,
+    selectedFile,
+    setSelectedFile,
+    setLoggedOutWarning,
+    setProcessInfo
+  } = useAppContext()
 
   useEffect(() => {
     const preventShiftSelect = (e: any) => {
