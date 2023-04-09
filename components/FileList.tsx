@@ -237,10 +237,6 @@ export default function FileList(
     }
   }
 
-  function handleBlur() {
-    if (!contextMenu) setSelectedFile([])
-  }
-
   if (fileArr == null || fileArr == 'Error loading data from server') {
     return (
       <div className='flex flex-col m-0 md:m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
@@ -292,7 +288,7 @@ export default function FileList(
       data-cy='file-list'
       data-disableselect={false}
       ref={fileListRef}
-      onBlur={handleBlur}
+      onBlur={() => {if (!contextMenu) setSelectedFile([])}}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onContextMenu={(e) => {if (e.target == fileListRef.current) setContextMenu('directory')}}
