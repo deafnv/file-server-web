@@ -11,6 +11,7 @@ import { getIcon } from '@/lib/methods'
 import { useLoading } from './LoadingContext'
 import axios from 'axios'
 import { getCookie } from 'cookies-next'
+import path from 'path'
 
 export default function FileList(
   { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, setProcessInfo, setLoggedOutWarning, getRootProps, getInputProps }: FileListProps
@@ -60,7 +61,12 @@ export default function FileList(
         withCredentials: true
       })
       setLoading(false)
-      setProcessInfo('')
+      const directoryParse = typeof directory == 'string' ? path.parse(directory).name : path.parse(directory.path).name
+      setProcessInfo(
+        files.length > 1 ? 
+        `Moved ${files.length} files into ${directoryParse}` :
+        `Moved ${files[0].name} into ${directoryParse}`
+      )
     } catch (error) {
       alert(error)
       console.log(error)

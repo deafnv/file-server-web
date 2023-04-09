@@ -23,7 +23,7 @@ export default function ProcessInfo(
       onClose={handleClose}
       autoHideDuration={6000}
     >
-      <Alert severity='info' className='text-sky-500 font-bold bg-white'>
+      <Alert severity='info' className='text-sky-500 font-bold bg-white max-w-[35dvw] max-h-[4.5rem]'>
         {processInfo}
       </Alert>
     </Snackbar>
