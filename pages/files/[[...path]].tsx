@@ -191,7 +191,7 @@ export default function Files() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])
   
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({onDrop, noClick: true})
+  const { getRootProps, getInputProps, open } = useDropzone({onDrop, noClick: true})
   
   function handleOpenFileDialog() {
     if (getCookie('userdata')) {
@@ -205,121 +205,21 @@ export default function Files() {
     setFolderDetailsAnchor(e.currentTarget)
   }
 
-  function handleFolderDetailsClose() {
-    setFolderDetailsAnchor(null)
-  }
-
   function FolderDetails() {
-    async function handleEncode() {
-      if (!(fileArr instanceof Array)) return
-      if (!getCookie('userdata')) {
-        setLoggedOutWarning(true)
-        return
-      }
-      if (fileArr.filter(file => (path.parse(file.name).ext == '.mkv' && !file.isDirectory)).length == 0) {
-        setProcessError('No mkv files in folder')
-        return
-      }
-      try {
-        const encodeResponse = await axios({
-          method: 'POST',
-          url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/encodequeue/add/${(router.query.path as string[])?.join('/') ?? ''}`,
-          data: {},
-          withCredentials: true
-        })
-        if (encodeResponse.data.data) {
-          setProcessInfo(`Added files to queue, ${encodeResponse.data.data.length} file(s) failed to add`)
-        } else {
-          setProcessInfo('All files successfully added to queue')
-        }
-      } catch (error) {
-        console.log(error)
-        setProcessError('Something went wrong, failed to add to queue')
-      }
-    }
-
-    async function handleExtract() {
-      if (!(fileArr instanceof Array)) return
-      if (!getCookie('userdata')) {
-        setLoggedOutWarning(true)
-        return
-      }
-      if (fileArr.filter(file => (path.parse(file.name).ext == '.mkv' && !file.isDirectory)).length == 0) {
-        setProcessError('No mkv files in folder')
-        return
-      }
-      try {
-        const extractResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/caption/${(router.query.path as string[])?.join('/') ?? ''}`, { withCredentials: true })
-        setProcessInfo('Successfully extracted captions') //TODO: Deal with SSE here
-      } catch (error) {
-        console.log(error)
-        setProcessError('Something went wrong, failed to extract captions')
-      }
-    }
-
-    async function handleConvert() {
-      //! Ask for subtitle id
-      /* if (!(fileArr instanceof Array)) return
-      if (!getCookie('userdata')) {
-        setLoggedOutWarning(true)
-        return
-      }
-      if (fileArr.filter(file => (path.parse(file.name).ext == '.mkv' && !file.isDirectory)).length == 0) {
-        setProcessError('No mkv files in folder')
-        return
-      } else if (fileArr.filter(file => file.name == 'captions').length == 0) {
-        setProcessError('No captions folder found')
-        return
-      }
-      try {
-        const convertResponse =  await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/convertcc/${(router.query.path as string[])?.join('/') ?? ''}`, { withCredentials: true })
-        setProcessInfo('Successfully converted captions')
-      } catch (error) {
-        console.log(error)
-        setProcessError('Something went wrong, failed to convert captions')
-      } */
-    }
-
-    async function handleManifest() {
-      if (!(fileArr instanceof Array)) return
-      if (!getCookie('userdata')) {
-        setLoggedOutWarning(true)
-        return
-      }
-      if (fileArr.filter(file => file.name == 'captions').length == 0) {
-        setProcessError('No captions folder found')
-        return
-      } else if (fileArr.filter(file => file.name == 'converted').length == 0) {
-        setProcessError('No converted folder found')
-        return
-      }
-      try {
-        const manifestResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/manifest/${(router.query.path as string[])?.join('/') ?? ''}`, { withCredentials: true })
-        setProcessInfo('Successfully generated manifests') //TODO: Deal with SSE here
-      } catch (error) {
-        console.log(error)
-        setProcessError('Something went wrong, failed to generate manifests')
-      }
-    }
-      
     return (
       <Menu 
         anchorEl={folderDetailsAnchor}
         open={folderDetailsOpen}
-        onClose={handleFolderDetailsClose}
+        onClose={() => setFolderDetailsAnchor(null)}
       >
         <MenuItem 
           onClick={() => {
+            if (!getCookie('userdata')) return setLoggedOutWarning(true)
             setOpenNewFolderDialog((router.query.path as string[])?.join('/') ?? '/')
             setFolderDetailsAnchor(null)
           }}>
           New folder
         </MenuItem>
-        <hr className='my-1'></hr>
-        <MenuItem onClick={handleEncode}>Encode MKV</MenuItem>
-        <MenuItem onClick={handleExtract}>Extract captions</MenuItem>
-        <MenuItem onClick={handleConvert}>Convert Captions</MenuItem>
-        <MenuItem onClick={handleManifest}>Generate manifests</MenuItem>
       </Menu>
     )
   }
