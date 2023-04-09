@@ -10,9 +10,10 @@ import isEqual from 'lodash/isEqual'
 import { getIcon } from '@/lib/methods'
 import { useLoading } from './LoadingContext'
 import axios from 'axios'
+import { getCookie } from 'cookies-next'
 
 export default function FileList(
-  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, setProcessInfo, getRootProps, getInputProps }: FileListProps
+  { fileArr, fileListRef, contextMenu, setContextMenu, selectedFile, setSelectedFile, setProcessInfo, setLoggedOutWarning, getRootProps, getInputProps }: FileListProps
 ) {
   const startingFileSelect = useRef<number | null>(null)
   const dragOverlayRef = useRef<HTMLDivElement>(null)
@@ -46,6 +47,7 @@ export default function FileList(
   }, [])
 
   async function moveFile(files: FileServerFile[], directory: FileServerFile | string) {
+    if (!getCookie('userdata')) return setLoggedOutWarning(true)
     setLoading(true)
     try { 
       await axios({

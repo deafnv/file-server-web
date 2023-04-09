@@ -253,6 +253,7 @@ export default function Files() {
             selectedFile={selectedFile}
             setSelectedFile={setSelectedFile}
             setProcessInfo={setProcessInfo}
+            setLoggedOutWarning={setLoggedOutWarning}
             getRootProps={getRootProps}
             getInputProps={getInputProps}
           />

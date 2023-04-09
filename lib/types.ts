@@ -59,6 +59,7 @@ export interface FileListProps {
   selectedFile:  FileServerFile[]; 
   setSelectedFile: Dispatch<SetStateAction<FileServerFile[]>>;
   setProcessInfo: Dispatch<SetStateAction<string>>;
+  setLoggedOutWarning: Dispatch<SetStateAction<boolean>>;
   getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
 }
