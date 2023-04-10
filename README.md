@@ -1,5 +1,5 @@
 # file-server-app
 
-File server web interface designed for [file-server-api](https://file-server-app-demo.vercel.app/files).
+File server web interface designed for [file-server-api](https://github.com/deafnv/file-server-api).
 
-#### [Demo](https://github.com/deafnv/file-server-api)
+#### [Demo](https://file-server-web.vercel.app/files)
