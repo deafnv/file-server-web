@@ -13,6 +13,7 @@ import { useAppContext } from '@/components/contexts/AppContext'
 import axios from 'axios'
 import { getCookie } from 'cookies-next'
 import path from 'path'
+import DraggedFile from './DraggedFile'
 
 export default function FileList(
   { fileArr, fileListRef, getRootProps, getInputProps }: FileListProps
@@ -361,24 +362,7 @@ export default function FileList(
         setSelectedFile={setSelectedFile}
         startingFileSelect={startingFileSelect}
       />
-      <div
-        ref={draggedFileRef}
-        className='invisible fixed top-0 left-0 z-50 p-3 flex gap-2 h-[3.3rem] w-[12rem] bg-black border-[1px] border-gray-500 rounded-md shadow-lg shadow-gray-900 pointer-events-none'
-      >
-        <span className='w-[1.5rem]'>
-          {selectedFile.length ? getIcon(selectedFile[0]) : null}
-        </span>
-        <div 
-          className='flex items-center overflow-hidden'
-        >
-          <span 
-            data-isfilename
-            className='line-clamp-1 w-fit'
-          >
-            {selectedFile.length ? selectedFile[0].name : ''}
-          </span>
-        </div>
-      </div>
+      <DraggedFile ref={draggedFileRef} />
       <div 
         data-cy='dragged-file'
         ref={dragOverlayRef}
