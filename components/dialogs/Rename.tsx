@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import { useLoading } from '@/components/contexts/LoadingContext'
 import { useAppContext } from '@/components/contexts/AppContext'
-import { useRef } from 'react'
+import { FormEvent, useRef } from 'react'
 import axios from 'axios'
 
 export default function Rename() {
@@ -14,10 +14,12 @@ export default function Rename() {
   const { setLoading } = useLoading()
   const {
     openRenameDialog,
-    setOpenRenameDialog
+    setOpenRenameDialog,
+    setContextMenu
   } = useAppContext()
 
-  async function handleRename() {
+  async function handleRename(e: FormEvent) {
+    e.preventDefault()
     setLoading(true)
     try { 
       await axios({
@@ -31,6 +33,7 @@ export default function Rename() {
       })
       setLoading(false)
       setOpenRenameDialog(null)
+      setContextMenu(null)
     } catch (error) {
       alert(error)
       console.log(error)
@@ -43,27 +46,29 @@ export default function Rename() {
       open={!!openRenameDialog}
       onClose={() => setOpenRenameDialog(null)}
     >
-      <DialogTitle>
-        Rename
-      </DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          type="text"
-          fullWidth
-          variant="outlined"
-          className='w-96'
-          defaultValue={openRenameDialog?.name}
-          onChange={(e) => textValue.current = e.target.value}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setOpenRenameDialog(null)}>
-          Cancel
-        </Button>
-        <Button onClick={handleRename}>OK</Button>
-      </DialogActions>
+      <form onSubmit={handleRename}>
+        <DialogTitle>
+          Rename
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            type="text"
+            fullWidth
+            variant="outlined"
+            className='w-96'
+            defaultValue={openRenameDialog?.name}
+            onChange={(e) => textValue.current = e.target.value}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenRenameDialog(null)}>
+            Cancel
+          </Button>
+          <Button type='submit'>OK</Button>
+        </DialogActions>
+      </form>
     </Dialog>
   )
 }

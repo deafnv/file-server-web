@@ -4,7 +4,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import { useRef } from 'react'
+import { FormEvent, useRef } from 'react'
 import { useLoading } from '@/components/contexts/LoadingContext'
 import { useAppContext } from '@/components/contexts/AppContext'
 import axios from 'axios'
@@ -14,10 +14,12 @@ export default function NewFolder() {
   const { setLoading } = useLoading()
   const {
     openNewFolderDialog,
-    setOpenNewFolderDialog
+    setOpenNewFolderDialog,
+    setContextMenu
   } = useAppContext()
 
-  async function handleRename() {
+  async function handleRename(e: FormEvent) {
+    e.preventDefault()
     setLoading(true)
     try { 
       await axios({
@@ -31,6 +33,7 @@ export default function NewFolder() {
       })
       setLoading(false)
       setOpenNewFolderDialog(null)
+      setContextMenu(null)
     } catch (error) {
       alert(error)
       console.log(error)
@@ -43,32 +46,34 @@ export default function NewFolder() {
       open={!!openNewFolderDialog}
       onClose={() => setOpenNewFolderDialog(null)}
     >
-      <DialogTitle>
-        New folder
-      </DialogTitle>
-      <DialogContent>
-        <TextField
-          data-cy="new-folder-input"
-          autoFocus
-          margin="dense"
-          type="text"
-          fullWidth
-          variant="outlined"
-          className='w-96'
-          onChange={(e) => textValue.current = e.target.value}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setOpenNewFolderDialog(null)}>
-          Cancel
-        </Button>
-        <Button 
-          data-cy="new-folder-submit"
-          onClick={handleRename}
-        >
-          Create
-        </Button>
-      </DialogActions>
+      <form onSubmit={handleRename}>
+        <DialogTitle>
+          New folder
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            data-cy="new-folder-input"
+            autoFocus
+            margin="dense"
+            type="text"
+            fullWidth
+            variant="outlined"
+            className='w-96'
+            onChange={(e) => textValue.current = e.target.value}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenNewFolderDialog(null)}>
+            Cancel
+          </Button>
+          <Button 
+            type='submit'
+            data-cy="new-folder-submit"
+          >
+            Create
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   )
 }
