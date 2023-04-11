@@ -1,6 +1,6 @@
 import { FileTreeProps, FileTreeRes } from "@/lib/types"
 import CircularProgress from "@mui/material/CircularProgress"
-import { useState, useEffect, Dispatch, SetStateAction } from "react"
+import { useState, useRef, Dispatch, SetStateAction } from "react"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import path from "path"
 
@@ -10,9 +10,15 @@ export default function MoveFileTree({ fileTree, selectFolder, setSelectFolder }
   selectFolder: string; 
   setSelectFolder: Dispatch<SetStateAction<string>>;
 }) {
+  const moveFileTreeParentRef = useRef<HTMLDivElement>(null)
+
   return (
     <div className='flex flex-col pb-6 h-[40rem]'>
-      <div className="relative flex flex-col p-2 h-full bg-black rounded-md overflow-auto overflow-x-hidden">
+      <div 
+        ref={moveFileTreeParentRef}
+        onClick={(e) => {if (e.target == moveFileTreeParentRef.current) setSelectFolder('/')}}
+        className={`relative flex flex-col p-2 h-full bg-black border-2 ${selectFolder == '/' ? 'border-sky-600' : 'border-black'} rounded-md overflow-auto overflow-x-hidden`}
+      >
         {fileTree ?
         <FileTreeComponent 
           fileTree={fileTree} 

@@ -11,7 +11,7 @@ import MoveFileTree from './MoveFileTree'
 import { useAppContext } from '@/components/contexts/AppContext'
 
 export default function MoveFile({ fileTree }: { fileTree: FileTreeRes | null | undefined; }) {
-  const [selectFolder, setSelectFolder] = useState('')
+  const [selectFolder, setSelectFolder] = useState('/')
 
   const { setLoading } = useLoading()
   const {
