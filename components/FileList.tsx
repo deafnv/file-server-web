@@ -5,7 +5,6 @@ import prettyBytes from 'pretty-bytes'
 import CircularProgress from '@mui/material/CircularProgress'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
 import FileCopyIcon from '@mui/icons-material/FileCopy'
-import DragSelectionArea from '@/components/DragSelection'
 import isEqual from 'lodash/isEqual'
 import { getIcon } from '@/lib/methods'
 import { useLoading } from '@/components/contexts/LoadingContext'
@@ -14,6 +13,7 @@ import axios from 'axios'
 import { getCookie } from 'cookies-next'
 import path from 'path'
 import DraggedFile from './DraggedFile'
+import DragSelectionArea from './DragSelection'
 
 export default function FileList(
   { fileArr, fileListRef, getRootProps, getInputProps }: FileListProps
@@ -356,11 +356,8 @@ export default function FileList(
         )
       })}
       <DragSelectionArea 
-        fileListRef={fileListRef} 
+        fileListRef={fileListRef}
         fileArr={fileArr}
-        selectedFile={selectedFile}
-        setSelectedFile={setSelectedFile}
-        startingFileSelect={startingFileSelect}
       />
       <DraggedFile ref={draggedFileRef} />
       <div 

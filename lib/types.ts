@@ -40,18 +40,6 @@ export interface FileTreeRes {
   [key: string]: FileTreeRes;
 }
 
-export interface Point {
-  x: number;
-  y: number;
-}
-
-export interface Box {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
-
 export interface FileListProps { 
   fileArr: FileServerFile[] | string | null; 
   fileListRef: RefObject<HTMLDivElement>; 
@@ -76,7 +64,4 @@ export interface FileTreeProps {
 export interface DragSelectionAreaProps {
   fileListRef: RefObject<HTMLDivElement>;
   fileArr: string | FileServerFile[] | null;
-  selectedFile: FileServerFile[];
-  setSelectedFile:  Dispatch<SetStateAction<FileServerFile[]>>;
-  startingFileSelect: MutableRefObject<number | null>;
 }
