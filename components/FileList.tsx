@@ -173,12 +173,39 @@ export default function FileList(
   }, [dragOverlayRef.current, fileArr])
 
   useEffect(() => {
-    //* Select all files Ctrl + A
-    const keyDownListener = (e: KeyboardEvent) => {
+    const keyDownListener = async (e: KeyboardEvent) => {
+      //* Select all files Ctrl + A
       if (e.ctrlKey && e.key == 'a') e.preventDefault()
       if (e.ctrlKey && e.key == 'a' && fileArr && typeof fileArr !== 'string' && document.activeElement == fileListRef.current) {
         e.preventDefault()
         setSelectedFile(fileArr)
+      }
+
+      //* Copy files into directory Ctrl + V
+      if (e.ctrlKey && e.key == 'v') {
+        const clipboardData = await navigator.clipboard.read()
+        //* If clipboard has text/html and file list has focus
+        if (clipboardData.some(item => item.types.some(type => type.includes('text/html'))) && document.activeElement == fileListRef.current) {
+          //* Copy file into current folder
+          clipboardData.forEach(item => 
+            item.getType('text/html')
+            .then(async clipboardItem => {
+              const text = await clipboardItem.text()
+              axios({
+                method: 'POST',
+                url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/copy`,
+                data: {
+                  pathToFiles: JSON.parse(text),
+                  newPath: (router.query.path as string[])?.join('/') ?? '/'
+                },
+                withCredentials: true
+              })
+              .then(() => setProcessInfo(`Copied files(s) sucessfully`))
+              .catch(err => setProcessInfo('Something went wrong while copying files'))
+            })
+            .catch(err => {})
+          )
+        }
       }
     }
 
@@ -192,9 +219,16 @@ export default function FileList(
 
   useEffect(() => {
     const copySelected = async (e: KeyboardEvent) => {
-      if (e.key == 'c' && e.ctrlKey && selectedFile.length) { //TODO: Change to copy files or links to files
-        await navigator.clipboard.writeText(selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`)
-        setProcessInfo('Link copied to clipboard')
+      //* Copy link and list of paths to clipboard
+      if (e.key == 'c' && e.ctrlKey && selectedFile.length) {
+        const fileLink = selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`
+        const htmlItem = selectedFile.map(file => file.path)
+        const textItem = new ClipboardItem({
+           'text/plain': new Blob([fileLink], { type: 'text/plain' }),
+           'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' })
+        })
+        await navigator.clipboard.write([textItem])
+        setProcessInfo('Item copied to clipboard')
       }
     }
 
