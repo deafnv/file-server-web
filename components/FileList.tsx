@@ -46,7 +46,7 @@ export default function FileList(
       }
     }
 
-    ["keyup","keydown"].forEach((event) => {
+    ["keyup","keydown"].forEach(function (event) {
       window.addEventListener(event, preventShiftSelect)
     })
 
@@ -57,6 +57,54 @@ export default function FileList(
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    //* Allows navigation of file list with arrow keys and enter
+    //FIXME: Weird interactions with ctrl + a select all
+    const keyboardNavigate = (e: KeyboardEvent) => {
+      const navigationKeys = ['ArrowDown', 'ArrowUp', 'Enter']
+      if (!(fileArr instanceof Array) || !navigationKeys.includes(e.key)) return
+      const lastSelectedFile = selectedFile[selectedFile.length - 1]
+      const lastSelectedFileIndex = fileArr.lastIndexOf(lastSelectedFile)
+      let toSelect: FileServerFile[] = []
+      let shouldSet: boolean = true //* Set to false if at top or bottom of list
+      switch (e.key) {
+        case 'ArrowDown':
+          if (selectedFile.includes(fileArr[fileArr.length - 1]) && selectedFile.length !== fileArr.length) {
+            shouldSet = false
+            break
+          }
+          toSelect = !selectedFile.length ? [fileArr[0]] : [fileArr[lastSelectedFileIndex + 1]]
+          if (!e.shiftKey) startingFileSelect.current = !selectedFile.length ? 0 : lastSelectedFileIndex + 1
+          break
+        case 'ArrowUp':
+          if (selectedFile.includes(fileArr[0])  && selectedFile.length !== fileArr.length) {
+            shouldSet = false
+            break
+          }
+          toSelect = !selectedFile.length ? [fileArr[0]] : [fileArr[lastSelectedFileIndex - 1]]
+          if (!e.shiftKey) startingFileSelect.current = !selectedFile.length ? 0 : lastSelectedFileIndex - 1
+          break
+        case 'Enter':
+          if (selectedFile.length > 1) break
+          selectedFile[0].isDirectory ? router.push(`/files${selectedFile[0].path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`)
+        default: break
+      }
+      //* If shift key pressed behave combine selections, or remove them
+      if (e.shiftKey) {
+        if (selectedFile.includes(toSelect[0])) toSelect = selectedFile.slice(0, -1)
+        else toSelect = selectedFile.concat(toSelect)
+      }
+      //? I have no clue why there is undefined in the array, but this fixes it. Something with ctrl + a
+      if (shouldSet) setSelectedFile(toSelect.filter(item => item))
+      console.log(selectedFile)
+    }
+    
+    document.addEventListener("keydown", keyboardNavigate)
+
+    return () => document.removeEventListener("keydown", keyboardNavigate)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileArr, selectedFile])
 
   async function moveFile(files: FileServerFile[], directory: FileServerFile | string) {
     if (!getCookie('userdata')) return setLoggedOutWarning(true)
