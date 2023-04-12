@@ -1,15 +1,9 @@
 import { getCookie } from 'cookies-next'
 import { NextRouter } from 'next/router'
-import { RefObject } from 'react'
+import { forwardRef, ForwardedRef } from 'react'
 import { useAppContext } from '@/components/contexts/AppContext'
 
-export default function ContextMenu(
-  { contextMenuRef, router }: 
-  { 
-    contextMenuRef: RefObject<HTMLMenuElement>;
-    router: NextRouter;
-  }
-) {
+function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTMLMenuElement>) {
   const {
     contextMenu,
     setContextMenu,
@@ -25,6 +19,7 @@ export default function ContextMenu(
   function handleNewFolder() {
     if (getCookie('userdata')) {
       setOpenNewFolderDialog((router.query.path as string[])?.join('/') ?? '/')
+      setContextMenu(null)
     } else {
       setLoggedOutWarning(true)
     }
@@ -34,7 +29,7 @@ export default function ContextMenu(
     return (
       <menu
         data-cy='context-menu'
-        ref={contextMenuRef}
+        ref={ref}
         className={`${!contextMenu ? 'hidden' : ''} absolute min-w-[12rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] context-menu-directory`}
       >
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
@@ -56,6 +51,7 @@ export default function ContextMenu(
   function handleDelete() {
     if (getCookie('userdata')) {
       setOpenDeleteConfirm(selectedFile)
+      setContextMenu(null)
     } else {
       setLoggedOutWarning(true)
     }
@@ -65,6 +61,7 @@ export default function ContextMenu(
     if (!selectedFile) return
     if (getCookie('userdata')) {
       setOpenRenameDialog(selectedFile[0])
+      setContextMenu(null)
     } else {
       setLoggedOutWarning(true)
     }
@@ -74,6 +71,7 @@ export default function ContextMenu(
     if (!selectedFile) return
     if (getCookie('userdata')) {
       setOpenMoveFileDialog(selectedFile)
+      setContextMenu(null)
     } else {
       setLoggedOutWarning(true)
     }
@@ -82,7 +80,7 @@ export default function ContextMenu(
   return (
     <menu
       data-cy='context-menu'
-      ref={contextMenuRef}
+      ref={ref}
       className="absolute text-left min-w-[12rem] w-[4rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] context-menu"
     >
       <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
@@ -119,3 +117,5 @@ export default function ContextMenu(
     </menu>
   )
 }
+
+export default forwardRef(ContextMenu)

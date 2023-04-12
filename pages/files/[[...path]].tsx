@@ -15,15 +15,12 @@ import LoggedOutWarning from '@/components/LoggedOutWarn'
 import UploadsList from '@/components/UploadsList'
 import StorageSpace from '@/components/StorageSpace'
 import FileTree from '@/components/FileTree'
-import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
-import Rename from '@/components/dialogs/Rename'
-import NewFolder from '@/components/dialogs/NewFolder'
-import MoveFile from '@/components/dialogs/MoveFile'
 import ProcessInfo from '@/components/ProcessInfo'
 import ProcessError from '@/components/ProcessError'
 import FilePath from '@/components/FilePath'
 import { getData, getFileTree } from '@/lib/methods'
 import { io, Socket } from 'socket.io-client'
+import dynamic from 'next/dynamic'
 
 let socket: Socket
 
@@ -47,7 +44,11 @@ export default function Files() {
     contextMenu,
     setContextMenu,
     setLoggedOutWarning,
-    setOpenNewFolderDialog
+    setOpenNewFolderDialog,
+    openDeleteConfirm,
+    openMoveFileDialog,
+    openNewFolderDialog,
+    openRenameDialog
   } = useAppContext()
 
   useEffect(() => {
@@ -222,6 +223,11 @@ export default function Files() {
     )
   }
 
+  const ConfirmDelete = dynamic(() => import('@/components/dialogs/ConfirmDelete'), { ssr: false })
+  const Rename = dynamic(() => import('@/components/dialogs/Rename'), { ssr: false })
+  const NewFolder = dynamic(() => import('@/components/dialogs/NewFolder'), { ssr: false })
+  const MoveFile = dynamic(() => import('@/components/dialogs/MoveFile'), { ssr: false })
+
   return (
     <>
       <Head>
@@ -252,13 +258,13 @@ export default function Files() {
         </section>
         <FolderDetails />
         <ContextMenu 
-          contextMenuRef={contextMenuRef} 
+          ref={contextMenuRef} 
           router={router}
         />
-        <ConfirmDelete />
-        <Rename />
-        <NewFolder />
-        <MoveFile fileTree={fileTree} />
+        {openDeleteConfirm && <ConfirmDelete />}
+        {openRenameDialog && <Rename />}
+        {openNewFolderDialog && <NewFolder />}
+        {openMoveFileDialog && <MoveFile fileTree={fileTree} />}
         <LoggedOutWarning />
         <ProcessInfo />
         <ProcessError />
