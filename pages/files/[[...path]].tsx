@@ -125,9 +125,10 @@ export default function Files() {
       }
     }
 
-    const routeChangeStart = () => {
-      setLoading(true, 800)
+    const routeChangeStart = (e: string) => {
       setContextMenu(null)
+      if (e != '/login')
+        setLoading(true, 800)
     }
 
     document.addEventListener("mousedown", preventSelect)
