@@ -22,6 +22,7 @@ import { getData, getFileTree } from '@/lib/methods'
 import { io, Socket } from 'socket.io-client'
 import dynamic from 'next/dynamic'
 import { useLoading } from '@/components/contexts/LoadingContext'
+import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 
 let socket: Socket
 
@@ -46,7 +47,6 @@ export default function Files() {
     setContextMenu,
     setLoggedOutWarning,
     setOpenNewFolderDialog,
-    openDeleteConfirm,
     openMoveFileDialog,
     openNewFolderDialog,
     openRenameDialog
@@ -229,7 +229,6 @@ export default function Files() {
     )
   }
 
-  const ConfirmDelete = dynamic(() => import('@/components/dialogs/ConfirmDelete'), { ssr: false })
   const Rename = dynamic(() => import('@/components/dialogs/Rename'), { ssr: false })
   const NewFolder = dynamic(() => import('@/components/dialogs/NewFolder'), { ssr: false })
   const MoveFile = dynamic(() => import('@/components/dialogs/MoveFile'), { ssr: false })
@@ -267,7 +266,7 @@ export default function Files() {
           ref={contextMenuRef} 
           router={router}
         />
-        {openDeleteConfirm && <ConfirmDelete />}
+        <ConfirmDelete />
         {openRenameDialog && <Rename />}
         {openNewFolderDialog && <NewFolder />}
         {openMoveFileDialog && <MoveFile fileTree={fileTree} />}

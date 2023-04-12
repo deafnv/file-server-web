@@ -35,7 +35,8 @@ export default function FileList(
     selectedFile,
     setSelectedFile,
     setLoggedOutWarning,
-    setProcessInfo
+    setProcessInfo,
+    setOpenDeleteConfirm
   } = useAppContext()
 
   useEffect(() => {
@@ -221,7 +222,7 @@ export default function FileList(
   }, [fileListRef.current, fileArr])
 
   useEffect(() => {
-    const copyCutSelected = async (e: KeyboardEvent) => {
+    const keyDownActions = async (e: KeyboardEvent) => {
       //* Copy link and list of paths to clipboard
       if (e.key == 'c' && e.ctrlKey && selectedFile.length) {
         const fileLink = selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`
@@ -251,11 +252,16 @@ export default function FileList(
         await navigator.clipboard.write([textItem])
         setProcessInfo('Item cut into clipboard')
       }
+
+      //* Delete file with key Del
+      if (e.key == 'Delete' && selectedFile.length) {
+        setOpenDeleteConfirm(selectedFile)
+      }
     }
 
-    document.addEventListener("keydown", copyCutSelected)
+    document.addEventListener("keydown", keyDownActions)
 
-    return () => document.removeEventListener("keydown", copyCutSelected)
+    return () => document.removeEventListener("keydown", keyDownActions)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile])
 
