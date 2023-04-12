@@ -36,7 +36,8 @@ export function getIcon(file: FileServerFile) {
 export const getData = async (
   setFileArr: Dispatch<SetStateAction<string | FileServerFile[] | null>>,
   router: NextRouter,
-  paramsRef: MutableRefObject<string[]>
+  paramsRef: MutableRefObject<string[]>,
+  setLoading: (state: boolean, timeout?: number) => void
 ) => {
   try {
     const { path } = router.query
@@ -52,6 +53,7 @@ export const getData = async (
     console.log(error)
     setFileArr('Error loading data from server')
   }
+  setLoading(false)
 }
 
 export const getFileTree = async (setFileTree: Dispatch<SetStateAction<FileTreeRes | null | undefined>>) => {

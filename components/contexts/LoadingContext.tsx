@@ -2,7 +2,7 @@ import { createContext, useContext, useState, Dispatch, SetStateAction } from 'r
 
 interface Loading {
 	loading: boolean
-	setLoading: (val: boolean) => void
+	setLoading: (state: boolean, timeout?: number) => void
 }
 
 const loadingContext = createContext<Loading | null>(null)
@@ -13,11 +13,11 @@ export function LoadingProvider({ children }: React.PropsWithChildren) {
 	const [loading, setLoadingState] = useState(false)
 
 	//* Staggered loading if loading takes less than 100ms
-	const setLoading = (val: boolean) => {
-		if (val) {
+	const setLoading = (state: boolean, timeout = 100) => {
+		if (state) {
 			loadingTimer = setTimeout(() => {
 				setLoadingState(true)
-			}, 100)
+			}, timeout)
 		} else {
 			clearTimeout(loadingTimer)
 			setLoadingState(false)

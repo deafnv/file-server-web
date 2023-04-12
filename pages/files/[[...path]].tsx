@@ -21,6 +21,7 @@ import FilePath from '@/components/FilePath'
 import { getData, getFileTree } from '@/lib/methods'
 import { io, Socket } from 'socket.io-client'
 import dynamic from 'next/dynamic'
+import { useLoading } from '@/components/contexts/LoadingContext'
 
 let socket: Socket
 
@@ -50,10 +51,11 @@ export default function Files() {
     openNewFolderDialog,
     openRenameDialog
   } = useAppContext()
+  const { setLoading } = useLoading()
 
   useEffect(() => {
     const socketListHandler = (payload: any) => {
-      getData(setFileArr, router, paramsRef)
+      getData(setFileArr, router, paramsRef, setLoading)
     }
 
     const socketTreeHandler = () => {
@@ -63,7 +65,7 @@ export default function Files() {
     if(router.isReady) {
       socket = io(process.env.NEXT_PUBLIC_FILE_SERVER_URL!)
       socket.on('connect', () => {
-        getData(setFileArr, router, paramsRef)
+        getData(setFileArr, router, paramsRef, setLoading)
         getFileTree(setFileTree)
       })
       
@@ -123,7 +125,10 @@ export default function Files() {
       }
     }
 
-    const routeChangeStart = () => setContextMenu(null)
+    const routeChangeStart = () => {
+      setLoading(true, 800)
+      setContextMenu(null)
+    }
 
     document.addEventListener("mousedown", preventSelect)
     document.addEventListener("contextmenu", customContextMenu)
