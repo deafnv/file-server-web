@@ -1,7 +1,8 @@
 import { Box, DragSelectionAreaProps, FileServerFile, Point } from '@/lib/types'
 import { useRef, useEffect } from 'react'
+import { useAppContext } from './contexts/AppContext'
 
-export default function DragSelectionArea({ fileListRef, fileArr, selectedFile, setSelectedFile, startingFileSelect }: DragSelectionAreaProps) {
+export default function DragSelectionArea({ fileListRef, fileArr }: DragSelectionAreaProps) {
   const mousePos = useRef<Point>({ x: 0, y: 0 })
   const startPos = useRef<Point>({ x: 0, y: 0 })
   const boxPos = useRef<Box>({ left: 0, height: 0, top: 0, width: 0 })
@@ -12,6 +13,8 @@ export default function DragSelectionArea({ fileListRef, fileArr, selectedFile, 
   const ctrlKeyPressed = useRef(false)
   const currentDragSelectedFile = useRef<FileServerFile[]>([])
   const dragAreaRef = useRef<HTMLDivElement>(null)
+
+  const { selectedFile, setSelectedFile } = useAppContext()
 
   useEffect(() => {
     const { offsetTop, offsetLeft } = fileListRef.current!

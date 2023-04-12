@@ -186,22 +186,27 @@ export default function FileList(
         const clipboardData = await navigator.clipboard.read()
         //* If clipboard has text/html and file list has focus
         if (clipboardData.some(item => item.types.some(type => type.includes('text/html'))) && document.activeElement == fileListRef.current) {
-          //* Copy file into current folder
           clipboardData.forEach(item => 
             item.getType('text/html')
             .then(async clipboardItem => {
               const text = await clipboardItem.text()
+              const parsedText: { action: 'COPY' | 'CUT', files: string[] } = JSON.parse(text)
+              
+              //* Copy or cut/move file into current folder
               axios({
                 method: 'POST',
-                url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/copy`,
+                url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/${parsedText.action == 'COPY' ? 'copy' : 'move'}`,
                 data: {
-                  pathToFiles: JSON.parse(text),
+                  pathToFiles: parsedText.files,
                   newPath: (router.query.path as string[])?.join('/') ?? '/'
                 },
                 withCredentials: true
               })
               .then(() => setProcessInfo(`Copied files(s) sucessfully`))
               .catch(err => setProcessInfo('Something went wrong while copying files'))
+
+              if (parsedText.action == 'CUT') 
+                navigator.clipboard.writeText('').catch(err => {})
             })
             .catch(err => {})
           )
@@ -211,18 +216,19 @@ export default function FileList(
 
     document.addEventListener("keydown", keyDownListener)
 
-    return () => {
-      document.removeEventListener("keydown", keyDownListener)
-    }
+    return () => document.removeEventListener("keydown", keyDownListener)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileListRef.current, fileArr])
 
   useEffect(() => {
-    const copySelected = async (e: KeyboardEvent) => {
+    const copyCutSelected = async (e: KeyboardEvent) => {
       //* Copy link and list of paths to clipboard
       if (e.key == 'c' && e.ctrlKey && selectedFile.length) {
         const fileLink = selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`
-        const htmlItem = selectedFile.map(file => file.path)
+        const htmlItem = {
+          action: 'COPY',
+          files: selectedFile.map(file => file.path)
+        }
         const textItem = new ClipboardItem({
            'text/plain': new Blob([fileLink], { type: 'text/plain' }),
            'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' })
@@ -230,11 +236,26 @@ export default function FileList(
         await navigator.clipboard.write([textItem])
         setProcessInfo('Item copied to clipboard')
       }
+
+      //* Cut files into clipboard
+      if (e.key == 'x' && e.ctrlKey && selectedFile.length) {
+        const fileLink = selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`
+        const htmlItem = {
+          action: 'CUT',
+          files: selectedFile.map(file => file.path)
+        }
+        const textItem = new ClipboardItem({
+           'text/plain': new Blob([fileLink], { type: 'text/plain' }),
+           'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' })
+        })
+        await navigator.clipboard.write([textItem])
+        setProcessInfo('Item cut into clipboard')
+      }
     }
 
-    document.addEventListener("keydown", copySelected)
+    document.addEventListener("keydown", copyCutSelected)
 
-    return () => document.removeEventListener("keydown", copySelected)
+    return () => document.removeEventListener("keydown", copyCutSelected)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile])
 
@@ -392,12 +413,9 @@ export default function FileList(
       <DragSelectionArea 
         fileListRef={fileListRef} 
         fileArr={fileArr}
-        selectedFile={selectedFile}
-        setSelectedFile={setSelectedFile}
-        startingFileSelect={startingFileSelect}
       />
       <DraggedFile ref={draggedFileRef} />
-      <div 
+      <div
         data-cy='dragged-file'
         ref={dragOverlayRef}
         className='absolute top-0 left-0 z-20 h-full w-full pointer-events-none opacity-0 transition-all duration-100'
