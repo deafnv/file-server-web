@@ -6,7 +6,7 @@ export default function UploadsList({ currentUploadProgress, uploadQueue, handle
   return (
     <div className='flex flex-col h-full w-full'>
       <h6 className='ml-3 text-lg'>Uploads {currentUploadProgress && `(${uploadQueue?.length! + 1})`}</h6>
-      <div className='flex flex-col gap-1 min-h-[90%] w-full bg-black rounded-md overflow-auto'>
+      <div className='flex flex-col gap-1 p-1 min-h-[90%] w-full bg-black rounded-md overflow-auto'>
         {currentUploadProgress &&
         <div className='p-2 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'>
           {currentUploadProgress.name}
