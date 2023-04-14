@@ -48,10 +48,7 @@ export default function Files() {
     contextMenu,
     setContextMenu,
     setLoggedOutWarning,
-    setOpenNewFolderDialog,
-    openMoveFileDialog,
-    openNewFolderDialog,
-    openRenameDialog
+    setOpenNewFolderDialog
   } = useAppContext()
   const { setLoading } = useLoading()
 
@@ -158,7 +155,7 @@ export default function Files() {
       filesToUpload.current = filesToUpload.current.concat(acceptedFiles)
       setUploadQueue(filesToUpload.current)
       
-      while (filesToUpload.current.length !== 0) {
+      while (filesToUpload.current.length !== 0 && !currentUploadProgress) {
         const fileToUpload = filesToUpload.current[0]
         filesToUpload.current = filesToUpload.current.filter(file => !isEqual(file, fileToUpload))!
         setUploadQueue(filesToUpload.current)
@@ -196,7 +193,7 @@ export default function Files() {
       setUploadQueue(filesToUpload.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.asPath])
+  }, [router.asPath, currentUploadProgress])
   
   const { getRootProps, getInputProps, open } = useDropzone({onDrop, noClick: true})
   
