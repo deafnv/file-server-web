@@ -86,7 +86,8 @@ export default function FileList(
           if (!e.shiftKey) startingFileSelect.current = !selectedFile.length ? 0 : lastSelectedFileIndex - 1
           break
         case 'Enter':
-          if (selectedFile.length > 1) break
+          shouldSet = false
+          if (selectedFile.length !== 1) break
           selectedFile[0].isDirectory ? router.push(`/files${selectedFile[0].path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`)
         default: break
       }
@@ -96,7 +97,10 @@ export default function FileList(
         else toSelect = selectedFile.concat(toSelect)
       }
       //? I have no clue why there is undefined in the array, but this fixes it. Something with ctrl + a
-      if (shouldSet) setSelectedFile(toSelect.filter(item => item))
+      if (shouldSet) {
+        setSelectedFile(toSelect.filter(item => item))
+        fileListRef.current?.focus()
+      }
       console.log(selectedFile)
     }
     

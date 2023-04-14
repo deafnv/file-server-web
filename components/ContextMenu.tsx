@@ -8,6 +8,7 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
     contextMenu,
     setContextMenu,
     selectedFile,
+    setSelectedFile,
     setLoggedOutWarning,
     setOpenNewFolderDialog,
     setProcessInfo,
@@ -45,11 +46,13 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
     if (!contextMenu || contextMenu == 'directory') return
     await navigator.clipboard.writeText(selectedFile?.[0].isDirectory ? `/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile?.[0].path}`)
     setProcessInfo('Link copied to clipboard')
+    setSelectedFile([])
     setContextMenu(null)
   }
 
   function handleDelete() {
     if (getCookie('userdata')) {
+      setSelectedFile([])
       setOpenDeleteConfirm(selectedFile)
       setContextMenu(null)
     } else {
@@ -60,6 +63,7 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
   function handleRename() {
     if (!selectedFile) return
     if (getCookie('userdata')) {
+      setSelectedFile([])
       setOpenRenameDialog(selectedFile[0])
       setContextMenu(null)
     } else {
@@ -70,6 +74,7 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
   function handleMove() {
     if (!selectedFile) return
     if (getCookie('userdata')) {
+      setSelectedFile([])
       setOpenMoveFileDialog(selectedFile)
       setContextMenu(null)
     } else {
