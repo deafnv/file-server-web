@@ -351,16 +351,14 @@ export default function FileList(
       window.open(file.isDirectory ? `/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`, '_blank')
     }
     
-    //* Determine if pressed element is file
+    //* Determine if pressed element is file, start drag if mousedown on file name
     if (e.button === 0 && (e.target as HTMLElement).getAttribute('data-isfilename') == 'true') {
       const fileMouseDowned = fileRefs.current.filter(item => item.ref == e.currentTarget)[0]
-      //* Select item if 
-      if (selectedFile.includes(fileMouseDowned.file)) {
-        isDraggingFile.current = performance.now()
-      } else {
+      //* Fix for unable to unselect on pressing title with ctrl
+      if (!(selectedFile.includes(fileMouseDowned.file) && !e.ctrlKey)) {
         selectItem()
-        isDraggingFile.current = performance.now()
       }
+      isDraggingFile.current = performance.now()
     } else if (e.button === 0 && (e.currentTarget as HTMLElement).getAttribute('data-isfile') == 'true') {
       selectItem()
     }
