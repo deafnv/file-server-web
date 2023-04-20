@@ -60,8 +60,9 @@ export interface FileListProps {
 }
 
 export interface UploadsListProps {
+  setFilesToUpload: (val: File[]) => void;
   currentUploadProgress: UploadProgress | null;
-  uploadQueue: File[] | null;
+  uploadQueue: File[];
   handleOpenFileDialog: () => void;
 }
 

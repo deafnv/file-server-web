@@ -37,8 +37,13 @@ export default function Files() {
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
   const [fileTree, setFileTree] = useState<FileTreeRes | null>()
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
-  const [uploadQueue, setUploadQueue] = useState<File[] | null>(null)
+  const [uploadQueue, setUploadQueue] = useState<File[]>([])
   const [folderDetailsAnchor, setFolderDetailsAnchor] = useState<HTMLElement | null>(null)
+
+  const setFilesToUpload = (val: File[]) => {
+    filesToUpload.current = val
+    setUploadQueue(filesToUpload.current)
+  }
 
   const folderDetailsOpen = Boolean(folderDetailsAnchor)
 
@@ -152,13 +157,11 @@ export default function Files() {
       return
     }
     if (!filesToUpload.current.length) {
-      filesToUpload.current = filesToUpload.current.concat(acceptedFiles)
-      setUploadQueue(filesToUpload.current)
+      setFilesToUpload(filesToUpload.current.concat(acceptedFiles))
       
       while (filesToUpload.current.length !== 0 && !currentUploadProgress) {
         const fileToUpload = filesToUpload.current[0]
-        filesToUpload.current = filesToUpload.current.filter(file => !isEqual(file, fileToUpload))!
-        setUploadQueue(filesToUpload.current)
+        setFilesToUpload(filesToUpload.current.filter(file => !isEqual(file, fileToUpload))!)
         const formData = new FormData()
         formData.append('upload-file', fileToUpload)
 
@@ -189,8 +192,7 @@ export default function Files() {
         setCurrentUploadProgress(null)
       } 
     } else {
-      filesToUpload.current = filesToUpload.current.concat(acceptedFiles)
-      setUploadQueue(filesToUpload.current)
+      setFilesToUpload(filesToUpload.current.concat(acceptedFiles))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath, currentUploadProgress])
@@ -239,6 +241,7 @@ export default function Files() {
           <FileTree fileTree={fileTree} />
           <StorageSpace />
           <UploadsList 
+            setFilesToUpload={setFilesToUpload}
             currentUploadProgress={currentUploadProgress}
             uploadQueue={uploadQueue}
             handleOpenFileDialog={handleOpenFileDialog}
