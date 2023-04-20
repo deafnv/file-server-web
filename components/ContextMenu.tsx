@@ -2,6 +2,7 @@ import { getCookie } from 'cookies-next'
 import { NextRouter } from 'next/router'
 import { forwardRef, ForwardedRef } from 'react'
 import { useAppContext } from '@/components/contexts/AppContext'
+import axios from 'axios';
 
 function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTMLMenuElement>) {
   const {
@@ -31,7 +32,7 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
       <menu
         data-cy='context-menu'
         ref={ref}
-        className={`${!contextMenu ? 'hidden' : ''} absolute min-w-[12rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] context-menu-directory`}
+        className={`${!contextMenu ? 'hidden' : ''} absolute min-w-[12rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden context-menu-directory`}
       >
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
           <button onClick={handleNewFolder} className="w-full text-left pl-6">
@@ -82,11 +83,17 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
     }
   }
 
+  //TODO: Allow download multiple
+  function handleDownload() {
+    if (!selectedFile) return
+    window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve${selectedFile[0].path}?download=true`)
+  }
+
   return (
     <menu
       data-cy='context-menu'
       ref={ref}
-      className="absolute text-left min-w-[12rem] w-[4rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] context-menu"
+      className="absolute text-left min-w-[12rem] w-[4rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden context-menu"
     >
       <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
         <button onClick={() => selectedFile?.[0].isDirectory ? router.push(`/files${selectedFile?.[0].path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile?.[0].path}`)} className="w-full text-left pl-6">
@@ -104,7 +111,7 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
         </button>
       </li>
       <hr className="my-1 border-gray-200 border-t-[1px]" />
-      <li className="flex  justify-center h-8 rounded-sm hover:bg-zinc-500">
+      <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
         <button onClick={handleDelete} className="w-full text-left pl-6">
           Delete
         </button>
@@ -117,6 +124,12 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
       <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
         <button onClick={handleMove} className="w-full text-left pl-6">
           Move
+        </button>
+      </li>
+      <hr className="my-1 border-gray-200 border-t-[1px]" />
+      <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
+        <button onClick={handleDownload} className="w-full text-left pl-6">
+          Download
         </button>
       </li>
     </menu>

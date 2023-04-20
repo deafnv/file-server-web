@@ -105,7 +105,7 @@ export default function Files() {
       const isFarBottom = e.pageY + contextMenuRef.current.scrollHeight > window.innerHeight
       
       if (isFarRight || isFarBottom) {
-        contextMenuRef.current.style.top = `${(isFarBottom ? e.pageY - contextMenuRef.current.scrollHeight : e.pageY) - (isFarRight ? 0 : 10)}px`
+        contextMenuRef.current.style.top = `${(isFarBottom ? e.pageY - contextMenuRef.current.scrollHeight - (isFarRight ? 10 : 2) : e.pageY) - (isFarRight ? 0 : 10)}px`
         contextMenuRef.current.style.left = `${isFarRight ? e.pageX - contextMenuRef.current.offsetWidth : e.pageX}px`
       } else {
         contextMenuRef.current.style.top = `${e.pageY}px`
