@@ -21,6 +21,7 @@ export default function ProcessError() {
       open={!!processError}
       onClose={handleClose}
       autoHideDuration={6000}
+      disableWindowBlurListener
     >
       <Alert severity='error' className='text-red-400 font-bold bg-white'>
         {processError}

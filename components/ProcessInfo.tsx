@@ -21,6 +21,7 @@ export default function ProcessInfo() {
       open={!!processInfo}
       onClose={handleClose}
       autoHideDuration={6000}
+      disableWindowBlurListener
     >
       <Alert severity='info' className='text-sky-500 font-bold bg-white max-w-[35dvw] max-h-[4.5rem]'>
         {processInfo}

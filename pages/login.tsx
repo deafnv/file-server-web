@@ -1,4 +1,5 @@
 import Head from "next/head"
+import Link from "next/link"
 import TextField from "@mui/material/TextField"
 import Button from "@mui/material/Button"
 import InputAdornment from '@mui/material/InputAdornment'
@@ -20,30 +21,26 @@ export default function Login() {
 
   const handleClickShowPassword = () => setShowPassword((show) => !show)
 
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-  }
-
   const router = useRouter()
 
   async function handleLogin(e: BaseSyntheticEvent) {
     e.preventDefault()
 
     try {
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/get`, { user: loginDataRef.current.username },
-        {
-          headers: {
-            'X-API-Key': loginDataRef.current.password
-          },
-          withCredentials: true
-        }
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/login`, 
+        { 
+          username: loginDataRef.current.username,
+          password: loginDataRef.current.password
+        },
+        { withCredentials: true }
       )
 
       setCookie('userdata', JSON.stringify({ user: loginDataRef.current.username }))
       router.push('/')
     } catch (error) {
       if ((error as AxiosError).response?.status === 401) return alert('Entered wrong password')
-      console.log(error)
+      console.error(error)
     }
   }
 
@@ -54,7 +51,7 @@ export default function Login() {
         <meta name="description" content="File Server" />
       </Head>
       <main className="flex items-center justify-center mx-auto h-[calc(100dvh-60px)] w-[30rem]">
-        <div className="flex flex-col items-center  py-12 min-h-[40%] w-full bg-gray-900 drop-shadow-md shadow-md shadow-black rounded-lg">
+        <div className="flex flex-col items-center py-12 min-h-[40%] w-full bg-gray-900 drop-shadow-md shadow-md shadow-black rounded-lg">
           <h3 className="text-3xl font-bold mb-6">Login</h3>
           <form
             onSubmit={handleLogin}
@@ -84,7 +81,6 @@ export default function Login() {
                   <IconButton
                     aria-label="toggle password visibility"
                     onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
                     edge="end"
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -101,6 +97,12 @@ export default function Login() {
               Login
             </Button>
           </form> 
+          <Link
+            href={'/register'}
+            className="mt-6 text-center text-sm sm:text-base font-semibold cursor-pointer link"
+          >
+            Register
+          </Link>
         </div>
       </main>
     </>
