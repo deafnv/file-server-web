@@ -6,7 +6,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import IconButton from '@mui/material/IconButton'
-import { useRef, useState, BaseSyntheticEvent } from "react"
+import { useRef, useState, useEffect, BaseSyntheticEvent } from "react"
 import axios, { AxiosError } from "axios"
 import { setCookie } from "cookies-next"
 import { useRouter } from "next/router"
@@ -18,22 +18,40 @@ export default function Login() {
   })
 
   const [showPassword, setShowPassword] = useState(false)
+  const [showRegister, setShowRegister] = useState(false)
 
   const handleClickShowPassword = () => setShowPassword((show) => !show)
 
   const router = useRouter()
+
+  useEffect(() => {
+    const getIsDBEnabled = async () => {
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/isdb`)
+      setShowRegister(data)
+    }
+
+    if (router.isReady) {
+      getIsDBEnabled()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.asPath])
 
   async function handleLogin(e: BaseSyntheticEvent) {
     e.preventDefault()
 
     try {
       await axios.post(
-        `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/login`, 
+        `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/${showRegister ? 'login' : 'get'}`, 
         { 
           username: loginDataRef.current.username,
           password: loginDataRef.current.password
         },
-        { withCredentials: true }
+        { 
+          headers: showRegister ? undefined : {
+            "X-API-Key": loginDataRef.current.password
+          },
+          withCredentials: true 
+        }
       )
 
       setCookie('userdata', JSON.stringify({ user: loginDataRef.current.username }))
@@ -96,13 +114,14 @@ export default function Login() {
             >
               Login
             </Button>
-          </form> 
+          </form>
+          {showRegister &&
           <Link
             href={'/register'}
             className="mt-6 text-center text-sm sm:text-base font-semibold cursor-pointer link"
           >
             Register
-          </Link>
+          </Link>}
         </div>
       </main>
     </>
