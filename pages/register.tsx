@@ -12,7 +12,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import IconButton from '@mui/material/IconButton'
 import { useAppContext } from "@/components/contexts/AppContext"
 import ProcessError from "@/components/ProcessError"
-import ProcessInfo from "@/components/ProcessInfo"
 
 export default function Register() {
   const registerDataRef = useRef({
@@ -26,7 +25,6 @@ export default function Register() {
   const router = useRouter()
 
   const {
-    setProcessInfo,
     setProcessError
   } = useAppContext()
 
@@ -143,7 +141,6 @@ export default function Register() {
             Login
           </Link>
         </div>
-        <ProcessInfo />
         <ProcessError />
       </main>
     </>

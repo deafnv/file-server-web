@@ -38,7 +38,7 @@ export default function Navbar() {
 	}, [router.asPath])
 
 	async function handleLogout() {
-		await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/delete`, {
+		await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/logout`, {
 			withCredentials: true
 		})
 		deleteCookie('userdata')

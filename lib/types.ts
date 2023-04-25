@@ -78,3 +78,17 @@ export interface DragSelectionAreaProps {
   fileListRef: RefObject<HTMLDivElement>;
   fileArr: string | FileServerFile[] | null;
 }
+
+export interface UserData {
+  username: string;
+  rank: number;
+  permissions: {
+    "makedir": boolean;
+    "upload": boolean;
+    "rename": boolean;
+    "copy": boolean;
+    "move": boolean;
+    "delete": boolean;
+  };
+  createdAt: number;
+}
