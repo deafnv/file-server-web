@@ -5,7 +5,7 @@ import DialogContent from '@mui/material/DialogContent'
 import Button from '@mui/material/Button'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { useLoading } from '@/components/contexts/LoadingContext'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { FileServerFile, FileTreeRes } from '@/lib/types'
 import MoveFileTree from './MoveFileTree'
 import { useAppContext } from '@/components/contexts/AppContext'
@@ -31,11 +31,14 @@ export default function MoveFile({ fileTree }: { fileTree: FileTreeRes | null | 
         },
         withCredentials: true
       })
-      setLoading(false)
       setOpenMoveFileDialog(null)
-    } catch (error) {
-      alert(error)
-      console.log(error)
+    } catch (err) {
+      if ((err as any as AxiosError).response?.status == 401) {
+        alert(`Error: Unauthorized.`)
+      } else {
+        alert(`Error: The server is probably down.`)
+      }
+    } finally {
       setLoading(false)
     }
   }

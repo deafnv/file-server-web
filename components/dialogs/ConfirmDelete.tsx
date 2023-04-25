@@ -3,7 +3,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import Button from '@mui/material/Button'
 import { useLoading } from '@/components/contexts/LoadingContext'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useAppContext } from '@/components/contexts/AppContext'
 
 export default function ConfirmDelete() {
@@ -24,11 +24,14 @@ export default function ConfirmDelete() {
         },
         withCredentials: true
       })
-      setLoading(false)
       setOpenDeleteConfirm(null)
-    } catch (error) {
-      alert(error)
-      console.log(error)
+    } catch (err) {
+      if ((err as any as AxiosError).response?.status == 401) {
+        alert(`Error: Unauthorized.`)
+      } else {
+        alert(`Error: The server is probably down.`)
+      }
+    } finally {
       setLoading(false)
     }
   }

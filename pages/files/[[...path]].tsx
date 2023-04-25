@@ -183,9 +183,9 @@ export default function Files() {
         } catch (err) {
           setCurrentUploadProgress(null)
           if ((err as any as AxiosError).response?.status == 401) {
-            alert(`Error uploading, unauthorized. Try logging back in again.`)
+            alert(`Error: Unauthorized.`)
           } else {
-            alert(`Error for file ${fileToUpload.name}. The server is probably down somehow.`)
+            alert(`Error for file ${fileToUpload.name}. The server is probably down.`)
           }
           console.log(err)
         }

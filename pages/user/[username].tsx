@@ -54,6 +54,8 @@ export default function UserPage() {
     } catch (error) {
       console.error(error)
       alert(error)
+    } finally {
+      setLoading(false)
     }
   }
 

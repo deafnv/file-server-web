@@ -53,7 +53,7 @@ export default function Register() {
         setCookie('userdata', JSON.stringify({ user: registerDataRef.current.username }))
         router.push('/')
       } catch (error) {
-        if ((error as AxiosError).response?.status === 401) return alert('Entered wrong password')
+        alert(error)
         console.error(error)
       }
     }

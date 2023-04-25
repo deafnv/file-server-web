@@ -2,7 +2,6 @@ import { getCookie } from 'cookies-next'
 import { NextRouter } from 'next/router'
 import { forwardRef, ForwardedRef } from 'react'
 import { useAppContext } from '@/components/contexts/AppContext'
-import axios from 'axios';
 
 function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTMLMenuElement>) {
   const {

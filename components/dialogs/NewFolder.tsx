@@ -7,7 +7,7 @@ import Button from '@mui/material/Button'
 import { FormEvent, useRef } from 'react'
 import { useLoading } from '@/components/contexts/LoadingContext'
 import { useAppContext } from '@/components/contexts/AppContext'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 
 export default function NewFolder() {
   const textValue = useRef('')
@@ -31,12 +31,15 @@ export default function NewFolder() {
         },
         withCredentials: true
       })
-      setLoading(false)
       setOpenNewFolderDialog(null)
       setContextMenu(null)
-    } catch (error) {
-      alert(error)
-      console.log(error)
+    } catch (err) {
+      if ((err as any as AxiosError).response?.status == 401) {
+        alert(`Error: Unauthorized.`)
+      } else {
+        alert(`Error: The server is probably down.`)
+      }
+    } finally {
       setLoading(false)
     }
   }

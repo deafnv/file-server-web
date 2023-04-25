@@ -1,7 +1,7 @@
 import Head from "next/head"
 import Link from "next/link"
 import { BaseSyntheticEvent, useRef, useState } from "react"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import { getCookie } from "cookies-next"
 import TextField from "@mui/material/TextField"
 import Button from "@mui/material/Button"
@@ -27,11 +27,15 @@ export default function AdminControls() {
         withCredentials: true
       })
       setUsers(data)
-    } catch (error) {
-      console.error(error)
-      alert(error)
+    } catch (err) {
+      if ((err as any as AxiosError).response?.status == 401) {
+        alert(`Error: Unauthorized.`)
+      } else {
+        alert(`Error: The server is probably down.`)
+      }
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
