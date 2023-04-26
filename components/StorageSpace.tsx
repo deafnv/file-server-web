@@ -13,7 +13,7 @@ export default function StorageSpace() {
   async function handleLoadSS() {
     setLoadingSS(true)
     try {
-      const storageSpaceResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/diskspace`)
+      const storageSpaceResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/diskspace`, { withCredentials: true })
       setStorageSpace(storageSpaceResponse.data)
       setLoadingSS(false)
     } catch (error) {

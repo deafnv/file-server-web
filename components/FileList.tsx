@@ -367,7 +367,7 @@ export default function FileList(
     }
   }
 
-  if (fileArr == null || fileArr == 'Error loading data from server') {
+  if (fileArr == null) {
     return (
       <div className='flex flex-col m-0 md:m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
         <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
@@ -376,8 +376,7 @@ export default function FileList(
           <span className='p-3 min-w-[10rem]'>Created At</span>
         </div>
         <div className='h-full w-full flex flex-col gap-4 items-center justify-center text-2xl'>
-          {fileArr == null ? <CircularProgress size={50} /> : <span>{fileArr}</span>}
-          {fileArr != null && <span className='text-base'>Refresh the page to try again</span>}
+          <CircularProgress size={50} />
         </div>
       </div>
     )
@@ -392,7 +391,7 @@ export default function FileList(
           <span className='p-3 min-w-[10rem]'>Created At</span>
         </div>
         <div className='h-full w-full flex items-center justify-center text-2xl'>
-          Directory not found
+          {fileArr}
         </div>
       </div>
     )

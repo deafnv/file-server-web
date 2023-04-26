@@ -12,7 +12,7 @@ import TerminalIcon from '@mui/icons-material/Terminal'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { FileServerFile, FileTreeRes } from './types'
 import { Dispatch, SetStateAction, MutableRefObject } from 'react'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { NextRouter } from 'next/router'
 
 export function getIcon(file: FileServerFile) {
@@ -42,7 +42,7 @@ export const getData = async (
   try {
     const { path } = router.query
     paramsRef.current = path as string[]
-    const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`)
+    const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`, { withCredentials: true })
     setFileArr(fileArrData.data.sort((a: FileServerFile, b: FileServerFile) => {
       if (a.isDirectory && b.isDirectory) return a.name.localeCompare(b.name)
       if (a.isDirectory && !b.isDirectory) return -1
@@ -50,15 +50,21 @@ export const getData = async (
       return a.name.localeCompare(b.name)
     }))
   } catch (error) {
-    console.log(error)
-    setFileArr('Error loading data from server')
+    if ((error as any as AxiosError).response?.status == 401) {
+      setFileArr('401 Forbidden. Login to access.')
+    } else if ((error as any as AxiosError).response?.status == 404) {
+      setFileArr('404 Not Found. Directory does not exist.')
+    } else {
+      alert(`Error. The server is probably down. ${error}`)
+      setFileArr('Error loading data from server')
+    }
   }
   setLoading(false)
 }
 
 export const getFileTree = async (setFileTree: Dispatch<SetStateAction<FileTreeRes | null | undefined>>) => {
   try {
-    const fileTreeResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/filetree`)
+    const fileTreeResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/filetree`, { withCredentials: true })
     setFileTree(fileTreeResponse.data)
   } catch (error) {
     console.log(error)
