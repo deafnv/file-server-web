@@ -10,7 +10,7 @@ import { FileServerFile, FileTreeRes } from '@/lib/types'
 import MoveFileTree from './MoveFileTree'
 import { useAppContext } from '@/components/contexts/AppContext'
 
-export default function MoveFile({ fileTree }: { fileTree: FileTreeRes | null | undefined; }) {
+export default function MoveFile({ fileTree }: { fileTree: FileTreeRes | string | null | undefined; }) {
   const [selectFolder, setSelectFolder] = useState('/')
 
   const { setLoading } = useLoading()
@@ -42,6 +42,8 @@ export default function MoveFile({ fileTree }: { fileTree: FileTreeRes | null | 
       setLoading(false)
     }
   }
+
+  if (typeof fileTree == 'string') return null
 
   return (
     <Dialog

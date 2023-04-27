@@ -67,7 +67,7 @@ export interface UploadsListProps {
 }
 
 export interface FileTreeProps {
-  fileTree: FileTreeRes;
+  fileTree: FileTreeRes | string;
   level?: number;
   prevDir?: string;
   onFileClick?: (filePath: string) => void;

@@ -62,13 +62,17 @@ export const getData = async (
   setLoading(false)
 }
 
-export const getFileTree = async (setFileTree: Dispatch<SetStateAction<FileTreeRes | null | undefined>>) => {
+export const getFileTree = async (setFileTree: Dispatch<SetStateAction<FileTreeRes | string | null | undefined>>) => {
   try {
     const fileTreeResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/filetree`, { withCredentials: true })
     setFileTree(fileTreeResponse.data)
   } catch (error) {
-    console.log(error)
-    setFileTree(null)
+    if ((error as any as AxiosError).response?.status == 401) {
+      setFileTree('401 Forbidden. Login to access.')
+    } else {
+      alert(`Error. The server is probably down. ${error}`)
+      setFileTree('Error loading data from server')
+    }
   }
 }
 

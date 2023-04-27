@@ -59,6 +59,8 @@ function FileTreeComponent(
     setSelectFolder(filePath)
   }
 
+  if (typeof fileTree == 'string') return null
+
   return (
     <ul 
       style={{ display: (expand1?.includes(prevDir) || level == 0) ? 'block' : 'none' }}

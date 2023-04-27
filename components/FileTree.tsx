@@ -5,7 +5,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import path from "path"
 import Link from "next/link"
 
-export default function FileTree({ fileTree }: { fileTree: FileTreeRes | null | undefined }) {
+export default function FileTree({ fileTree }: { fileTree: FileTreeRes | string | null | undefined }) {
   return (
     <div className='flex flex-col h-full'>
       <h6 className='ml-3 text-lg'>File Tree</h6>
@@ -44,6 +44,12 @@ function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', ex
     } else {
       setExpand(expand.concat(filePath))
     }
+  }
+
+  if (typeof fileTree == 'string') {
+    return (
+      <span className="my-auto self-center">{fileTree}</span>
+    )
   }
 
   return (

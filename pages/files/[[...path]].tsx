@@ -35,7 +35,7 @@ export default function Files() {
   const filesToUpload = useRef<File[]>([])
 
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
-  const [fileTree, setFileTree] = useState<FileTreeRes | null>()
+  const [fileTree, setFileTree] = useState<FileTreeRes | string | null>()
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<File[]>([])
   const [folderDetailsAnchor, setFolderDetailsAnchor] = useState<HTMLElement | null>(null)
@@ -68,10 +68,10 @@ export default function Files() {
 
     if(router.isReady) {
       socket = io(process.env.NEXT_PUBLIC_FILE_SERVER_URL!)
-      socket.on('connect', () => {
-        getData(setFileArr, router, paramsRef, setLoading)
-        getFileTree(setFileTree)
-      })
+      getData(setFileArr, router, paramsRef, setLoading)
+      getFileTree(setFileTree)
+      //TODO: Have some kind of warning if doesnt connect
+      socket.on('connect', () => console.log('Ready for live updates'))
       
       socket.on(`/${(router.query.path as string[])?.join('/') ?? ''}`, socketListHandler)
       socket.on('filetree', socketTreeHandler)
