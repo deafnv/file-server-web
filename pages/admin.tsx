@@ -1,8 +1,9 @@
 import Head from "next/head"
 import Link from "next/link"
+import { useRouter } from "next/router"
 import { BaseSyntheticEvent, useRef, useState } from "react"
 import axios, { AxiosError } from "axios"
-import { getCookie } from "cookies-next"
+import { deleteCookie, getCookie } from "cookies-next"
 import TextField from "@mui/material/TextField"
 import Button from "@mui/material/Button"
 import { useLoading } from "@/components/contexts/LoadingContext"
@@ -12,6 +13,8 @@ export default function AdminControls() {
   const searchStringRef = useRef('')
 
   const [users, setUsers] = useState<UserData[]>([])
+
+  const router = useRouter()
 
   const { setLoading } = useLoading()
 
@@ -28,10 +31,14 @@ export default function AdminControls() {
       })
       setUsers(data)
     } catch (err) {
-      if ((err as any as AxiosError).response?.status == 401) {
-        alert(`Error: Unauthorized.`)
+      if ((err as any as AxiosError).response?.status == 403) {
+        alert(`Error: Forbidden.`)
+      } else if ((err as any as AxiosError).response?.status == 401) {
+        alert('Error: Unauthorized, try logging in again.')
+        deleteCookie('userdata')
+		    router.push('/')
       } else {
-        alert(`Error: The server is probably down.`)
+        alert(`Error. The server is probably down. ${err}`)
       }
     } finally {
       setLoading(false)

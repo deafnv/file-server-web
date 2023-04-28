@@ -11,7 +11,7 @@ import { getIcon } from '@/lib/methods'
 import { useLoading } from '@/components/contexts/LoadingContext'
 import { useAppContext } from '@/components/contexts/AppContext'
 import axios, { AxiosError } from 'axios'
-import { getCookie } from 'cookies-next'
+import { deleteCookie, getCookie } from 'cookies-next'
 import path from 'path'
 import DraggedFile from './DraggedFile'
 
@@ -131,8 +131,12 @@ export default function FileList(
         `Moved ${files[0].name} into ${directoryParse}`
       )
     } catch (err) {
-      if ((err as any as AxiosError).response?.status == 401) {
-        alert(`Error: Unauthorized.`)
+      if ((err as any as AxiosError).response?.status == 403) {
+        alert(`Error: Forbidden.`)
+      } else if ((err as any as AxiosError).response?.status == 401) {
+        alert('Error: Unauthorized, try logging in again.')
+        deleteCookie('userdata')
+		    router.reload()
       } else {
         alert(`Error. The server is probably down. ${err}`)
       }

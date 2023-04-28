@@ -7,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { FileServerFile, FileTreeRes, UploadProgress } from '@/lib/types'
 import { useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
-import { getCookie } from 'cookies-next'
+import { deleteCookie, getCookie } from 'cookies-next'
 import { useAppContext } from '@/components/contexts/AppContext'
 import ContextMenu from '@/components/ContextMenu'
 import FileList from '@/components/FileList'
@@ -131,7 +131,7 @@ export default function Files() {
 
     const routeChangeStart = (e: string) => {
       setContextMenu(null)
-      if (e != '/login')
+      if (e.split('/')[1] == 'files')
         setLoading(true, 800)
     }
 
@@ -182,10 +182,14 @@ export default function Files() {
           })
         } catch (err) {
           setCurrentUploadProgress(null)
-          if ((err as any as AxiosError).response?.status == 401) {
-            alert(`Error: Unauthorized.`)
+          if ((err as any as AxiosError).response?.status == 403) {
+            alert(`Error: Forbidden.`)
+          } else if ((err as any as AxiosError).response?.status == 401) {
+            alert('Error: Unauthorized, try logging in again.')
+            deleteCookie('userdata')
+            router.reload()
           } else {
-            alert(`Error for file ${fileToUpload.name}. The server is probably down.`)
+            alert(`Error. The server is probably down. ${err}`)
           }
           console.log(err)
         }

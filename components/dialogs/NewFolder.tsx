@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -8,6 +9,7 @@ import { FormEvent, useRef } from 'react'
 import { useLoading } from '@/components/contexts/LoadingContext'
 import { useAppContext } from '@/components/contexts/AppContext'
 import axios, { AxiosError } from 'axios'
+import { deleteCookie } from 'cookies-next'
 
 export default function NewFolder() {
   const textValue = useRef('')
@@ -17,6 +19,8 @@ export default function NewFolder() {
     setOpenNewFolderDialog,
     setContextMenu
   } = useAppContext()
+
+  const router = useRouter()
 
   async function handleRename(e: FormEvent) {
     e.preventDefault()
@@ -34,10 +38,14 @@ export default function NewFolder() {
       setOpenNewFolderDialog(null)
       setContextMenu(null)
     } catch (err) {
-      if ((err as any as AxiosError).response?.status == 401) {
-        alert(`Error: Unauthorized.`)
+      if ((err as any as AxiosError).response?.status == 403) {
+        alert(`Error: Forbidden.`)
+      } else if ((err as any as AxiosError).response?.status == 401) {
+        alert('Error: Unauthorized, try logging in again.')
+        deleteCookie('userdata')
+		    router.reload()
       } else {
-        alert(`Error: The server is probably down.`)
+        alert(`Error. The server is probably down. ${err}`)
       }
     } finally {
       setLoading(false)
