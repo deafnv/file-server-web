@@ -18,7 +18,7 @@ import { NextRouter } from 'next/router'
 export function getIcon(file: FileServerFile) {
   if (file.isDirectory) return (<FolderIcon />)
   const splitName = file.name.split('.')
-  const extension = splitName[splitName.length - 1]
+  const extension = splitName[splitName.length - 1].toLowerCase()
   if (splitName.length == 1) return null
   if (['zip', '7z', 'rar'].includes(extension)) return <FolderZipIcon />
   if (['doc', 'docx', 'txt', 'pdf'].includes(extension)) return <ArticleIcon />

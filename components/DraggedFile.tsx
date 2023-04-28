@@ -35,6 +35,9 @@ function DraggedFile(props: {}, ref: ForwardedRef<HTMLDivElement>) {
                 {selectedFile.length ? selectedFile[0].name : ''}
               </span>
             </div>
+            {selectedFile.length > 1 && <span className="fixed -top-2 -right-3 flex items-center justify-center text-[0.93rem] h-6 w-6 rounded-full bg-blue-500">
+              {selectedFile.length > 99 ? '99+' : selectedFile.length}
+            </span>}
           </div>
         )
       })}
