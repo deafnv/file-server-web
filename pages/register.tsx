@@ -47,7 +47,8 @@ export default function Register() {
           { 
             username: registerDataRef.current.username,
             password: registerDataRef.current.password
-          }
+          },
+          { withCredentials: true }
         )
 
         setCookie('userdata', JSON.stringify({ user: registerDataRef.current.username }))
