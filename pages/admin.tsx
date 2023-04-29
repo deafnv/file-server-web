@@ -102,7 +102,7 @@ export default function AdminControls() {
                     </td>
                     <td className="p-2">{user.rank}</td>
                     <td className="p-2">
-                      {new Date(user.createdAt).toLocaleDateString('en-US', { 
+                      {new Date(user.created_at).toLocaleDateString('en-US', { 
                         hour: "2-digit",
                         minute: "2-digit",
                         second: "2-digit",

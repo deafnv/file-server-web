@@ -90,5 +90,5 @@ export interface UserData {
     "move": boolean;
     "delete": boolean;
   };
-  createdAt: number;
+  created_at: string;
 }
