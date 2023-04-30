@@ -20,10 +20,10 @@ export default function ProcessInfo() {
     <Snackbar
       open={!!processInfo}
       onClose={handleClose}
-      autoHideDuration={6000}
+      autoHideDuration={3000}
       disableWindowBlurListener
     >
-      <Alert severity='info' className='text-sky-500 font-bold bg-white max-w-[35dvw] max-h-[4.5rem]'>
+      <Alert severity='info' className='max-w-[35dvw] max-h-[4.5rem]'>
         {processInfo}
       </Alert>
     </Snackbar>

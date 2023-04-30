@@ -20,10 +20,10 @@ export default function ProcessError() {
     <Snackbar
       open={!!processError}
       onClose={handleClose}
-      autoHideDuration={6000}
+      autoHideDuration={3000}
       disableWindowBlurListener
     >
-      <Alert severity='error' className='text-red-400 font-bold bg-white'>
+      <Alert severity='error'>
         {processError}
       </Alert>
     </Snackbar>

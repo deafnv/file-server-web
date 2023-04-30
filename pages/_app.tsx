@@ -8,6 +8,28 @@ import Navbar from '@/components/Navbar'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 
 const theme = createTheme({
+  components: {
+    MuiSnackbar: {
+      styleOverrides: {
+        root: {
+          '& .MuiPaper-root': {
+            backgroundColor: 'white',
+            fontWeight: 'bold'
+          },
+        }
+      }
+    },
+    MuiAlert: {
+      styleOverrides: {
+        standardError: {
+          color: 'rgb(248 113 113)'
+        },
+        standardInfo: {
+          color: 'rgb(14 165 233)'
+        }
+      }
+    }
+  },
   palette: {
     primary: {
       light: '#e3f2fd',
