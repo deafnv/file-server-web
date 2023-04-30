@@ -52,6 +52,8 @@ export const getData = async (
   } catch (error) {
     if ((error as any as AxiosError).response?.status == 401) {
       setFileArr('401 Unauthorized. Login to access.')
+    } else if ((error as any as AxiosError).response?.status == 403) {
+      setFileArr(`403 Forbidden.`)
     } else if ((error as any as AxiosError).response?.status == 404) {
       setFileArr('404 Not Found. Directory does not exist.')
     } else {
@@ -69,6 +71,8 @@ export const getFileTree = async (setFileTree: Dispatch<SetStateAction<FileTreeR
   } catch (error) {
     if ((error as any as AxiosError).response?.status == 401) {
       setFileTree('401 Unauthorized. Login to access.')
+    } else if ((error as any as AxiosError).response?.status == 403) {
+      setFileTree(`403 Forbidden.`)
     } else {
       alert(`Error. The server is probably down. ${error}`)
       setFileTree('Error loading data from server')
