@@ -38,14 +38,11 @@ export default function Files() {
   const [fileTree, setFileTree] = useState<FileTreeRes | string | null>()
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<File[]>([])
-  const [folderDetailsAnchor, setFolderDetailsAnchor] = useState<HTMLElement | null>(null)
 
   const setFilesToUpload = (val: File[]) => {
     filesToUpload.current = val
     setUploadQueue(filesToUpload.current)
   }
-
-  const folderDetailsOpen = Boolean(folderDetailsAnchor)
 
   const router = useRouter()
   const {
@@ -53,8 +50,7 @@ export default function Files() {
     setSelectedFile,
     contextMenu,
     setContextMenu,
-    setLoggedOutWarning,
-    setOpenNewFolderDialog
+    setLoggedOutWarning
   } = useAppContext()
   const { setLoading } = useLoading()
 
@@ -213,29 +209,6 @@ export default function Files() {
     }
   }
 
-  function handleFolderDetailsOpen(e: React.MouseEvent<HTMLDivElement>) {
-    setFolderDetailsAnchor(e.currentTarget)
-  }
-
-  function FolderDetails() {
-    return (
-      <Menu 
-        anchorEl={folderDetailsAnchor}
-        open={folderDetailsOpen}
-        onClose={() => setFolderDetailsAnchor(null)}
-      >
-        <MenuItem 
-          onClick={() => {
-            if (!getCookie('userdata')) return setLoggedOutWarning(true)
-            setOpenNewFolderDialog((router.query.path as string[])?.join('/') ?? '/')
-            setFolderDetailsAnchor(null)
-          }}>
-          New folder
-        </MenuItem>
-      </Menu>
-    )
-  }
-
   return (
     <>
       <Head>
@@ -254,10 +227,7 @@ export default function Files() {
           />
         </section>
         <section className='px-4 sm:px-6 pt-0 pb-4 md:py-8 h-[calc(100dvh-60px)]'>
-          <FilePath 
-            paramsRef={paramsRef} 
-            handleFolderDetailsOpen={handleFolderDetailsOpen}
-          />
+          <FilePath paramsRef={paramsRef} />
           <FileList
             fileArr={fileArr} 
             fileListRef={fileListRef} 
@@ -265,7 +235,6 @@ export default function Files() {
             getInputProps={getInputProps}
           />
         </section>
-        <FolderDetails />
         <ContextMenu 
           ref={contextMenuRef} 
           router={router}
