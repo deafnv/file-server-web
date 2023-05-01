@@ -49,6 +49,7 @@ export default function Files() {
 
   const router = useRouter()
   const {
+    setSocketConnectionState,
     setSelectedFile,
     contextMenu,
     setContextMenu,
@@ -70,8 +71,9 @@ export default function Files() {
       socket = io(process.env.NEXT_PUBLIC_FILE_SERVER_URL!)
       getData(setFileArr, router, paramsRef, setLoading)
       getFileTree(setFileTree)
-      //TODO: Have some kind of warning if doesnt connect
-      socket.on('connect', () => console.log('Ready for live updates'))
+      
+      socket.on('connect', () => setSocketConnectionState(true))
+      socket.on('disconnect', () => setSocketConnectionState(false))
       
       socket.on(`/${(router.query.path as string[])?.join('/') ?? ''}`, socketListHandler)
       socket.on('filetree', socketTreeHandler)

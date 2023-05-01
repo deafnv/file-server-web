@@ -7,6 +7,7 @@ import Loading from '@/components/contexts/LoadingComponent'
 import { useLoading } from '@/components/contexts/LoadingContext'
 import { getCookie, deleteCookie } from 'cookies-next'
 import axios from 'axios'
+import { useAppContext } from '@/components/contexts/AppContext'
 
 export default function Navbar() {
 	const router = useRouter()
@@ -19,6 +20,8 @@ export default function Navbar() {
 		}
 	]
 	const [user, setUser] = useState('')
+
+	const { socketConnectionState } = useAppContext()
 
 	useEffect(() => {
 		const navbarAnimate = () => {
@@ -58,9 +61,14 @@ export default function Navbar() {
 				}}
 			>
 				<div className="flex items-center">
-					<span className="absolute left-6 md:left-24 text-center text-lg sm:text-2xl font-semibold xs:visible invisible">
-						File Server
-					</span>
+					<div className='absolute flex items-end gap-3 left-6 md:left-24'>
+						<span className="text-center text-lg sm:text-2xl font-semibold xs:visible invisible">
+							File Server
+						</span>
+						<span className={`flex items-center text-sm ${socketConnectionState ? 'text-green-400' : 'text-red-400'}`}>
+							{socketConnectionState ? 'Connected' : 'Disconnected'}
+						</span>
+					</div>
 					<ul className='flex items-center'>
 						{navLinks.map((link, index) => {
 							if (link.dropdown)

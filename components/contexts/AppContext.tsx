@@ -2,6 +2,8 @@ import { FileServerFile } from '@/lib/types';
 import { Dispatch, SetStateAction, createContext, useContext, useState } from 'react'
 
 interface AppContextType {
+	socketConnectionState: boolean;
+	setSocketConnectionState: Dispatch<SetStateAction<boolean>>;
 	selectedFile: FileServerFile[]
 	setSelectedFile: Dispatch<SetStateAction<FileServerFile[]>>
 	contextMenu:"file" | "directory" | null
@@ -25,6 +27,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null)
 
 export function AppContextProvider({ children }: React.PropsWithChildren) {
+	const [socketConnectionState, setSocketConnectionState] = useState(false)
 	const [selectedFile, setSelectedFile] = useState<FileServerFile[]>([])
   const [contextMenu, setContextMenu] = useState<'file' | 'directory' | null>(null)
 	const [loggedOutWarning, setLoggedOutWarning] = useState(false)
@@ -36,6 +39,8 @@ export function AppContextProvider({ children }: React.PropsWithChildren) {
   const [openMoveFileDialog, setOpenMoveFileDialog] = useState<FileServerFile[] | null>(null)
 
 	const value = {
+		socketConnectionState,
+		setSocketConnectionState,
 		selectedFile,
 		setSelectedFile,
 		contextMenu,
