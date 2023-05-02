@@ -1,11 +1,13 @@
-import { FileServerFile } from '@/lib/types';
 import { Dispatch, SetStateAction, createContext, useContext, useState } from 'react'
+import { FileServerFile, FileTreeRes } from '@/lib/types'
 
 interface AppContextType {
 	drawerOpen: boolean;
 	setDrawerOpen: Dispatch<SetStateAction<boolean>>;
 	socketConnectionState: boolean;
 	setSocketConnectionState: Dispatch<SetStateAction<boolean>>;
+	fileTree: string | FileTreeRes | null | undefined;
+	setFileTree: Dispatch<SetStateAction<string | FileTreeRes | null | undefined>>;
 	selectedFile: FileServerFile[]
 	setSelectedFile: Dispatch<SetStateAction<FileServerFile[]>>
 	contextMenu:"file" | "directory" | null
@@ -31,6 +33,7 @@ const AppContext = createContext<AppContextType | null>(null)
 export function AppContextProvider({ children }: React.PropsWithChildren) {
 	const [drawerOpen, setDrawerOpen] = useState(false)
 	const [socketConnectionState, setSocketConnectionState] = useState(false)
+	const [fileTree, setFileTree] = useState<FileTreeRes | string | null>()
 	const [selectedFile, setSelectedFile] = useState<FileServerFile[]>([])
   const [contextMenu, setContextMenu] = useState<'file' | 'directory' | null>(null)
 	const [loggedOutWarning, setLoggedOutWarning] = useState(false)
@@ -46,6 +49,8 @@ export function AppContextProvider({ children }: React.PropsWithChildren) {
 		setDrawerOpen,
 		socketConnectionState,
 		setSocketConnectionState,
+		fileTree,
+		setFileTree,
 		selectedFile,
 		setSelectedFile,
 		contextMenu,

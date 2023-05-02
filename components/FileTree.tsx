@@ -1,11 +1,14 @@
-import { FileTreeProps, FileTreeRes } from "@/lib/types"
-import CircularProgress from "@mui/material/CircularProgress"
-import { useState } from "react"
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import path from "path"
 import Link from "next/link"
+import { useState } from "react"
+import CircularProgress from "@mui/material/CircularProgress"
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { useAppContext } from "@/components/contexts/AppContext"
+import { FileTreeProps } from "@/lib/types"
 
-export default function FileTree({ fileTree }: { fileTree: FileTreeRes | string | null | undefined }) {
+export default function FileTree() {
+  const { fileTree } = useAppContext()
+
   return (
     <div className='flex flex-col h-full'>
       <h6 className='ml-3 text-lg'>File Tree</h6>

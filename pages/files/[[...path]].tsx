@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import IconButton from '@mui/material/IconButton'
 import UploadIcon from '@mui/icons-material/Upload'
-import { FileServerFile, FileTreeRes, UploadProgress } from '@/lib/types'
+import { FileServerFile, UploadProgress } from '@/lib/types'
 import { useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
 import { deleteCookie, getCookie } from 'cookies-next'
@@ -37,7 +37,7 @@ export default function Files() {
   const [width, setWidth] = useState<number>(0)
   const [uploadButton, setUploadButton] = useState(true)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
-  const [fileTree, setFileTree] = useState<FileTreeRes | string | null>()
+  
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<File[]>([])
 
@@ -49,6 +49,7 @@ export default function Files() {
   const router = useRouter()
   const {
     setSocketConnectionState,
+    setFileTree,
     setSelectedFile,
     contextMenu,
     setContextMenu,
@@ -244,7 +245,7 @@ export default function Files() {
       </Head>
       <main className="grid gap sm:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] mt-[60px] p-0 md:pt-0 md:p-3 h-[calc(100dvh-60px)]">
         <section className='hidden sm:grid gap-3 grid-flow-row grid-rows-[minmax(0,_0.45fr)_minmax(0,_0.1fr)_minmax(0,_0.45fr)] items-center px-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
-          <FileTree fileTree={fileTree} />
+          <FileTree />
           <StorageSpace />
           <UploadsList 
             setFilesToUpload={setFilesToUpload}
@@ -269,12 +270,12 @@ export default function Files() {
         <ConfirmDelete />
         <Rename />
         <NewFolder />
-        <MoveFile fileTree={fileTree} />
+        <MoveFile />
         <LoggedOutWarning />
         <ProcessInfo />
         <ProcessError />
         {width < 640 &&
-        <IconButton 
+        <div 
           style={{
             transform: uploadButton ? 'scale(1)' : 'scale(0)'
           }}
@@ -282,7 +283,7 @@ export default function Files() {
           className='flex items-center justify-center fixed bottom-4 right-4 h-14 w-14 bg-sky-500 hover:bg-sky-500 rounded-full transition-transform duration-200'
         >
           <UploadIcon className='text-black' />
-        </IconButton>}
+        </div>}
       </main>
     </>
   )

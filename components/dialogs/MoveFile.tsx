@@ -5,18 +5,18 @@ import DialogContent from '@mui/material/DialogContent'
 import Button from '@mui/material/Button'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { useLoading } from '@/components/contexts/LoadingContext'
-import axios, { AxiosError } from 'axios'
-import { FileServerFile, FileTreeRes } from '@/lib/types'
-import MoveFileTree from './MoveFileTree'
-import { useAppContext } from '@/components/contexts/AppContext'
-import { deleteCookie } from 'cookies-next'
 import { useRouter } from 'next/router'
+import axios, { AxiosError } from 'axios'
+import { deleteCookie } from 'cookies-next'
+import MoveFileTree from '@/components/dialogs/MoveFileTree'
+import { useAppContext } from '@/components/contexts/AppContext'
 
-export default function MoveFile({ fileTree }: { fileTree: FileTreeRes | string | null | undefined; }) {
+export default function MoveFile() {
   const [selectFolder, setSelectFolder] = useState('/')
 
   const { setLoading } = useLoading()
   const {
+    fileTree,
     openMoveFileDialog,
     setOpenMoveFileDialog
   } = useAppContext()

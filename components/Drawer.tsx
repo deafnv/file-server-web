@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import axios from "axios"
 import { deleteCookie, getCookie } from "cookies-next"
 import { useAppContext } from "@/components/contexts/AppContext"
+import FileTree from "@/components/FileTree"
 
 let loadingTimer: NodeJS.Timeout
 
@@ -74,33 +75,38 @@ export default function Drawer() {
       />
       <div 
         ref={drawerRef}
-        className="fixed flex flex-col gap-6 top-0 p-5 h-full w-3/4 z-[61] bg-black pointer-events-auto"
+        className="fixed flex flex-col top-0 h-full w-3/4 z-[61] bg-black pointer-events-auto"
       >
-        <div className='flex flex-col gap-1'>
-          <span className="text-2xl font-semibold">
-            File Server
-          </span>
-          <span className={`flex items-center text-sm ${socketConnectionState ? 'text-green-400' : 'text-red-400'}`}>
-            {socketConnectionState ? 'Connected' : 'Disconnected'}
-          </span>
-        </div>
-        {user ? 
-        <span className="flex flex-col text-sm sm:text-base font-semibold">
-          {user}
-          <span
-            onClick={handleLogout}
-            className='cursor-pointer link'
+        <div className="flex flex-col gap-4 p-5">
+          <div className='flex flex-col gap-1'>
+            <span className="text-2xl font-semibold">
+              File Server
+            </span>
+            <span className={`flex items-center text-sm ${socketConnectionState ? 'text-green-400' : 'text-red-400'}`}>
+              {socketConnectionState ? 'Connected' : 'Disconnected'}
+            </span>
+          </div>
+          {user ? 
+          <span className="flex flex-col text-sm sm:text-base font-semibold">
+            {user}
+            <span
+              onClick={handleLogout}
+              className='cursor-pointer link'
+            >
+              Logout
+            </span>
+          </span> :
+          <Link
+            href={'/login'}
+            className="text-sm sm:text-base font-semibold cursor-pointer link"
           >
-            Logout
-          </span>
-        </span> :
-        <Link
-          href={'/login'}
-          className="text-sm sm:text-base font-semibold cursor-pointer link"
-        >
-          Login
-        </Link>}
-        <hr />
+            Login
+          </Link>}
+          <hr />
+        </div>
+        <div className="px-2 overflow-auto">
+          <FileTree />
+        </div>
       </div>
     </div>
   )
