@@ -8,7 +8,6 @@ import { FileTreeProps } from "@/lib/types"
 
 export default function FileTree() {
   const { fileTree } = useAppContext()
-
   return (
     <div className='flex flex-col h-full'>
       <h6 className='ml-3 text-lg'>File Tree</h6>
@@ -67,8 +66,7 @@ function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', ex
         return (
           <li 
             style={{
-              //? This seems really weird, spacing aren't consistent
-              width: `calc(100% - ${level * 6}px)`
+              paddingLeft: level == 0 ? '0' : '6px'
             }} 
             key={fileName}
             className="ml-auto mr-0"
