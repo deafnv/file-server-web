@@ -2,8 +2,8 @@ import Head from 'next/head'
 import axios, { AxiosError } from 'axios'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
+import IconButton from '@mui/material/IconButton'
+import UploadIcon from '@mui/icons-material/Upload'
 import { FileServerFile, FileTreeRes, UploadProgress } from '@/lib/types'
 import { useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
@@ -34,6 +34,8 @@ export default function Files() {
   const contextMenuRef = useRef<HTMLMenuElement>(null)
   const filesToUpload = useRef<File[]>([])
 
+  const [width, setWidth] = useState<number>(0)
+  const [uploadButton, setUploadButton] = useState(true)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
   const [fileTree, setFileTree] = useState<FileTreeRes | string | null>()
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
@@ -53,6 +55,31 @@ export default function Files() {
     setLoggedOutWarning
   } = useAppContext()
   const { setLoading } = useLoading()
+
+  useEffect(() => {
+    setWidth(window.innerWidth)
+		const handleWindowResize = () => setWidth(window.innerWidth)
+
+		window.addEventListener('resize', handleWindowResize)
+
+    return () => window.removeEventListener('resize', handleWindowResize)
+  }, [])
+
+  useEffect(() => {
+    const fileList = fileListRef.current
+    const fileListScrollHandler = () => {
+      if (fileListRef.current?.scrollTop == 0) {
+        setUploadButton(true)
+      } else {
+        setUploadButton(false)
+      }
+    }
+
+    fileList?.addEventListener('scroll', fileListScrollHandler)
+
+    return () => fileList?.addEventListener('scroll', fileListScrollHandler)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileListRef.current])
 
   useEffect(() => {
     const socketListHandler = (payload: any) => {
@@ -246,6 +273,16 @@ export default function Files() {
         <LoggedOutWarning />
         <ProcessInfo />
         <ProcessError />
+        {width < 640 &&
+        <IconButton 
+          style={{
+            transform: uploadButton ? 'scale(1)' : 'scale(0)'
+          }}
+          onClick={handleOpenFileDialog}
+          className='flex items-center justify-center fixed bottom-4 right-4 h-14 w-14 bg-sky-500 hover:bg-sky-500 rounded-full transition-transform duration-200'
+        >
+          <UploadIcon className='text-black' />
+        </IconButton>}
       </main>
     </>
   )
