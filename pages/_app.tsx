@@ -6,6 +6,7 @@ import { AppContextProvider } from '@/components/contexts/AppContext'
 import Navbar from '@/components/Navbar'
 
 import { createTheme, ThemeProvider } from '@mui/material/styles'
+import Drawer from '@/components/Drawer'
 
 const theme = createTheme({
   components: {
@@ -58,6 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <AppContextProvider>
             <HeadCommon />
             <Navbar />
+            <Drawer />
             <Component {...pageProps} />
           </AppContextProvider>
         </ThemeProvider>

@@ -1,18 +1,24 @@
-import { NavLinks } from '@/lib/types'
-import throttle from 'lodash/throttle'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import Loading from '@/components/contexts/LoadingComponent'
-import { useLoading } from '@/components/contexts/LoadingContext'
+import throttle from 'lodash/throttle'
 import { getCookie, deleteCookie } from 'cookies-next'
 import axios from 'axios'
+import IconButton from '@mui/material/IconButton'
+import MenuIcon from '@mui/icons-material/Menu'
+import { NavLinks } from '@/lib/types'
+import Loading from '@/components/contexts/LoadingComponent'
+import { useLoading } from '@/components/contexts/LoadingContext'
 import { useAppContext } from '@/components/contexts/AppContext'
 
 export default function Navbar() {
-	const router = useRouter()
-	const { loading } = useLoading()
 	const [navbar, setNavbar] = useState(true)
+	const [width, setWidth] = useState<number>(0)
+
+	const router = useRouter()
+
+	const { loading } = useLoading()
+
 	const navLinks: NavLinks[] = [
 		{
 			name: 'Files',
@@ -21,7 +27,7 @@ export default function Navbar() {
 	]
 	const [user, setUser] = useState('')
 
-	const { socketConnectionState } = useAppContext()
+	const { setDrawerOpen, socketConnectionState } = useAppContext()
 
 	useEffect(() => {
 		const navbarAnimate = () => {
@@ -30,7 +36,13 @@ export default function Navbar() {
 			} else setNavbar(false)
 		}
 
+		setWidth(window.innerWidth)
+		const handleWindowResize = () => setWidth(window.innerWidth)
+
+		window.addEventListener('resize', handleWindowResize)
 		window.addEventListener('scroll', throttle(navbarAnimate, 100))
+
+		return () => window.removeEventListener('resize', handleWindowResize)
 	}, [])
 
 	useEffect(() => {
@@ -60,12 +72,13 @@ export default function Navbar() {
 					transition: 'background-color 800ms'
 				}}
 			>
+				{width > 768 ?
 				<div className="flex items-center">
 					<div className='absolute flex items-end gap-3 left-6 md:left-24'>
 						<span className="text-center text-lg sm:text-2xl font-semibold xs:visible invisible">
 							File Server
 						</span>
-						<span className={`flex items-center text-sm ${socketConnectionState ? 'text-green-400' : 'text-red-400'}`}>
+						<span className={`hidden md:flex items-center text-sm ${socketConnectionState ? 'text-green-400' : 'text-red-400'}`}>
 							{socketConnectionState ? 'Connected' : 'Disconnected'}
 						</span>
 					</div>
@@ -134,9 +147,21 @@ export default function Navbar() {
 						className="absolute right-6 md:right-24 text-center text-sm sm:text-base font-semibold cursor-pointer link"
 					>
 						Login
-					</Link>
-					}
-				</div>
+					</Link>}
+				</div> : 
+				<div className="flex items-center">
+					<div className='absolute flex items-center gap-3 left-4 md:left-24'>
+						<IconButton onClick={() => setDrawerOpen(true)}>
+							<MenuIcon />
+						</IconButton>
+						<Link 
+							href={'/files'}
+							className="text-center text-lg sm:text-2xl font-semibold xs:visible invisible"
+						>
+							File Server
+						</Link>
+					</div>
+				</div>}
 			</nav>
 		</>
 	)
