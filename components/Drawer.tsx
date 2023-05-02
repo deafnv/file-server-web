@@ -6,8 +6,6 @@ import { deleteCookie, getCookie } from "cookies-next"
 import { useAppContext } from "@/components/contexts/AppContext"
 import FileTree from "@/components/FileTree"
 
-let loadingTimer: NodeJS.Timeout
-
 export default function Drawer() {
   const drawerRef = useRef<HTMLDivElement>(null)
   const drawerBlurRef = useRef<HTMLDivElement>(null)

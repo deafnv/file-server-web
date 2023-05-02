@@ -1,6 +1,5 @@
-import { CircularProgress } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
 
-//TODO: Fix loading flashes if loading finishes fast
 export default function Loading() {
 	return (
 		<div

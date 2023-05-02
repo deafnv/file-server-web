@@ -36,6 +36,7 @@ export default function FileList(
     setSelectedFile,
     setLoggedOutWarning,
     setProcessInfo,
+    setProcessError,
     setOpenDeleteConfirm
   } = useAppContext()
 
@@ -132,7 +133,7 @@ export default function FileList(
       )
     } catch (err) {
       if ((err as any as AxiosError).response?.status == 403) {
-        alert(`Error: Forbidden.`)
+        setProcessError('Error: Forbidden')
       } else if ((err as any as AxiosError).response?.status == 401) {
         alert('Error: Unauthorized, try logging in again.')
         deleteCookie('userdata')
@@ -235,7 +236,7 @@ export default function FileList(
   useEffect(() => {
     const keyDownListener = async (e: KeyboardEvent) => {
       //* Select all files Ctrl + A
-      if (e.ctrlKey && e.key == 'a') e.preventDefault()
+      if (e.ctrlKey && e.key == 'a' && document.activeElement == fileListRef.current) e.preventDefault()
       if (e.ctrlKey && e.key == 'a' && fileArr && typeof fileArr !== 'string' && document.activeElement == fileListRef.current) {
         e.preventDefault()
         setSelectedFile(fileArr)

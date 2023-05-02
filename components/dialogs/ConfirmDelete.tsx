@@ -12,7 +12,8 @@ export default function ConfirmDelete() {
   const { setLoading } = useLoading()
   const {
     openDeleteConfirm,
-    setOpenDeleteConfirm
+    setOpenDeleteConfirm,
+    setProcessError
   } = useAppContext()
 
   const router = useRouter()
@@ -31,7 +32,7 @@ export default function ConfirmDelete() {
       setOpenDeleteConfirm(null)
     } catch (err) {
       if ((err as any as AxiosError).response?.status == 403) {
-        alert(`Error: Forbidden.`)
+        setProcessError('Error: Forbidden')
       } else if ((err as any as AxiosError).response?.status == 401) {
         alert('Error: Unauthorized, try logging in again.')
         deleteCookie('userdata')

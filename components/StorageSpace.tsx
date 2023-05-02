@@ -5,20 +5,22 @@ import LinearProgressWithLabel from '@/components/LinearProgressWithLabel'
 import { useState } from 'react'
 import axios from 'axios'
 import { StorageSpaceRes } from '@/lib/types'
+import { useAppContext } from '@/components/contexts/AppContext'
 
 export default function StorageSpace() {
   const [storageSpace, setStorageSpace] = useState<StorageSpaceRes | null>(null)
   const [loadingSS, setLoadingSS] = useState(false)
+
+  const { setProcessError } = useAppContext()
 
   async function handleLoadSS() {
     setLoadingSS(true)
     try {
       const storageSpaceResponse = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/diskspace`, { withCredentials: true })
       setStorageSpace(storageSpaceResponse.data)
-      setLoadingSS(false)
     } catch (error) {
-      console.log(error)
-      //TODO: Show error toast
+      setProcessError('Something went wrong')
+    } finally {
       setLoadingSS(false)
     }
   }

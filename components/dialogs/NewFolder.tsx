@@ -17,7 +17,8 @@ export default function NewFolder() {
   const {
     openNewFolderDialog,
     setOpenNewFolderDialog,
-    setContextMenu
+    setContextMenu,
+    setProcessError
   } = useAppContext()
 
   const router = useRouter()
@@ -39,7 +40,7 @@ export default function NewFolder() {
       setContextMenu(null)
     } catch (err) {
       if ((err as any as AxiosError).response?.status == 403) {
-        alert(`Error: Forbidden.`)
+        setProcessError('Error: Forbidden')
       } else if ((err as any as AxiosError).response?.status == 401) {
         alert('Error: Unauthorized, try logging in again.')
         deleteCookie('userdata')

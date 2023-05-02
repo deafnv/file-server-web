@@ -18,7 +18,8 @@ export default function MoveFile() {
   const {
     fileTree,
     openMoveFileDialog,
-    setOpenMoveFileDialog
+    setOpenMoveFileDialog,
+    setProcessError
   } = useAppContext()
 
   const router = useRouter()
@@ -38,7 +39,7 @@ export default function MoveFile() {
       setOpenMoveFileDialog(null)
     } catch (err) {
       if ((err as any as AxiosError).response?.status == 403) {
-        alert(`Error: Forbidden.`)
+        setProcessError('Error: Forbidden')
       } else if ((err as any as AxiosError).response?.status == 401) {
         alert('Error: Unauthorized, try logging in again.')
         deleteCookie('userdata')
