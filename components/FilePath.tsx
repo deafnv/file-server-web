@@ -26,30 +26,33 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
         data-isdirpath
         data-path='/'
         href={''}
+        tabIndex={0}
         className='p-2 rounded-md transition-colors duration-75 hover:bg-gray-500'
       >
         Files
       </Link> :
-      <div 
+      <button 
+        tabIndex={0}
         onClick={(e) => setFolderDetailsAnchor(e.currentTarget)}
         className='flex items-center p-2 rounded-md cursor-pointer hover:bg-gray-500 '
       >
         <span className='line-clamp-1 break-all'>Files</span>
         <ArrowDropDownIcon />
-      </div>}
+      </button>}
       {paramsRef.current?.map((param, index) => {
         if (concatIndex > 0 && index < concatIndex) {
           if (index == 0) {
             return (
               <>
                 /
-                <div 
+                <button 
                   key={index}
+                  tabIndex={0}
                   onClick={(e) => setFileHistoryMoreAnchor(e.currentTarget)}
                   className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-gray-500'
                 >
                   <MoreHorizIcon />
-                </div>
+                </button>
               </>
             )
           }
@@ -58,15 +61,16 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
           return (
             <>
               /
-              <div 
+              <button 
                 key={index}
                 title={param}
+                tabIndex={0}
                 onClick={(e) => setFolderDetailsAnchor(e.currentTarget)}
                 className='flex items-center px-2 rounded-md cursor-pointer hover:bg-gray-500'
               >
                 <span className='line-clamp-1 my-2 break-all'>{param}</span>
                 <ArrowDropDownIcon />
-              </div>
+              </button>
             </>
           )
         } else {
@@ -78,6 +82,7 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
                 data-path={`/${paramsRef.current?.slice(0, index + 1).join('/')}`}
                 key={index}
                 title={param}
+                tabIndex={0}
                 href={paramsRef.current?.slice(0, index + 1).join('/')}
                 className='px-2 py-1 rounded-md hover:bg-gray-500 line-clamp-1 break-words'
               >

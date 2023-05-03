@@ -72,10 +72,23 @@ export default function Navbar() {
 					transition: 'background-color 800ms'
 				}}
 			>
-				{width > 768 ?
+				{width < 768 ?
+				<div className="flex items-center">
+					<div className='absolute flex items-center gap-3 left-4 md:left-24'>
+						<IconButton onClick={() => setDrawerOpen(true)}>
+							<MenuIcon />
+						</IconButton>
+						<Link 
+							href={'/files'}
+							className="text-center text-lg sm:text-2xl font-semibold"
+						>
+							File Server
+						</Link>
+					</div>
+				</div> :
 				<div className="flex items-center">
 					<div className='absolute flex items-end gap-3 left-6 md:left-24'>
-						<span className="text-center text-lg sm:text-2xl font-semibold xs:visible invisible">
+						<span className="text-center text-lg sm:text-2xl font-semibold">
 							File Server
 						</span>
 						<span className={`hidden md:flex items-center text-sm ${socketConnectionState ? 'text-green-400' : 'text-red-400'}`}>
@@ -135,32 +148,21 @@ export default function Navbar() {
 					{user ? 
 					<span className="flex gap-2 absolute right-6 md:right-24 text-center text-sm sm:text-base font-semibold">
 						{user}
-						<span
+						<button
+							tabIndex={0}
 							onClick={handleLogout}
 							className='cursor-pointer link'
 						>
 							Logout
-						</span>
+						</button>
 					</span> :
 					<Link
 						href={'/login'}
+						tabIndex={0}
 						className="absolute right-6 md:right-24 text-center text-sm sm:text-base font-semibold cursor-pointer link"
 					>
 						Login
 					</Link>}
-				</div> : 
-				<div className="flex items-center">
-					<div className='absolute flex items-center gap-3 left-4 md:left-24'>
-						<IconButton onClick={() => setDrawerOpen(true)}>
-							<MenuIcon />
-						</IconButton>
-						<Link 
-							href={'/files'}
-							className="text-center text-lg sm:text-2xl font-semibold xs:visible invisible"
-						>
-							File Server
-						</Link>
-					</div>
 				</div>}
 			</nav>
 		</>

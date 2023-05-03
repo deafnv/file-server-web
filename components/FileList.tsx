@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react'
 import prettyBytes from 'pretty-bytes'
 import CircularProgress from '@mui/material/CircularProgress'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
-import FileCopyIcon from '@mui/icons-material/FileCopy'
 import DragSelectionArea from '@/components/DragSelection'
 import isEqual from 'lodash/isEqual'
 import { getIcon } from '@/lib/methods'
@@ -64,7 +63,9 @@ export default function FileList(
     //FIXME: Weird interactions with ctrl + a select all
     const keyboardNavigate = (e: KeyboardEvent) => {
       const navigationKeys = ['ArrowDown', 'ArrowUp', 'Enter']
-      if (!(fileArr instanceof Array) || !navigationKeys.includes(e.key)) return
+      //* Allow navigation only if selected file, or body is active element
+      if (!(fileArr instanceof Array) || !navigationKeys.includes(e.key) || (!selectedFile.length && document.activeElement?.tagName !== 'BODY'))
+        return
       const lastSelectedFile = selectedFile[selectedFile.length - 1]
       const lastSelectedFileIndex = fileArr.lastIndexOf(lastSelectedFile)
       let toSelect: FileServerFile[] = []
