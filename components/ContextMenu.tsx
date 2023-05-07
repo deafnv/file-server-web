@@ -44,7 +44,8 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
 
   async function handleCopy() {
     if (!contextMenu || contextMenu == 'directory') return
-    await navigator.clipboard.writeText(selectedFile?.[0].isDirectory ? `/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile?.[0].path}`)
+    const links = selectedFile.map(file => file.isDirectory ? `${location.origin}/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)
+    await navigator.clipboard.writeText(links.join(','))
     setProcessInfo('Link copied to clipboard')
     setSelectedFile([])
     setContextMenu(null)

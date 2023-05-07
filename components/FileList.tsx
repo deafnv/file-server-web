@@ -267,6 +267,7 @@ export default function FileList(
               .then(() => setProcessInfo(`Copied files(s) sucessfully`))
               .catch(err => setProcessInfo('Something went wrong while copying files'))
 
+              //* Clear clipboard if files were cut
               if (parsedText.action == 'CUT') 
                 navigator.clipboard.writeText('').catch(err => {})
             })
@@ -286,13 +287,13 @@ export default function FileList(
     const keyDownActions = async (e: KeyboardEvent) => {
       //* Copy link and list of paths to clipboard
       if (e.key == 'c' && e.ctrlKey && selectedFile.length) {
-        const fileLink = selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`
+        const links = selectedFile.map(file => file.isDirectory ? `${location.origin}/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`).join(',')
         const htmlItem = {
           action: 'COPY',
           files: selectedFile.map(file => file.path)
         }
         const textItem = new ClipboardItem({
-           'text/plain': new Blob([fileLink], { type: 'text/plain' }),
+           'text/plain': new Blob([links], { type: 'text/plain' }),
            'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' })
         })
         await navigator.clipboard.write([textItem])
@@ -301,13 +302,13 @@ export default function FileList(
 
       //* Cut files into clipboard
       if (e.key == 'x' && e.ctrlKey && selectedFile.length) {
-        const fileLink = selectedFile[0].isDirectory ? `${location.origin}/files${selectedFile[0].path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`
+        const links = selectedFile.map(file => file.isDirectory ? `${location.origin}/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`).join(',')
         const htmlItem = {
           action: 'CUT',
           files: selectedFile.map(file => file.path)
         }
         const textItem = new ClipboardItem({
-           'text/plain': new Blob([fileLink], { type: 'text/plain' }),
+           'text/plain': new Blob([links], { type: 'text/plain' }),
            'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' })
         })
         await navigator.clipboard.write([textItem])
@@ -336,6 +337,7 @@ export default function FileList(
   function handleSelect(e: React.MouseEvent, file: FileServerFile, index: number) {
     const selectItem = () => {
       if (fileArr instanceof Array) {
+        //FIXME: Unable to unselect items when clicking on title, while holding shift
         if (e.shiftKey && selectedFile?.[0]) {
           let selectedFiles
           if (index > startingFileSelect.current!) {
