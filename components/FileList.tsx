@@ -337,7 +337,6 @@ export default function FileList(
   function handleSelect(e: React.MouseEvent, file: FileServerFile, index: number) {
     const selectItem = () => {
       if (fileArr instanceof Array) {
-        //FIXME: Unable to unselect items when clicking on title, while holding shift
         if (e.shiftKey && selectedFile?.[0]) {
           let selectedFiles
           if (index > startingFileSelect.current!) {
@@ -365,8 +364,8 @@ export default function FileList(
     //* Determine if pressed element is file, start drag if mousedown on file name
     if (e.button === 0 && (e.target as HTMLElement).getAttribute('data-isfilename') == 'true') {
       const fileMouseDowned = fileRefs.current.filter(item => item.ref == e.currentTarget)[0]
-      //* Fix for unable to unselect on pressing title with ctrl
-      if (!(selectedFile.includes(fileMouseDowned.file) && !e.ctrlKey)) {
+      //* Fix for unable to unselect on pressing title with ctrl and shift
+      if (!(selectedFile.includes(fileMouseDowned.file) && !e.ctrlKey && !e.shiftKey)) {
         selectItem()
       }
       isDraggingFile.current = performance.now()
