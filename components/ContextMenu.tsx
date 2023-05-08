@@ -85,8 +85,12 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
 
   //TODO: Allow download multiple
   function handleDownload() {
-    if (!selectedFile) return
-    window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve${selectedFile[0].path}?download=true`)
+    if (!selectedFile.length) return
+    if (selectedFile.length == 1) {
+      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve${selectedFile[0].path}?download=true`)
+    } else {
+      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve/${(router.query.path as string[]).join('/')}?${selectedFile.map(file => `file[]=${file.name}`).join('&')}`)
+    }
   }
 
   return (
@@ -129,7 +133,7 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
       <hr className="my-1 border-gray-200 border-t-[1px]" />
       <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
         <button onClick={handleDownload} className="w-full text-left pl-6">
-          Download
+          {selectedFile.length == 1 ? 'Download' : 'Download selected'}
         </button>
       </li>
     </menu>
