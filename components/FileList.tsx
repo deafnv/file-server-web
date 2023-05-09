@@ -15,14 +15,11 @@ import path from 'path'
 import DraggedFile from './DraggedFile'
 
 export default function FileList(
-  { fileArr, fileListRef, getRootProps, getInputProps }: FileListProps
+  { fileArr, fileRefs, fileListRef, getRootProps, getInputProps }: FileListProps
 ) {
   const startingFileSelect = useRef<number | null>(null)
   const dragOverlayRef = useRef<HTMLDivElement>(null)
-  const fileRefs = useRef<Array<{
-    file: FileServerFile,
-    ref: HTMLDivElement
-  }>>([])
+  const dragOverlayTextRef = useRef<HTMLSpanElement>(null)
   const draggedFileRef = useRef<HTMLDivElement>(null)
   const isDraggingFile = useRef(0)
 
@@ -404,15 +401,22 @@ export default function FileList(
     )
   }
 
-  //TODO: FILE DRAG UPLOAD INTO FILE
   function handleDragOver(e: React.DragEvent) {
-    if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current) {
+    if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current && dragOverlayTextRef.current) {
+      const closestFileDropped = fileRefs.current.filter(item => (e.target as HTMLElement).closest("[data-isfile]") == item.ref)
+      if (closestFileDropped[0] && closestFileDropped[0].file.isDirectory) {
+          closestFileDropped[0].ref.style.outlineWidth = '1px'
+          dragOverlayTextRef.current.innerText = closestFileDropped[0].file.name
+      } else {
+        dragOverlayTextRef.current.innerText = 'Current'
+      }
       dragOverlayRef.current.style.opacity = '1'
     }
   }
   
   function handleDragLeave(e: React.DragEvent) {
     if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current) {
+      fileRefs.current.forEach(element => element.ref.style.outlineWidth = '')
       dragOverlayRef.current.style.opacity = '0'
     }
   }
@@ -487,9 +491,13 @@ export default function FileList(
         className='absolute top-0 left-0 z-20 h-full w-full pointer-events-none opacity-0 transition-all duration-100'
       >
         <div className='z-20 h-full w-full bg-blue-300 border-2 border-solid border-blue-500 opacity-30 pointer-events-none' />
-        <span className='flex flex-col items-center gap-2 fixed top-[90%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 text-2xl bg-sky-600 rounded-md'>
-          Drop files to upload
+        <span className='flex flex-col items-center gap-2 fixed top-[90%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 text-xl bg-sky-600 rounded-lg'>
           <FileUploadIcon fontSize='large' />
+          Drop files to upload into
+          <span 
+            ref={dragOverlayTextRef}
+            className='font-bold'
+          />
         </span>
       </div>
       <input {...getInputProps()} />

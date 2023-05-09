@@ -55,6 +55,7 @@ export interface Box {
 export interface FileListProps { 
   fileArr: FileServerFile[] | string | null; 
   fileListRef: RefObject<HTMLDivElement>; 
+  fileRefs: MutableRefObject<Array<{ file: FileServerFile; ref: HTMLDivElement; }>>;
   getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
 }

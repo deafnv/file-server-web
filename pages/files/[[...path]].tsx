@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import UploadIcon from '@mui/icons-material/Upload'
 import { FileServerFile, UploadProgress, UploadQueueItem } from '@/lib/types'
-import { useDropzone } from 'react-dropzone'
+import { DropEvent, useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
 import { deleteCookie, getCookie } from 'cookies-next'
 import { useAppContext } from '@/components/contexts/AppContext'
@@ -32,6 +32,10 @@ export default function Files() {
   const fileListRef = useRef<HTMLDivElement>(null)
   const contextMenuRef = useRef<HTMLMenuElement>(null)
   const filesToUpload = useRef<UploadQueueItem[]>([])
+  const fileRefs = useRef<Array<{
+    file: FileServerFile,
+    ref: HTMLDivElement
+  }>>([])
 
   const [width, setWidth] = useState<number>(0)
   const [uploadButton, setUploadButton] = useState(true)
@@ -176,16 +180,30 @@ export default function Files() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contextMenuRef.current])
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[], _: any, event: DropEvent) => {
     if (!getCookie('userdata')) {
       setLoggedOutWarning(true)
-      return//!asda
+      return
     }
 
-    const acceptedFilesQueue: UploadQueueItem[] = acceptedFiles.map(file => ({
-      file,
-      uploadTo: `/${(router.query.path as string[])?.join('/')}` ?? '/'
-    }))
+    //const closestPathDropped = (event.target as HTMLElement).closest("[data-isdirpath]")
+    const closestFileDropped = fileRefs.current.filter(item => (event.target as HTMLElement).closest("[data-isfile]") == item.ref)
+
+    let acceptedFilesQueue: UploadQueueItem[]
+
+    //* Dropping file in directory
+    if (closestFileDropped[0]?.file.isDirectory) {
+      acceptedFilesQueue = acceptedFiles.map(file => ({
+        file,
+        uploadTo: closestFileDropped[0].file.path
+      }))
+    } else {
+      const routerPath = (router.query.path as string[])?.join('/')
+      acceptedFilesQueue = acceptedFiles.map(file => ({
+        file,
+        uploadTo: routerPath ? `/${routerPath}` : '/'
+      }))
+    }
 
     if (!filesToUpload.current.length) {
       setFilesToUpload(filesToUpload.current.concat(acceptedFilesQueue))
@@ -263,6 +281,7 @@ export default function Files() {
           <FilePath paramsRef={paramsRef} />
           <FileList
             fileArr={fileArr} 
+            fileRefs={fileRefs}
             fileListRef={fileListRef} 
             getRootProps={getRootProps}
             getInputProps={getInputProps}
