@@ -404,6 +404,7 @@ export default function FileList(
     )
   }
 
+  //TODO: FILE DRAG UPLOAD INTO FILE
   function handleDragOver(e: React.DragEvent) {
     if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current) {
       dragOverlayRef.current.style.opacity = '1'

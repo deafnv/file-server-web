@@ -6,7 +6,7 @@ import isEqual from 'lodash/isEqual'
 
 export default function UploadsList({ setFilesToUpload, currentUploadProgress, uploadQueue, handleOpenFileDialog }: UploadsListProps) {
   function handleCancelUpload(fileToRemove: File) {
-    setFilesToUpload(uploadQueue.filter(file => !isEqual(file, fileToRemove)))
+    setFilesToUpload(uploadQueue.filter(file => !isEqual(file.file, fileToRemove)))
   }
 
   return (
@@ -23,10 +23,10 @@ export default function UploadsList({ setFilesToUpload, currentUploadProgress, u
             key={index}
             className='relative flex flex-col p-3 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'
           >
-            {file.name}
+            {file.file.name}
             <span className='text-gray-600 font-normal'>Queued</span>
             <CloseIcon 
-              onClick={() => handleCancelUpload(file)}
+              onClick={() => handleCancelUpload(file.file)}
               titleAccess='Remove from queue'
               fontSize='small' 
               className='absolute top-2 right-3 cursor-pointer hover:text-red-500' 

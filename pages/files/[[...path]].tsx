@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import UploadIcon from '@mui/icons-material/Upload'
-import { FileServerFile, UploadProgress } from '@/lib/types'
+import { FileServerFile, UploadProgress, UploadQueueItem } from '@/lib/types'
 import { useDropzone } from 'react-dropzone'
 import isEqual from 'lodash/isEqual'
 import { deleteCookie, getCookie } from 'cookies-next'
@@ -31,16 +31,16 @@ export default function Files() {
   const paramsRef = useRef<string[]>([])
   const fileListRef = useRef<HTMLDivElement>(null)
   const contextMenuRef = useRef<HTMLMenuElement>(null)
-  const filesToUpload = useRef<File[]>([])
+  const filesToUpload = useRef<UploadQueueItem[]>([])
 
   const [width, setWidth] = useState<number>(0)
   const [uploadButton, setUploadButton] = useState(true)
   const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
   
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
-  const [uploadQueue, setUploadQueue] = useState<File[]>([])
+  const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([])
 
-  const setFilesToUpload = (val: File[]) => {
+  const setFilesToUpload = (val: UploadQueueItem[]) => {
     filesToUpload.current = val
     setUploadQueue(filesToUpload.current)
   }
@@ -179,19 +179,25 @@ export default function Files() {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!getCookie('userdata')) {
       setLoggedOutWarning(true)
-      return
+      return//!asda
     }
+
+    const acceptedFilesQueue: UploadQueueItem[] = acceptedFiles.map(file => ({
+      file,
+      uploadTo: `/${(router.query.path as string[])?.join('/')}` ?? '/'
+    }))
+
     if (!filesToUpload.current.length) {
-      setFilesToUpload(filesToUpload.current.concat(acceptedFiles))
+      setFilesToUpload(filesToUpload.current.concat(acceptedFilesQueue))
       
       while (filesToUpload.current.length !== 0 && !currentUploadProgress) {
         const fileToUpload = filesToUpload.current[0]
         setFilesToUpload(filesToUpload.current.filter(file => !isEqual(file, fileToUpload))!)
         const formData = new FormData()
-        formData.append('upload-file', fileToUpload)
+        formData.append('upload-file', fileToUpload.file)
 
         try {
-          const uploadres = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${router.asPath.replace('/files', '')}`, formData, {
+          const uploadres = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${fileToUpload.uploadTo}`, formData, {
             headers: {
               "Content-Type": "multipart/form-data"
             },
@@ -200,7 +206,7 @@ export default function Files() {
               if (!progressEvent.total) return
               const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
               setCurrentUploadProgress({
-                name: fileToUpload.name,
+                name: fileToUpload.file.name,
                 progress: percentCompleted
               })
             }
@@ -221,7 +227,7 @@ export default function Files() {
         setCurrentUploadProgress(null)
       } 
     } else {
-      setFilesToUpload(filesToUpload.current.concat(acceptedFiles))
+      setFilesToUpload(filesToUpload.current.concat(acceptedFilesQueue))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath, currentUploadProgress])

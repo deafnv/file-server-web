@@ -59,10 +59,15 @@ export interface FileListProps {
   getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
 }
 
+export interface UploadQueueItem {
+  file: File;
+  uploadTo: string;
+}
+
 export interface UploadsListProps {
-  setFilesToUpload: (val: File[]) => void;
+  setFilesToUpload: (val: UploadQueueItem[]) => void;
   currentUploadProgress: UploadProgress | null;
-  uploadQueue: File[];
+  uploadQueue: UploadQueueItem[];
   handleOpenFileDialog: () => void;
 }
 
