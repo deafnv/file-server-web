@@ -55,6 +55,8 @@ export default function NewFolder() {
 
   return (
     <Dialog
+      fullWidth
+      maxWidth="xs"
       open={!!openNewFolderDialog}
       onClose={() => setOpenNewFolderDialog(null)}
     >

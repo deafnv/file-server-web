@@ -473,7 +473,7 @@ export default function FileList(
             <span className='hidden lg:block p-3 min-w-[10rem]'>
               {new Date(file.created).toLocaleDateString('en-US', {
                 day: 'numeric',
-                month: 'long',
+                month: 'short',
                 year: 'numeric'
               })}
             </span>

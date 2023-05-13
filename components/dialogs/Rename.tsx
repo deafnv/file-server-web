@@ -55,6 +55,8 @@ export default function Rename() {
 
   return (
     <Dialog
+      fullWidth
+      maxWidth="xs"
       open={!!openRenameDialog}
       onClose={() => setOpenRenameDialog(null)}
     >
