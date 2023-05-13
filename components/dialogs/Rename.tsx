@@ -64,6 +64,7 @@ export default function Rename() {
         </DialogTitle>
         <DialogContent>
           <TextField
+            data-cy="rename-input"
             autoFocus
             margin="dense"
             type="text"

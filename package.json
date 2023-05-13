@@ -30,6 +30,7 @@
     "typescript": "5.0.2"
   },
   "devDependencies": {
+    "@4tw/cypress-drag-drop": "^2.2.3",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/lodash": "^4.14.194",
     "@types/node": "18.15.10",

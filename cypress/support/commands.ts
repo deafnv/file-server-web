@@ -36,10 +36,15 @@
 //   }
 // }
 
-declare namespace Cypress {
-  interface Chainable<Subject = any> {
-    login(): Chainable<void>;
-  }
+import '@4tw/cypress-drag-drop'
+
+declare global {
+  namespace Cypress {
+    interface Chainable<Subject = any> {
+      login(): Chainable<void>;
+      delete(name: string): Chainable<void>;
+    }
+}
 }
 
 Cypress.Commands.add('login', () => {
@@ -50,4 +55,10 @@ Cypress.Commands.add('login', () => {
   cy.wait(500)
   cy.go('back').go('back')
   cy.wait(500)
+})
+
+Cypress.Commands.add('delete', (name) => {
+  cy.get('[data-isfilename]').contains(name).trigger('contextmenu', { force: true })
+  cy.get('[data-cy="context-menu"]').contains('Delete').click()
+  cy.get('[data-cy="dialog-delete"]').contains('Yes').click()
 })
