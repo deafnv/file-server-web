@@ -1,12 +1,14 @@
 import Head from 'next/head'
-import axios, { AxiosError } from 'axios'
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import axios, { AxiosError } from 'axios'
 import UploadIcon from '@mui/icons-material/Upload'
-import { FileServerFile, UploadProgress, UploadQueueItem } from '@/lib/types'
 import { DropEvent, useDropzone } from 'react-dropzone'
-import isEqual from 'lodash/isEqual'
 import { deleteCookie, getCookie } from 'cookies-next'
+import { io, Socket } from 'socket.io-client'
+import isEqual from 'lodash/isEqual'
+import { getData, getFileTree } from '@/lib/methods'
+import { FileServerFile, UploadProgress, UploadQueueItem } from '@/lib/types'
 import { useAppContext } from '@/components/contexts/AppContext'
 import ContextMenu from '@/components/ContextMenu'
 import FileList from '@/components/FileList'
@@ -17,8 +19,6 @@ import FileTree from '@/components/FileTree'
 import ProcessInfo from '@/components/ProcessInfo'
 import ProcessError from '@/components/ProcessError'
 import FilePath from '@/components/FilePath'
-import { getData, getFileTree } from '@/lib/methods'
-import { io, Socket } from 'socket.io-client'
 import { useLoading } from '@/components/contexts/LoadingContext'
 import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 import Rename from '@/components/dialogs/Rename'
@@ -32,6 +32,7 @@ export default function Files() {
   const fileListRef = useRef<HTMLDivElement>(null)
   const contextMenuRef = useRef<HTMLMenuElement>(null)
   const filesToUpload = useRef<UploadQueueItem[]>([])
+  const uploadController = useRef<AbortController>()
   const fileRefs = useRef<Array<{
     file: FileServerFile,
     ref: HTMLDivElement
@@ -53,8 +54,6 @@ export default function Files() {
   const {
     setSocketConnectionState,
     setFileTree,
-    setSelectedFile,
-    contextMenu,
     setContextMenu,
     setLoggedOutWarning
   } = useAppContext()
@@ -86,7 +85,7 @@ export default function Files() {
   }, [fileListRef.current])
 
   useEffect(() => {
-    const socketListHandler = (payload: any) => {
+    const socketListHandler = () => {
       getData(setFileArr, router, paramsRef, setLoading)
     }
 
@@ -213,6 +212,7 @@ export default function Files() {
         formData.append('upload-file', fileToUpload.file)
 
         try {
+          uploadController.current = new AbortController()
           const uploadres = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${fileToUpload.uploadTo}`, formData, {
             headers: {
               "Content-Type": "multipart/form-data"
@@ -225,7 +225,8 @@ export default function Files() {
                 name: fileToUpload.file.name,
                 progress: percentCompleted
               })
-            }
+            },
+            signal: uploadController.current.signal
           })
         } catch (err) {
           setCurrentUploadProgress(null)
@@ -235,10 +236,11 @@ export default function Files() {
             alert('Error: Unauthorized, try logging in again.')
             deleteCookie('userdata')
             router.reload()
-          } else {
+          } else if ((err as any as AxiosError).code != 'ERR_CANCELED') {
+            //* Other errors not triggered by upload cancel
             alert(`Error. The server is probably down. ${err}`)
           }
-          console.log(err)
+          console.error(err)
         }
         setCurrentUploadProgress(null)
       } 
@@ -273,6 +275,7 @@ export default function Files() {
             currentUploadProgress={currentUploadProgress}
             uploadQueue={uploadQueue}
             handleOpenFileDialog={handleOpenFileDialog}
+            uploadController={uploadController}
           />
         </section>
         <section className='flex flex-col pt-0 pb-4 h-[calc(100dvh-60px)]'>

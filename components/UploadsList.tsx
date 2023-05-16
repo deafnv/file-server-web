@@ -4,9 +4,13 @@ import { UploadsListProps } from "@/lib/types"
 import CloseIcon from '@mui/icons-material/Close'
 import isEqual from 'lodash/isEqual'
 
-export default function UploadsList({ setFilesToUpload, currentUploadProgress, uploadQueue, handleOpenFileDialog }: UploadsListProps) {
-  function handleCancelUpload(fileToRemove: File) {
-    setFilesToUpload(uploadQueue.filter(file => !isEqual(file.file, fileToRemove)))
+export default function UploadsList({ setFilesToUpload, currentUploadProgress, uploadQueue, handleOpenFileDialog, uploadController }: UploadsListProps) {
+  function handleCancelUpload(fileToRemove: File | 'current') {
+    if (fileToRemove == 'current') {
+      uploadController.current?.abort()
+    } else {
+      setFilesToUpload(uploadQueue.filter(file => !isEqual(file.file, fileToRemove)))
+    }
   }
 
   return (
@@ -14,9 +18,15 @@ export default function UploadsList({ setFilesToUpload, currentUploadProgress, u
       <h6 className='ml-3 text-lg'>Uploads {currentUploadProgress && `(${uploadQueue?.length! + 1})`}</h6>
       <div className='relative flex flex-col gap-1 p-1 h-full w-full text-sm bg-black rounded-md overflow-auto'>
         {currentUploadProgress &&
-        <div className='p-3 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'>
-          {currentUploadProgress.name}
+        <div className='relative flex flex-col p-3 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'>
+          <span className='w-11/12'>{currentUploadProgress.name}</span>
           <LinearProgressWithLabel variant='determinate' value={currentUploadProgress.progress} />
+          <CloseIcon 
+            onClick={() => handleCancelUpload('current')}
+            titleAccess='Cancel upload'
+            fontSize='small' 
+            className='absolute top-2 right-3 cursor-pointer hover:text-red-500 transition-colors' 
+          />
         </div>}
         {uploadQueue?.map((file, index) => (
           <div 

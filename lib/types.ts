@@ -70,6 +70,7 @@ export interface UploadsListProps {
   currentUploadProgress: UploadProgress | null;
   uploadQueue: UploadQueueItem[];
   handleOpenFileDialog: () => void;
+  uploadController: MutableRefObject<AbortController | undefined>;
 }
 
 export interface FileTreeProps {
