@@ -12,7 +12,7 @@ export default function UploadsList({ setFilesToUpload, currentUploadProgress, u
   return (
     <div className='flex flex-col h-full w-full'>
       <h6 className='ml-3 text-lg'>Uploads {currentUploadProgress && `(${uploadQueue?.length! + 1})`}</h6>
-      <div className='relative flex flex-col gap-1 p-1 min-h-[90%] w-full text-sm bg-black rounded-md overflow-auto'>
+      <div className='relative flex flex-col gap-1 p-1 h-full w-full text-sm bg-black rounded-md overflow-auto'>
         {currentUploadProgress &&
         <div className='p-3 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'>
           {currentUploadProgress.name}
@@ -23,19 +23,19 @@ export default function UploadsList({ setFilesToUpload, currentUploadProgress, u
             key={index}
             className='relative flex flex-col p-3 h-fit w-full text-black font-semibold bg-gray-300 rounded-md'
           >
-            {file.file.name}
+            <span className='w-11/12'>{file.file.name}</span>
             <span className='text-gray-600 font-normal'>Queued</span>
             <CloseIcon 
               onClick={() => handleCancelUpload(file.file)}
               titleAccess='Remove from queue'
               fontSize='small' 
-              className='absolute top-2 right-3 cursor-pointer hover:text-red-500' 
+              className='absolute top-2 right-3 cursor-pointer hover:text-red-500 transition-colors' 
             />
           </div>
         ))}
         {(!currentUploadProgress && !uploadQueue?.length) &&
-        <div className='flex flex-col gap-2 self-center my-auto'>
-          No active uploads.
+        <div className='flex flex-col items-center gap-2 self-center my-auto'>
+          No active uploads
           <Button variant='outlined' color='secondary' onClick={handleOpenFileDialog}>Upload Files</Button>
         </div>}
       </div>

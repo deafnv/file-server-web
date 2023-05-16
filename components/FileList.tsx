@@ -408,7 +408,7 @@ export default function FileList(
           closestFileDropped[0].ref.style.outlineWidth = '1px'
           dragOverlayTextRef.current.innerText = closestFileDropped[0].file.name
       } else {
-        dragOverlayTextRef.current.innerText = 'Current'
+        dragOverlayTextRef.current.innerText = 'Current directory'
       }
       dragOverlayRef.current.style.opacity = '1'
     }
@@ -433,7 +433,7 @@ export default function FileList(
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onContextMenu={(e) => {if (e.target == fileListRef.current) setContextMenu('directory')}}
-      className={`relative flex flex-col m-0 md:m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none`}
+      className={`relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none`}
     >
       <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
         <span className='hidden lg:block p-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'></span>
