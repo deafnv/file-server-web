@@ -1,20 +1,18 @@
+import { useRouter } from 'next/router'
+import { forwardRef, ForwardedRef,PropsWithChildren } from 'react'
 import { getCookie } from 'cookies-next'
-import { NextRouter } from 'next/router'
-import { forwardRef, ForwardedRef } from 'react'
 import { useAppContext } from '@/components/contexts/AppContext'
+import { sleep } from '@/lib/types'
 
-function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTMLMenuElement>) {
+function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
+  const router = useRouter()
+
   const {
     contextMenu,
     setContextMenu,
     selectedFile,
-    setSelectedFile,
     setLoggedOutWarning,
-    setOpenNewFolderDialog,
-    setProcessInfo,
-    setOpenDeleteConfirm,
-    setOpenRenameDialog,
-    setOpenMoveFileDialog
+    setOpenNewFolderDialog
   } = useAppContext()
 
   function handleNewFolder() {
@@ -42,6 +40,75 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
     )
   }
 
+  //TODO: Allow download multiple
+  function handleDownload() {
+    if (!selectedFile.length) return
+    if (selectedFile.length == 1) {
+      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve${selectedFile[0].path}?download=true`)
+    } else {
+      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve/${(router.query.path as string[]).join('/')}?${selectedFile.map(file => `file[]=${file.name}`).join('&')}`)
+    }
+  }
+
+  async function handleDownloadMulti() {
+    for (const file of selectedFile) {
+      var link = document.createElement('a')
+      link.href = `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve${file.path}?download=true`
+      link.download = file.name
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      await sleep(0.5)
+    }
+  }
+
+  //* Download only as zip if files selected includes a directory
+  if (selectedFile.length <= 1 || selectedFile.some(file => file.isDirectory)) {
+    return (
+      <ContextMenuTemplate ref={ref} customClass='context-menu'>
+        <hr className="my-1 border-gray-200 border-t-[1px]" />
+        <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
+          <button onClick={handleDownload} className="w-full text-left pl-6">
+            {selectedFile[0].isDirectory ? 'Download as zip' : 'Download'}
+          </button>
+        </li>
+      </ContextMenuTemplate>
+    )
+  } else {
+    return (
+      <ContextMenuTemplate ref={ref} customClass='context-menu-multifile'>
+        <hr className="my-1 border-gray-200 border-t-[1px]" />
+        <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
+          <button onClick={handleDownload} className="w-full text-left pl-6">
+            Download as zip
+          </button>
+        </li>
+        <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
+          <button onClick={handleDownloadMulti} className="w-full text-left pl-6">
+            Download selected
+          </button>
+        </li>
+      </ContextMenuTemplate>
+    )
+  }
+}
+
+const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, customClass }: PropsWithChildren<{ customClass: string; }>, ref: ForwardedRef<HTMLMenuElement>) {
+  const router = useRouter()
+  
+  const {
+    contextMenu,
+    setContextMenu,
+    selectedFile,
+    setSelectedFile,
+    setLoggedOutWarning,
+    setProcessInfo,
+    setOpenDeleteConfirm,
+    setOpenRenameDialog,
+    setOpenMoveFileDialog
+  } = useAppContext()
+  
   async function handleCopy() {
     if (!contextMenu || contextMenu == 'directory') return
     const links = selectedFile.map(file => file.isDirectory ? `${location.origin}/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)
@@ -82,22 +149,12 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
       setLoggedOutWarning(true)
     }
   }
-
-  //TODO: Allow download multiple
-  function handleDownload() {
-    if (!selectedFile.length) return
-    if (selectedFile.length == 1) {
-      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve${selectedFile[0].path}?download=true`)
-    } else {
-      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve/${(router.query.path as string[]).join('/')}?${selectedFile.map(file => `file[]=${file.name}`).join('&')}`)
-    }
-  }
-
+  
   return (
     <menu
       data-cy='context-menu'
       ref={ref}
-      className="absolute text-left min-w-[12rem] w-[4rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden context-menu"
+      className={`absolute text-left min-w-[12rem] w-[13rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden ${customClass}`}
     >
       <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
         <button onClick={() => selectedFile?.[0].isDirectory ? router.push(`/files${selectedFile?.[0].path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile?.[0].path}`)} className="w-full text-left pl-6">
@@ -130,14 +187,9 @@ function ContextMenu({ router }: { router: NextRouter; }, ref: ForwardedRef<HTML
           Move
         </button>
       </li>
-      <hr className="my-1 border-gray-200 border-t-[1px]" />
-      <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
-        <button onClick={handleDownload} className="w-full text-left pl-6">
-          {selectedFile.length == 1 ? 'Download' : 'Download selected'}
-        </button>
-      </li>
+      {children}
     </menu>
   )
-}
+})
 
 export default forwardRef(ContextMenu)

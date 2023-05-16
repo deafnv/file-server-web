@@ -126,15 +126,13 @@ export default function Files() {
 
       e.preventDefault()
 
-      if (contextMenu == 'directory') setSelectedFile([])
-
       if (!contextMenuRef.current) return
 
       const isFarRight = e.pageX + contextMenuRef.current.offsetWidth > window.innerWidth
       const isFarBottom = e.pageY + contextMenuRef.current.scrollHeight > window.innerHeight
       
       if (isFarRight || isFarBottom) {
-        contextMenuRef.current.style.top = `${(isFarBottom ? e.pageY - contextMenuRef.current.scrollHeight - (isFarRight ? 10 : 2) : e.pageY) - (isFarRight ? 0 : 10)}px`
+        contextMenuRef.current.style.top = `${(isFarBottom ? e.pageY - contextMenuRef.current.scrollHeight : e.pageY)}px`
         contextMenuRef.current.style.left = `${isFarRight ? e.pageX - contextMenuRef.current.offsetWidth : e.pageX}px`
       } else {
         contextMenuRef.current.style.top = `${e.pageY}px`
@@ -287,10 +285,7 @@ export default function Files() {
             getInputProps={getInputProps}
           />
         </section>
-        <ContextMenu 
-          ref={contextMenuRef} 
-          router={router}
-        />
+        <ContextMenu ref={contextMenuRef} />
         <ConfirmDelete />
         <Rename />
         <NewFolder />

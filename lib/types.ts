@@ -98,3 +98,5 @@ export interface UserData {
   };
   created_at: string;
 }
+
+export const sleep = (s = 1) => new Promise((r) => setTimeout(r, s * 1000))

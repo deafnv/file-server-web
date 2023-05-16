@@ -75,6 +75,7 @@ body {
 		Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 	color: white;
 	background: #4d5357;
+	overflow-y: hidden;
 }
 
 a {
@@ -147,8 +148,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .context-menu {
 	height: 16.7rem;
-	width: 13rem;
 	animation: openMenu 150ms ease-out;
+}
+
+.context-menu-multifile {
+	height: 18.7rem;
+	animation: openMenuMultifile 150ms ease-out;
 }
 
 @keyframes openMenu {
@@ -157,7 +162,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 		opacity: 0;
 	}
 	100% {
-		height: 14.2rem;
+		height: 16.7rem;
+		opacity: 1;
+	}
+}
+
+@keyframes openMenuMultifile {
+	0% {
+		height: 0;
+		opacity: 0;
+	}
+	100% {
+		height: 18.7rem;
 		opacity: 1;
 	}
 }
