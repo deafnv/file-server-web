@@ -26,6 +26,11 @@ export interface FileServerFile {
   size: number;
 }
 
+export type SortField = 'type' | 'name' | 'size' | 'created';
+export type SortDirection = 'asc' | 'desc';
+
+export type SortMethod = `${SortField}_${SortDirection}`;
+
 export interface UploadProgress {
   name: string;
   progress: number;
@@ -55,6 +60,7 @@ export interface Box {
 export interface FileListProps { 
   fileListRef: RefObject<HTMLDivElement>; 
   fileRefs: MutableRefObject<Array<{ file: FileServerFile; ref: HTMLDivElement; }>>;
+  sortMethodRef: MutableRefObject<SortMethod>;
   getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
 }

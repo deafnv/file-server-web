@@ -8,7 +8,7 @@ import { deleteCookie, getCookie } from 'cookies-next'
 import { io, Socket } from 'socket.io-client'
 import isEqual from 'lodash/isEqual'
 import { getData, getFileTree } from '@/lib/methods'
-import { FileServerFile, UploadProgress, UploadQueueItem } from '@/lib/types'
+import { FileServerFile, SortMethod, UploadProgress, UploadQueueItem } from '@/lib/types'
 import { useAppContext } from '@/components/contexts/AppContext'
 import ContextMenu from '@/components/ContextMenu'
 import FileList from '@/components/FileList'
@@ -37,6 +37,7 @@ export default function Files() {
     file: FileServerFile,
     ref: HTMLDivElement
   }>>([])
+  const sortMethodRef = useRef<SortMethod>('name_asc')
 
   const [width, setWidth] = useState<number>(0)
   const [uploadButton, setUploadButton] = useState(true)
@@ -86,7 +87,7 @@ export default function Files() {
 
   useEffect(() => {
     const socketListHandler = () => {
-      getData(setFileArr, router, paramsRef, setLoading)
+      getData(setFileArr, sortMethodRef, router, paramsRef, setLoading)
     }
 
     const socketTreeHandler = () => {
@@ -95,7 +96,7 @@ export default function Files() {
 
     if(router.isReady) {
       socket = io(process.env.NEXT_PUBLIC_FILE_SERVER_URL!)
-      getData(setFileArr, router, paramsRef, setLoading)
+      getData(setFileArr, sortMethodRef, router, paramsRef, setLoading)
       getFileTree(setFileTree)
       
       socket.on('connect', () => setSocketConnectionState(true))
@@ -282,7 +283,8 @@ export default function Files() {
           <FilePath paramsRef={paramsRef} />
           <FileList
             fileRefs={fileRefs}
-            fileListRef={fileListRef} 
+            fileListRef={fileListRef}
+            sortMethodRef={sortMethodRef}
             getRootProps={getRootProps}
             getInputProps={getInputProps}
           />

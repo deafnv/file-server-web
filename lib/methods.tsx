@@ -1,3 +1,4 @@
+import path from 'path'
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderZipIcon from '@mui/icons-material/FolderZip'
 import MovieIcon from '@mui/icons-material/Movie'
@@ -10,7 +11,7 @@ import ArticleIcon from '@mui/icons-material/Article'
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
 import TerminalIcon from '@mui/icons-material/Terminal'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
-import { FileServerFile, FileTreeRes } from './types'
+import { FileServerFile, FileTreeRes, SortDirection, SortField, SortMethod } from '@/lib/types'
 import { Dispatch, SetStateAction, MutableRefObject } from 'react'
 import axios, { AxiosError } from 'axios'
 import { NextRouter } from 'next/router'
@@ -35,6 +36,7 @@ export function getIcon(file: FileServerFile) {
 
 export const getData = async (
   setFileArr: Dispatch<SetStateAction<string | FileServerFile[] | null>>,
+  sortMethodRef: MutableRefObject<SortMethod>,
   router: NextRouter,
   paramsRef: MutableRefObject<string[]>,
   setLoading: (state: boolean, timeout?: number) => void
@@ -43,12 +45,11 @@ export const getData = async (
     const { path } = router.query
     paramsRef.current = path as string[]
     const fileArrData = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/list/${(path as string[])?.join('/') ?? ''}`, { withCredentials: true })
-    setFileArr(fileArrData.data.sort((a: FileServerFile, b: FileServerFile) => {
-      if (a.isDirectory && b.isDirectory) return a.name.localeCompare(b.name)
-      if (a.isDirectory && !b.isDirectory) return -1
-      if (!a.isDirectory && b.isDirectory) return 1
-      return a.name.localeCompare(b.name)
-    }))
+    //* Preserve sort state on updates/directory change
+    const sortMethod = sortMethodRef.current.split('_')[0] as SortField
+    const sortDirection = sortMethodRef.current.split('_')[1] as SortDirection
+    sortMethodRef.current = `${sortMethod}_${sortDirection == 'asc' ? 'desc' : 'asc'}`
+    sortFileArr(sortMethod, fileArrData.data, setFileArr, sortMethodRef)
   } catch (error) {
     if ((error as any as AxiosError).response?.status == 401) {
       setFileArr('401 Unauthorized. Login to access.')
@@ -62,6 +63,38 @@ export const getData = async (
     }
   }
   setLoading(false)
+}
+
+export const sortFileArr = (
+  sortMethod: SortField,
+  fileArr: string | FileServerFile[] | null,
+  setFileArr: Dispatch<SetStateAction<string | FileServerFile[] | null>>,
+  sortMethodRef: MutableRefObject<SortMethod>
+) => {
+  if (!(fileArr instanceof Array)) return
+  setFileArr(fileArr.slice().sort((a, b) => {
+    const direction = sortMethodRef.current != `${sortMethod}_asc`
+    let sortItems: number
+    switch (sortMethod) {
+      case 'type':
+        sortItems = direction ? path.extname(a.name).slice(1).localeCompare(path.extname(b.name).slice(1)) : path.extname(b.name).slice(1).localeCompare(path.extname(a.name).slice(1))
+        break
+      case 'name':
+        sortItems = direction ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+        break
+      case 'created':
+        sortItems = direction ? new Date(a.created).getTime() - new Date(b.created).getTime() : new Date(b.created).getTime() - new Date(a.created).getTime()
+        break
+      case 'size':
+        sortItems = direction ? a.size - b.size : b.size - a.size
+        break
+    }
+    if (a.isDirectory && b.isDirectory) return sortItems
+    if (a.isDirectory && !b.isDirectory) return -1
+    if (!a.isDirectory && b.isDirectory) return 1
+    return sortItems
+  }))
+  sortMethodRef.current = sortMethodRef.current == `${sortMethod}_asc` ? `${sortMethod}_desc` : `${sortMethod}_asc`
 }
 
 export const getFileTree = async (setFileTree: Dispatch<SetStateAction<FileTreeRes | string | null | undefined>>) => {

@@ -9,21 +9,20 @@ import CircularProgress from '@mui/material/CircularProgress'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import DragSelectionArea from '@/components/DragSelection'
-import { getIcon } from '@/lib/methods'
+import { getIcon, sortFileArr } from '@/lib/methods'
 import { FileListProps, FileServerFile } from '@/lib/types'
 import { useLoading } from '@/components/contexts/LoadingContext'
 import { useAppContext } from '@/components/contexts/AppContext'
 import DraggedFile from '@/components/DraggedFile'
 
 export default function FileList(
-  { fileRefs, fileListRef, getRootProps, getInputProps }: FileListProps
+  { fileRefs, fileListRef, sortMethodRef, getRootProps, getInputProps }: FileListProps
 ) {
   const startingFileSelect = useRef<number | null>(null)
   const dragOverlayRef = useRef<HTMLDivElement>(null)
   const dragOverlayTextRef = useRef<HTMLSpanElement>(null)
   const draggedFileRef = useRef<HTMLDivElement>(null)
   const isDraggingFile = useRef(0)
-  const sortMethodRef = useRef('name_asc')
 
   const router = useRouter()
   const { setLoading } = useLoading()
@@ -425,33 +424,6 @@ export default function FileList(
     }
   }
 
-  function handleSort(sortMethod: 'type' | 'name' | 'size' | 'created') {
-    if (!(fileArr instanceof Array)) return
-    setFileArr(fileArr.slice().sort((a, b) => {
-      const direction = sortMethodRef.current != `${sortMethod}_asc`
-      let sortItems: number
-      switch (sortMethod) {
-        case 'type':
-          sortItems = direction ? path.extname(a.name).slice(1).localeCompare(path.extname(b.name).slice(1)) : path.extname(b.name).slice(1).localeCompare(path.extname(a.name).slice(1))
-          break
-        case 'name':
-          sortItems = direction ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-          break
-        case 'created':
-          sortItems = direction ? new Date(a.created).getTime() - new Date(b.created).getTime() : new Date(b.created).getTime() - new Date(a.created).getTime()
-          break
-        case 'size':
-          sortItems = direction ? a.size - b.size : b.size - a.size
-          break
-      }
-      if (a.isDirectory && b.isDirectory) return sortItems
-      if (a.isDirectory && !b.isDirectory) return -1
-      if (!a.isDirectory && b.isDirectory) return 1
-      return sortItems
-    }))
-    sortMethodRef.current = sortMethodRef.current == `${sortMethod}_asc` ? `${sortMethod}_desc` : `${sortMethod}_asc`
-  }
-
   return (
     <div
       {...getRootProps({
@@ -469,7 +441,7 @@ export default function FileList(
       <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
         <span
           title='Sort by type'
-          onClick={() => handleSort('type')}
+          onClick={() => sortFileArr('type', fileArr, setFileArr, sortMethodRef)}
           className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem] cursor-pointer'>
           #
           {sortMethodRef.current.includes('type') &&
@@ -477,7 +449,7 @@ export default function FileList(
         </span>
         <span
           title='Sort by name'
-          onClick={() => handleSort('name')}
+          onClick={() => sortFileArr('name', fileArr, setFileArr, sortMethodRef)}
           className='p-3 flex-grow cursor-pointer'
         >
           Name
@@ -486,7 +458,7 @@ export default function FileList(
         </span>
         <span
           title='Sort by size'
-          onClick={() => handleSort('size')}
+          onClick={() => sortFileArr('size', fileArr, setFileArr, sortMethodRef)}
           className='p-3 min-w-[5rem] md:min-w-[8rem] cursor-pointer'
         >
           Size
@@ -495,7 +467,7 @@ export default function FileList(
         </span>
         <span
           title='Sort by date created'
-          onClick={() => handleSort('created')}
+          onClick={() => sortFileArr('created', fileArr, setFileArr, sortMethodRef)}
           className='hidden lg:block p-3 min-w-[10rem] cursor-pointer'
         >
           Created At
