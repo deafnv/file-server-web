@@ -40,7 +40,6 @@ export default function Files() {
 
   const [width, setWidth] = useState<number>(0)
   const [uploadButton, setUploadButton] = useState(true)
-  const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
   
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([])
@@ -53,6 +52,7 @@ export default function Files() {
   const router = useRouter()
   const {
     setSocketConnectionState,
+    setFileArr,
     setFileTree,
     setContextMenu,
     setLoggedOutWarning
@@ -281,7 +281,6 @@ export default function Files() {
         <section className='flex flex-col pt-0 pb-4 h-[calc(100dvh-60px)]'>
           <FilePath paramsRef={paramsRef} />
           <FileList
-            fileArr={fileArr} 
             fileRefs={fileRefs}
             fileListRef={fileListRef} 
             getRootProps={getRootProps}

@@ -1,33 +1,37 @@
-import { FileListProps, FileServerFile } from '@/lib/types'
+import path from 'path'
 import { useRouter } from 'next/router'
 import { useEffect, useRef } from 'react'
-import prettyBytes from 'pretty-bytes'
-import CircularProgress from '@mui/material/CircularProgress'
-import FileUploadIcon from '@mui/icons-material/FileUpload'
-import DragSelectionArea from '@/components/DragSelection'
-import isEqual from 'lodash/isEqual'
-import { getIcon } from '@/lib/methods'
-import { useLoading } from '@/components/contexts/LoadingContext'
-import { useAppContext } from '@/components/contexts/AppContext'
 import axios, { AxiosError } from 'axios'
 import { deleteCookie, getCookie } from 'cookies-next'
-import path from 'path'
-import DraggedFile from './DraggedFile'
+import prettyBytes from 'pretty-bytes'
+import isEqual from 'lodash/isEqual'
+import CircularProgress from '@mui/material/CircularProgress'
+import FileUploadIcon from '@mui/icons-material/FileUpload'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import DragSelectionArea from '@/components/DragSelection'
+import { getIcon } from '@/lib/methods'
+import { FileListProps, FileServerFile } from '@/lib/types'
+import { useLoading } from '@/components/contexts/LoadingContext'
+import { useAppContext } from '@/components/contexts/AppContext'
+import DraggedFile from '@/components/DraggedFile'
 
 export default function FileList(
-  { fileArr, fileRefs, fileListRef, getRootProps, getInputProps }: FileListProps
+  { fileRefs, fileListRef, getRootProps, getInputProps }: FileListProps
 ) {
   const startingFileSelect = useRef<number | null>(null)
   const dragOverlayRef = useRef<HTMLDivElement>(null)
   const dragOverlayTextRef = useRef<HTMLSpanElement>(null)
   const draggedFileRef = useRef<HTMLDivElement>(null)
   const isDraggingFile = useRef(0)
+  const sortMethodRef = useRef('name_asc')
 
   const router = useRouter()
   const { setLoading } = useLoading()
   const {
     contextMenu,
     setContextMenu,
+    fileArr,
+    setFileArr,
     selectedFile,
     setSelectedFile,
     setLoggedOutWarning,
@@ -421,6 +425,33 @@ export default function FileList(
     }
   }
 
+  function handleSort(sortMethod: 'type' | 'name' | 'size' | 'created') {
+    if (!(fileArr instanceof Array)) return
+    setFileArr(fileArr.slice().sort((a, b) => {
+      const direction = sortMethodRef.current != `${sortMethod}_asc`
+      let sortItems: number
+      switch (sortMethod) {
+        case 'type':
+          sortItems = direction ? path.extname(a.name).slice(1).localeCompare(path.extname(b.name).slice(1)) : path.extname(b.name).slice(1).localeCompare(path.extname(a.name).slice(1))
+          break
+        case 'name':
+          sortItems = direction ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+          break
+        case 'created':
+          sortItems = direction ? new Date(a.created).getTime() - new Date(b.created).getTime() : new Date(b.created).getTime() - new Date(a.created).getTime()
+          break
+        case 'size':
+          sortItems = direction ? a.size - b.size : b.size - a.size
+          break
+      }
+      if (a.isDirectory && b.isDirectory) return sortItems
+      if (a.isDirectory && !b.isDirectory) return -1
+      if (!a.isDirectory && b.isDirectory) return 1
+      return sortItems
+    }))
+    sortMethodRef.current = sortMethodRef.current == `${sortMethod}_asc` ? `${sortMethod}_desc` : `${sortMethod}_asc`
+  }
+
   return (
     <div
       {...getRootProps({
@@ -436,12 +467,44 @@ export default function FileList(
       className={`relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none`}
     >
       <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
-        <span className='hidden lg:block p-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'></span>
-        <span className='p-3 flex-grow'>Name</span>
-        <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>Size</span>
-        <span className='hidden lg:block p-3 min-w-[10rem]'>Created At</span>
+        <span
+          title='Sort by type'
+          onClick={() => handleSort('type')}
+          className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem] cursor-pointer'>
+          #
+          {sortMethodRef.current.includes('type') &&
+          <ArrowDropDownIcon style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }} className='absolute -right-1' />}
+        </span>
+        <span
+          title='Sort by name'
+          onClick={() => handleSort('name')}
+          className='p-3 flex-grow cursor-pointer'
+        >
+          Name
+          {sortMethodRef.current.includes('name') &&
+          <ArrowDropDownIcon style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }} />}
+        </span>
+        <span
+          title='Sort by size'
+          onClick={() => handleSort('size')}
+          className='p-3 min-w-[5rem] md:min-w-[8rem] cursor-pointer'
+        >
+          Size
+          {sortMethodRef.current.includes('size') &&
+          <ArrowDropDownIcon style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }} />}
+        </span>
+        <span
+          title='Sort by date created'
+          onClick={() => handleSort('created')}
+          className='hidden lg:block p-3 min-w-[10rem] cursor-pointer'
+        >
+          Created At
+          {sortMethodRef.current.includes('created') &&
+          <ArrowDropDownIcon style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }} />}
+        </span>
       </div>
       {fileArr.map((file, index) => {
+        const dateObj = new Date(file.created)
         return (
           <div
             key={index}
@@ -469,9 +532,24 @@ export default function FileList(
                 {file.name}
               </span>
             </div>
-            <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>{prettyBytes(file.size)}</span>
-            <span className='hidden lg:block p-3 min-w-[10rem]'>
-              {new Date(file.created).toLocaleDateString('en-US', {
+            <span
+              title={`${file.size} bytes`}
+              className='p-3 min-w-[5rem] md:min-w-[8rem]'
+            >
+              {file.isDirectory ? '—' : prettyBytes(file.size, { space: true })}
+            </span>
+            <span
+              title={dateObj.toLocaleDateString('en-US', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',  
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+              })}
+              className='hidden lg:block p-3 min-w-[10rem]'
+            >
+              {dateObj.toLocaleDateString('en-US', {
                 day: 'numeric',
                 month: 'short',
                 year: 'numeric'

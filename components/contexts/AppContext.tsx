@@ -6,6 +6,8 @@ interface AppContextType {
 	setDrawerOpen: Dispatch<SetStateAction<boolean>>;
 	socketConnectionState: boolean;
 	setSocketConnectionState: Dispatch<SetStateAction<boolean>>;
+	fileArr: string | FileServerFile[] | null;
+	setFileArr: Dispatch<SetStateAction<string | FileServerFile[] | null>>;
 	fileTree: string | FileTreeRes | null | undefined;
 	setFileTree: Dispatch<SetStateAction<string | FileTreeRes | null | undefined>>;
 	selectedFile: FileServerFile[]
@@ -34,6 +36,7 @@ export function AppContextProvider({ children }: React.PropsWithChildren) {
 	const [drawerOpen, setDrawerOpen] = useState(false)
 	const [socketConnectionState, setSocketConnectionState] = useState(false)
 	const [fileTree, setFileTree] = useState<FileTreeRes | string | null>()
+	const [fileArr, setFileArr] = useState<FileServerFile[] | string | null>(null)
 	const [selectedFile, setSelectedFile] = useState<FileServerFile[]>([])
   const [contextMenu, setContextMenu] = useState<'file' | 'directory' | null>(null)
 	const [loggedOutWarning, setLoggedOutWarning] = useState(false)
@@ -49,6 +52,8 @@ export function AppContextProvider({ children }: React.PropsWithChildren) {
 		setDrawerOpen,
 		socketConnectionState,
 		setSocketConnectionState,
+		fileArr,
+		setFileArr,
 		fileTree,
 		setFileTree,
 		selectedFile,
