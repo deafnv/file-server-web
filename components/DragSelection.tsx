@@ -56,6 +56,7 @@ export default function DragSelectionArea({ fileListRef, fileArr }: DragSelectio
           dragAreaRef.current!.style.width = `${visibleBox.width}px`
           dragAreaRef.current!.style.height = `${visibleBox.height}px`
 
+          //* Scroll file list when selecting up or down
           if ((fileListRef.current!.offsetTop + fileListRef.current!.clientHeight) < mousePos.current.y && fileListRef.current!.scrollHeight == initialFileListScrollHeight.current) {
             fileListRef.current?.scrollBy({ top: 10, behavior: 'auto' })
           } else if (fileListRef.current!.offsetTop > mousePos.current.y && fileListRef.current!.scrollHeight == initialFileListScrollHeight.current){
@@ -138,12 +139,13 @@ export default function DragSelectionArea({ fileListRef, fileArr }: DragSelectio
   
   useEffect(() => {
     if (fileListRef.current) {
+      //* Recalculate and store position data of every file item on any change in files
       fileArrPos.current = []
-      document.querySelectorAll('div[data-isfile="true"]').forEach((item, index) => {
+      document.querySelectorAll('div[data-isfile="true"]').forEach(item => {
         const { left, top, width, height } = item.getBoundingClientRect()
         fileArrPos.current.push({
           left,
-          top,
+          top: top + fileListRef.current!.scrollTop,
           width,
           height
         })
@@ -158,9 +160,7 @@ export default function DragSelectionArea({ fileListRef, fileArr }: DragSelectio
     <div 
       ref={dragAreaRef}
       className='absolute z-0 bg-blue-500 border-2 border-solid border-blue-700 opacity-40 pointer-events-none'
-    >
-
-    </div>
+    />
   )
 }
 
