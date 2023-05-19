@@ -24,6 +24,11 @@ export interface FileServerFile {
   modified: string;
   isDirectory: boolean;
   size: number;
+  metadata?: FileMetadata;
+}
+
+interface FileMetadata {
+  color: string;
 }
 
 export type SortField = 'type' | 'name' | 'size' | 'created';

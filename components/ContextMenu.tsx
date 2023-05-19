@@ -1,10 +1,17 @@
 import { useRouter } from 'next/router'
-import { forwardRef, ForwardedRef,PropsWithChildren } from 'react'
+import { forwardRef, ForwardedRef, useRef, useState, PropsWithChildren } from 'react'
 import { getCookie } from 'cookies-next'
+import axios from 'axios'
+import { ColorResult, TwitterPicker } from 'react-color'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useAppContext } from '@/components/contexts/AppContext'
 import { sleep } from '@/lib/types'
 
 function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
+  const localRef = useRef<HTMLMenuElement | null>(null)
+
+  const [colorPick, setColorPick] = useState(false)
+  
   const router = useRouter()
 
   const {
@@ -28,7 +35,14 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
     return (
       <menu
         data-cy='context-menu'
-        ref={ref}
+        ref={(node) => {
+          localRef.current = node as HTMLMenuElement
+          if (typeof ref === 'function') {
+            ref(node as HTMLMenuElement)
+          } else if (ref) {
+            ref.current = node as HTMLMenuElement
+          }
+        }}
         className={`${!contextMenu ? 'hidden' : ''} absolute min-w-[12rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden context-menu-directory`}
       >
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
@@ -40,7 +54,6 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
     )
   }
 
-  //TODO: Allow download multiple
   function handleDownload() {
     if (!selectedFile.length) return
     if (selectedFile.length == 1) {
@@ -59,25 +72,85 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      await sleep(0.5)
+      await sleep(1)
     }
   }
 
+  function handleColorFocus() {
+    if (!localRef.current || !getCookie('userdata')) return
+    localRef.current.style.overflow = 'visible'
+    setColorPick(true)
+  }
+
+  function handleColorBlur() {
+    if (!localRef.current || !getCookie('userdata')) return
+    localRef.current.style.overflow = ''
+    setColorPick(false)
+  }
+
+  async function handleColorPick(color: ColorResult) {
+    await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/metadata`, {
+      directories: selectedFile.map(file => file.path),
+      newMetadata: {
+        color: color.hex
+      }
+    }, { withCredentials: true })
+  }
+
   //* Download only as zip if files selected includes a directory
-  if (selectedFile.length <= 1 || selectedFile.some(file => file.isDirectory)) {
+  if (selectedFile.every(file => file.metadata)) {
     return (
-      <ContextMenuTemplate ref={ref} customClass='context-menu'>
+      <ContextMenuTemplate 
+        ref={(node) => {
+          localRef.current = node as HTMLMenuElement
+          if (typeof ref === 'function') {
+            ref(node as HTMLMenuElement)
+          } else if (ref) {
+            ref.current = node as HTMLMenuElement
+          }
+        }} 
+        customClass='context-menu-multifile'
+      >
+        <li 
+          onMouseOver={handleColorFocus}
+          onMouseOut={handleColorBlur}
+          className="relative flex justify-center h-8 rounded-sm hover:bg-zinc-500"
+        >
+          <button className="w-full text-left pl-6">
+            Change color
+            <ChevronRightIcon className='absolute top-1/2 right-2 -translate-y-1/2' />
+          </button>
+          {colorPick &&
+          <div className={`absolute top-0 ${localRef.current!.offsetLeft + 476 > window.innerWidth ? 'right-full' : 'left-full'} color-picker`}>
+            <TwitterPicker 
+              triangle='hide' 
+              colors={['#FFFFFF', '#EB144C', '#FF6900', '#FCB900', '#7BDCB5', '#00D084', '#8ED1FC', '#0693E3', '#F78DA7', '#9900EF']}
+
+              onChange={handleColorPick} 
+            />  
+          </div>}
+        </li>
         <hr className="my-1 border-gray-200 border-t-[1px]" />
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
           <button onClick={handleDownload} className="w-full text-left pl-6">
-            {selectedFile[0].isDirectory ? 'Download as zip' : 'Download'}
+            Download as zip
           </button>
         </li>
       </ContextMenuTemplate>
     )
-  } else {
+  } else if (selectedFile.every(file => !file.isDirectory)) {
     return (
-      <ContextMenuTemplate ref={ref} customClass='context-menu-multifile'>
+      <ContextMenuTemplate 
+        ref={(node) => {
+          localRef.current = node as HTMLMenuElement
+          if (typeof ref === 'function') {
+            ref(node as HTMLMenuElement)
+          } else if (ref) {
+            ref.current = node as HTMLMenuElement
+          }
+        }} 
+        customClass='context-menu-multifile'
+      >
         <hr className="my-1 border-gray-200 border-t-[1px]" />
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
           <button onClick={handleDownload} className="w-full text-left pl-6">
@@ -87,6 +160,27 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
           <button onClick={handleDownloadMulti} className="w-full text-left pl-6">
             Download selected
+          </button>
+        </li>
+      </ContextMenuTemplate>
+    )
+  } else {
+    return (
+      <ContextMenuTemplate 
+        ref={(node) => {
+          localRef.current = node as HTMLMenuElement
+          if (typeof ref === 'function') {
+            ref(node as HTMLMenuElement)
+          } else if (ref) {
+            ref.current = node as HTMLMenuElement
+          }
+        }} 
+        customClass='context-menu'
+      >
+        <hr className="my-1 border-gray-200 border-t-[1px]" />
+        <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
+          <button onClick={handleDownload} className="w-full text-left pl-6">
+            Download as zip
           </button>
         </li>
       </ContextMenuTemplate>

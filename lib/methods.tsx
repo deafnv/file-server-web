@@ -1,4 +1,7 @@
 import path from 'path'
+import { NextRouter } from 'next/router'
+import { Dispatch, SetStateAction, MutableRefObject } from 'react'
+import axios, { AxiosError } from 'axios'
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderZipIcon from '@mui/icons-material/FolderZip'
 import MovieIcon from '@mui/icons-material/Movie'
@@ -12,12 +15,13 @@ import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
 import TerminalIcon from '@mui/icons-material/Terminal'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { FileServerFile, FileTreeRes, SortDirection, SortField, SortMethod } from '@/lib/types'
-import { Dispatch, SetStateAction, MutableRefObject } from 'react'
-import axios, { AxiosError } from 'axios'
-import { NextRouter } from 'next/router'
 
 export function getIcon(file: FileServerFile) {
-  if (file.isDirectory) return (<FolderIcon />)
+  if (file.isDirectory) return (
+    <FolderIcon style={{
+      color: file.metadata?.color ?? ''
+    }} />
+  )
   const splitName = file.name.split('.')
   const extension = splitName[splitName.length - 1].toLowerCase()
   if (splitName.length == 1) return null

@@ -211,3 +211,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 		opacity: 1;
 	}
 }
+
+.color-picker {
+	animation: colorPicker 150ms ease-out;
+}
+
+@keyframes colorPicker {
+	0% {
+		transform: translateY(-0.5rem);
+		opacity: 0;
+	}
+	100% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
