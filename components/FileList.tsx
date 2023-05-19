@@ -375,12 +375,14 @@ export default function FileList(
   }
 
   if (fileArr == null) {
+    //TODO: Better loading, don't use useLoading
     return (
-      <div className='flex flex-col m-0 md:m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
-        <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
+      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
+        <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
+          <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>#</span>
           <span className='p-3 flex-grow'>Name</span>
-          <span className='p-3 min-w-[10rem]'>Size</span>
-          <span className='p-3 min-w-[10rem]'>Created At</span>
+          <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>Size</span>
+          <span className='hidden lg:block p-3 min-w-[10rem]'>Created At</span>
         </div>
         <div className='h-full w-full flex flex-col gap-4 items-center justify-center text-2xl'>
           <CircularProgress size={50} />
@@ -391,11 +393,12 @@ export default function FileList(
 
   if (!(fileArr instanceof Array)) {
     return (
-      <div className='flex flex-col m-0 md:m-2 p-2 pt-0 h-[95%] w-full bg-black rounded-lg overflow-auto'>
-        <div className='sticky top-0 flex text-lg border-b-[1px] bg-black'>
+      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
+        <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
+          <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>#</span>
           <span className='p-3 flex-grow'>Name</span>
-          <span className='p-3 min-w-[10rem]'>Size</span>
-          <span className='p-3 min-w-[10rem]'>Created At</span>
+          <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>Size</span>
+          <span className='hidden lg:block p-3 min-w-[10rem]'>Created At</span>
         </div>
         <div className='h-full w-full flex items-center justify-center text-2xl'>
           {fileArr}
