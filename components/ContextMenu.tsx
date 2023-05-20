@@ -1,15 +1,17 @@
 import { useRouter } from 'next/router'
-import { forwardRef, ForwardedRef, useRef, useState, PropsWithChildren } from 'react'
-import { getCookie } from 'cookies-next'
+import { forwardRef, ForwardedRef, useRef, useState, PropsWithChildren, useEffect } from 'react'
+import { getCookie, CookieValueTypes } from 'cookies-next'
 import axios from 'axios'
 import { ColorResult, TwitterPicker } from 'react-color'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useAppContext } from '@/components/contexts/AppContext'
-import { sleep } from '@/lib/types'
+import { ContextMenuTemplateProps, sleep } from '@/lib/types'
 
 function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
   const localRef = useRef<HTMLMenuElement | null>(null)
+  const userDataRef = useRef<CookieValueTypes>('')
 
+  const [width, setWidth] = useState<number>(0)
   const [colorPick, setColorPick] = useState(false)
   
   const router = useRouter()
@@ -21,6 +23,16 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
     setLoggedOutWarning,
     setOpenNewFolderDialog
   } = useAppContext()
+
+  useEffect(() => {
+    userDataRef.current = getCookie('userdata')
+    setWidth(window.innerWidth)
+		const handleWindowResize = () => setWidth(window.innerWidth)
+
+		window.addEventListener('resize', handleWindowResize)
+
+    return () => window.removeEventListener('resize', handleWindowResize)
+  }, [])
 
   function handleNewFolder() {
     if (getCookie('userdata')) {
@@ -77,13 +89,13 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
   }
 
   function handleColorFocus() {
-    if (!localRef.current || !getCookie('userdata')) return
+    if (!localRef.current || !userDataRef.current || width < 768) return
     localRef.current.style.overflow = 'visible'
     setColorPick(true)
   }
 
   function handleColorBlur() {
-    if (!localRef.current || !getCookie('userdata')) return
+    if (!localRef.current || !userDataRef.current || width < 768) return
     localRef.current.style.overflow = ''
     setColorPick(false)
   }
@@ -110,11 +122,13 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
           }
         }} 
         customClass='context-menu-multifile'
+        width={width}
+        userDataRef={userDataRef}
       >
         <li 
           onMouseOver={handleColorFocus}
           onMouseOut={handleColorBlur}
-          className="relative flex justify-center h-8 rounded-sm hover:bg-zinc-500"
+          className={`relative flex justify-center h-8 rounded-sm ${!userDataRef.current || width < 768 ? 'opacity-40 pointer-events-none' : 'hover:bg-zinc-500'}`}
         >
           <button className="w-full text-left pl-6">
             Change color
@@ -125,8 +139,8 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             <TwitterPicker 
               triangle='hide' 
               colors={['#FFFFFF', '#EB144C', '#FF6900', '#FCB900', '#7BDCB5', '#00D084', '#8ED1FC', '#0693E3', '#F78DA7', '#9900EF']}
-
               onChange={handleColorPick} 
+              styles={{ default: { card: { backgroundColor: 'rgb(63 63 70)' } } }}
             />  
           </div>}
         </li>
@@ -150,6 +164,8 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
           }
         }} 
         customClass='context-menu-multifile'
+        width={width}
+        userDataRef={userDataRef}
       >
         <hr className="my-1 border-gray-200 border-t-[1px]" />
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
@@ -176,6 +192,8 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
           }
         }} 
         customClass='context-menu'
+        width={width}
+        userDataRef={userDataRef}
       >
         <hr className="my-1 border-gray-200 border-t-[1px]" />
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
@@ -188,7 +206,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
   }
 }
 
-const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, customClass }: PropsWithChildren<{ customClass: string; }>, ref: ForwardedRef<HTMLMenuElement>) {
+const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, customClass, width, userDataRef }: PropsWithChildren<ContextMenuTemplateProps>, ref: ForwardedRef<HTMLMenuElement>) {
   const router = useRouter()
   
   const {
@@ -248,7 +266,7 @@ const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, 
     <menu
       data-cy='context-menu'
       ref={ref}
-      className={`absolute text-left min-w-[12rem] w-[13rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden ${customClass}`}
+      className={`absolute text-left min-w-[12rem] w-[13rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden select-none ${customClass}`}
     >
       <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
         <button onClick={() => selectedFile?.[0].isDirectory ? router.push(`/files${selectedFile?.[0].path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile?.[0].path}`)} className="w-full text-left pl-6">
@@ -266,17 +284,17 @@ const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, 
         </button>
       </li>
       <hr className="my-1 border-gray-200 border-t-[1px]" />
-      <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
+      <li className={`flex justify-center h-8 rounded-sm ${!userDataRef.current ? 'opacity-40 pointer-events-none' : 'hover:bg-zinc-500'}`}>
         <button onClick={handleDelete} className="w-full text-left pl-6">
           Delete
         </button>
       </li>
-      <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
+      <li className={`flex justify-center h-8 rounded-sm ${!userDataRef.current ? 'opacity-40 pointer-events-none' : 'hover:bg-zinc-500'}`}>
         <button onClick={handleRename} className="w-full text-left pl-6">
           Rename
         </button>
       </li>
-      <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
+      <li className={`flex justify-center h-8 rounded-sm ${!userDataRef.current ? 'opacity-40 pointer-events-none' : 'hover:bg-zinc-500'}`}>
         <button onClick={handleMove} className="w-full text-left pl-6">
           Move
         </button>

@@ -1,5 +1,6 @@
+import { CookieValueTypes } from 'cookies-next'
 import { RefObject, MutableRefObject } from 'react'
-import { DropzoneInputProps, DropzoneRootProps } from 'react-dropzone';
+import { DropzoneInputProps, DropzoneRootProps } from 'react-dropzone'
 
 interface NavLinksWithDropdown {
 	name: string;
@@ -68,6 +69,12 @@ export interface FileListProps {
   sortMethodRef: MutableRefObject<SortMethod>;
   getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
+}
+
+export interface ContextMenuTemplateProps { 
+  customClass: string;
+  width: number;
+  userDataRef: MutableRefObject<CookieValueTypes>;
 }
 
 export interface UploadQueueItem {
