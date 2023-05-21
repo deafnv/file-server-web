@@ -8,6 +8,7 @@ import isEqual from 'lodash/isEqual'
 import CircularProgress from '@mui/material/CircularProgress'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import RedoIcon from '@mui/icons-material/Redo'
 import DragSelectionArea from '@/components/DragSelection'
 import { getIcon, sortFileArr } from '@/lib/methods'
 import { FileListProps, FileServerFile } from '@/lib/types'
@@ -120,7 +121,7 @@ export default function FileList(
         method: 'POST',
         url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/move`,
         data: {
-          pathToFiles: files?.map(file => file.path),
+          pathToFiles: files?.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path),
           newPath: typeof directory == 'string' ? directory : directory.path
         },
         withCredentials: true
@@ -290,8 +291,9 @@ export default function FileList(
         const links = selectedFile.map(file => file.isDirectory ? `${location.origin}/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`).join(',')
         const htmlItem = {
           action: 'COPY',
-          files: selectedFile.map(file => file.path)
+          files: selectedFile.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path)
         }
+
         const textItem = new ClipboardItem({
            'text/plain': new Blob([links], { type: 'text/plain' }),
            'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' })
@@ -305,7 +307,7 @@ export default function FileList(
         const links = selectedFile.map(file => file.isDirectory ? `${location.origin}/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`).join(',')
         const htmlItem = {
           action: 'CUT',
-          files: selectedFile.map(file => file.path)
+          files: selectedFile.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path)
         }
         const textItem = new ClipboardItem({
            'text/plain': new Blob([links], { type: 'text/plain' }),
@@ -494,7 +496,13 @@ export default function FileList(
             }}
             className={`flex text-base md:text-lg rounded-md cursor-default outline outline-0 outline-gray-500 hover:outline-1`}
           >
-            <span className='hidden lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>{getIcon(file)}</span>
+            <span className='relative hidden lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>
+              {getIcon(file)}
+              {file.isShortcut && 
+              <div className='absolute flex items-center justify-center bottom-0 left-0 h-4 w-4 text-sm rounded-full bg-gray-600'>
+                <RedoIcon fontSize='inherit' className='-rotate-90' />
+              </div>}
+            </span>
             <div 
               data-filehierarchy
               title={file.name}

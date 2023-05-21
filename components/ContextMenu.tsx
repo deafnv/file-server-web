@@ -20,8 +20,10 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
     contextMenu,
     setContextMenu,
     selectedFile,
+    setSelectedFile,
     setLoggedOutWarning,
-    setOpenNewFolderDialog
+    setOpenNewFolderDialog,
+    setOpenShortcutDialog
   } = useAppContext()
 
   useEffect(() => {
@@ -71,7 +73,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
     if (selectedFile.length == 1) {
       window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve${selectedFile[0].path}?download=true`)
     } else {
-      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve/${(router.query.path as string[]).join('/')}?${selectedFile.map(file => `file[]=${file.name}`).join('&')}`)
+      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve/${(router.query.path as string[]).join('/')}?${selectedFile.map(file => file.isShortcut ? null : `file[]=${file.name}`).filter(i => i).join('&')}`)
     }
   }
 
@@ -109,6 +111,17 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
     }, { withCredentials: true })
   }
 
+  function handleShortcut() {
+    if (selectedFile.length != 1) return
+    if (getCookie('userdata')) {
+      setSelectedFile([])
+      setOpenShortcutDialog(selectedFile[0])
+      setContextMenu(null)
+    } else {
+      setLoggedOutWarning(true)
+    }
+  }
+
   //* Download only as zip if files selected includes a directory
   if (selectedFile.every(file => file.metadata)) {
     return (
@@ -121,10 +134,15 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             ref.current = node as HTMLMenuElement
           }
         }} 
-        customClass='context-menu-multifile'
-        width={width}
+        customClass={selectedFile.length == 1 && !selectedFile[0].isShortcut ? 'h-[20.7rem] animate-[openMenuLong_150ms_ease-out]' : 'h-[18.7rem] animate-[openMenuMultifile_150ms_ease-out]'}
         userDataRef={userDataRef}
       >
+        {selectedFile.length == 1 && !selectedFile[0].isShortcut &&
+        <li className={`flex justify-center h-8 rounded-sm ${!userDataRef.current ? 'opacity-40 pointer-events-none' : 'hover:bg-zinc-500'}`}>
+          <button onClick={handleShortcut} className="w-full text-left pl-6">
+            Create shortcut
+          </button>
+        </li>}
         <li 
           onMouseOver={handleColorFocus}
           onMouseOut={handleColorBlur}
@@ -163,10 +181,15 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             ref.current = node as HTMLMenuElement
           }
         }} 
-        customClass='context-menu-multifile'
-        width={width}
+        customClass={selectedFile.length == 1 && !selectedFile[0].isShortcut ? 'h-[20.7rem] animate-[openMenuLong_150ms_ease-out]' : 'h-[18.7rem] animate-[openMenuMultifile_150ms_ease-out]'}
         userDataRef={userDataRef}
       >
+        {selectedFile.length == 1 && !selectedFile[0].isShortcut &&
+        <li className={`flex justify-center h-8 rounded-sm ${!userDataRef.current ? 'opacity-40 pointer-events-none' : 'hover:bg-zinc-500'}`}>
+          <button onClick={handleShortcut} className="w-full text-left pl-6">
+            Create shortcut
+          </button>
+        </li>}
         <hr className="my-1 border-gray-200 border-t-[1px]" />
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
           <button onClick={handleDownload} className="w-full text-left pl-6">
@@ -191,8 +214,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             ref.current = node as HTMLMenuElement
           }
         }} 
-        customClass='context-menu'
-        width={width}
+        customClass='h-[16.7rem] animate-[openMenu_150ms_ease-out]'
         userDataRef={userDataRef}
       >
         <hr className="my-1 border-gray-200 border-t-[1px]" />
@@ -206,7 +228,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
   }
 }
 
-const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, customClass, width, userDataRef }: PropsWithChildren<ContextMenuTemplateProps>, ref: ForwardedRef<HTMLMenuElement>) {
+const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, customClass, userDataRef }: PropsWithChildren<ContextMenuTemplateProps>, ref: ForwardedRef<HTMLMenuElement>) {
   const router = useRouter()
   
   const {
@@ -241,7 +263,7 @@ const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, 
   }
 
   function handleRename() {
-    if (!selectedFile) return
+    if (!selectedFile.length) return
     if (getCookie('userdata')) {
       setSelectedFile([])
       setOpenRenameDialog(selectedFile[0])
@@ -252,7 +274,7 @@ const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, 
   }
   
   function handleMove() {
-    if (!selectedFile) return
+    if (!selectedFile.length) return
     if (getCookie('userdata')) {
       setSelectedFile([])
       setOpenMoveFileDialog(selectedFile)

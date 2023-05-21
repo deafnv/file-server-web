@@ -21,10 +21,14 @@ export type NavLinks = NavLinksWithDropdown | NavLinksWithRoute;
 export interface FileServerFile {
   name: string;
   path: string;
+  size: number;
   created: string;
   modified: string;
   isDirectory: boolean;
-  size: number;
+  isShortcut?: {
+    shortcutName: string;
+    shortcutPath: string;
+  };
   metadata?: FileMetadata;
 }
 
@@ -73,7 +77,6 @@ export interface FileListProps {
 
 export interface ContextMenuTemplateProps { 
   customClass: string;
-  width: number;
   userDataRef: MutableRefObject<CookieValueTypes>;
 }
 

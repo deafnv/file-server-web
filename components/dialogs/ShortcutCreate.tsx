@@ -11,32 +11,32 @@ import { deleteCookie } from 'cookies-next'
 import MoveFileTree from '@/components/dialogs/DialogFileTree'
 import { useAppContext } from '@/components/contexts/AppContext'
 
-export default function MoveFile() {
+export default function ShortcutCreate() {
   const [selectFolder, setSelectFolder] = useState('/')
 
   const { setLoading } = useLoading()
   const {
     fileTree,
-    openMoveFileDialog,
-    setOpenMoveFileDialog,
+    openShortcutDialog,
+    setOpenShortcutDialog,
     setProcessError
   } = useAppContext()
 
   const router = useRouter()
 
-  async function handleMove() {
+  async function handleCreateShortcut() {
     setLoading(true)
     try { 
       await axios({
         method: 'POST',
-        url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/move`,
+        url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/shortcut`,
         data: {
-          pathToFiles: openMoveFileDialog?.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path),
-          newPath: selectFolder
+          target: openShortcutDialog?.path,
+          currentPath: selectFolder
         },
         withCredentials: true
       })
-      setOpenMoveFileDialog(null)
+      setOpenShortcutDialog(null)
     } catch (err) {
       if ((err as any as AxiosError).response?.status == 403) {
         setProcessError('Error: Forbidden')
@@ -56,13 +56,11 @@ export default function MoveFile() {
 
   return (
     <Dialog
-      open={!!openMoveFileDialog}
-      onClose={() => setOpenMoveFileDialog(null)}
+      open={!!openShortcutDialog}
+      onClose={() => setOpenShortcutDialog(null)}
       fullWidth
     >
-      <DialogTitle>
-        {openMoveFileDialog?.length! > 1 ? 'Move files' : 'Move file'}
-      </DialogTitle>
+      <DialogTitle>Create shortcut</DialogTitle>
       <DialogContent className='h-[45rem]'>
         <MoveFileTree 
           fileTree={fileTree}
@@ -72,10 +70,10 @@ export default function MoveFile() {
         <span>Selected folder: {selectFolder}</span>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setOpenMoveFileDialog(null)}>
+        <Button onClick={() => setOpenShortcutDialog(null)}>
           Cancel
         </Button>
-        <Button onClick={handleMove}>Move</Button>
+        <Button onClick={handleCreateShortcut}>Create</Button>
       </DialogActions>
     </Dialog>
   )

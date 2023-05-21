@@ -24,6 +24,7 @@ import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 import Rename from '@/components/dialogs/Rename'
 import NewFolder from '@/components/dialogs/NewFolder'
 import MoveFile from '@/components/dialogs/MoveFile'
+import ShortcutCreate from '@/components/dialogs/ShortcutCreate'
 
 let socket: Socket
 
@@ -294,6 +295,7 @@ export default function Files() {
         <Rename />
         <NewFolder />
         <MoveFile />
+        <ShortcutCreate />
         <LoggedOutWarning />
         <ProcessInfo />
         <ProcessError />

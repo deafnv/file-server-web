@@ -25,7 +25,7 @@ export default function ConfirmDelete() {
         method: 'DELETE',
         url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/delete`,
         data: {
-          pathToFiles: openDeleteConfirm?.map(file => file.path)
+          pathToFiles: openDeleteConfirm?.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path)
         },
         withCredentials: true
       })

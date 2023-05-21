@@ -31,7 +31,7 @@ export default function Rename() {
         method: 'PATCH',
         url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/rename`,
         data: {
-          pathToFile: openRenameDialog?.path,
+          pathToFile: openRenameDialog?.isShortcut ? openRenameDialog.isShortcut.shortcutPath : openRenameDialog?.path,
           newName: textValue.current
         },
         withCredentials: true

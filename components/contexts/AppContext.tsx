@@ -10,24 +10,26 @@ interface AppContextType {
 	setFileArr: Dispatch<SetStateAction<string | FileServerFile[] | null>>;
 	fileTree: string | FileTreeRes | null | undefined;
 	setFileTree: Dispatch<SetStateAction<string | FileTreeRes | null | undefined>>;
-	selectedFile: FileServerFile[]
-	setSelectedFile: Dispatch<SetStateAction<FileServerFile[]>>
-	contextMenu:"file" | "directory" | null
-	setContextMenu: Dispatch<SetStateAction<"file" | "directory" | null>>
-	loggedOutWarning: boolean
-	setLoggedOutWarning: Dispatch<SetStateAction<boolean>>
-	processInfo: string
-	setProcessInfo: Dispatch<SetStateAction<string>>
-	processError: string
-	setProcessError: Dispatch<SetStateAction<string>>
-	openDeleteConfirm: FileServerFile[] | null
-	setOpenDeleteConfirm: Dispatch<SetStateAction<FileServerFile[] | null>>
-	openRenameDialog: FileServerFile | null
-	setOpenRenameDialog: Dispatch<SetStateAction<FileServerFile | null>>
-	openNewFolderDialog: string | null
-	setOpenNewFolderDialog: Dispatch<SetStateAction<string | null>>
-	openMoveFileDialog: FileServerFile[] | null
-	setOpenMoveFileDialog: Dispatch<SetStateAction<FileServerFile[] | null>>
+	selectedFile: FileServerFile[];
+	setSelectedFile: Dispatch<SetStateAction<FileServerFile[]>>;
+	contextMenu:"file" | "directory" | null;
+	setContextMenu: Dispatch<SetStateAction<"file" | "directory" | null>>;
+	loggedOutWarning: boolean;
+	setLoggedOutWarning: Dispatch<SetStateAction<boolean>>;
+	processInfo: string;
+	setProcessInfo: Dispatch<SetStateAction<string>>;
+	processError: string;
+	setProcessError: Dispatch<SetStateAction<string>>;
+	openDeleteConfirm: FileServerFile[] | null;
+	setOpenDeleteConfirm: Dispatch<SetStateAction<FileServerFile[] | null>>;
+	openRenameDialog: FileServerFile | null;
+	setOpenRenameDialog: Dispatch<SetStateAction<FileServerFile | null>>;
+	openNewFolderDialog: string | null;
+	setOpenNewFolderDialog: Dispatch<SetStateAction<string | null>>;
+	openMoveFileDialog: FileServerFile[] | null;
+	setOpenMoveFileDialog: Dispatch<SetStateAction<FileServerFile[] | null>>;
+	openShortcutDialog: FileServerFile | null;
+	setOpenShortcutDialog: Dispatch<SetStateAction<FileServerFile | null>>;
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -46,6 +48,7 @@ export function AppContextProvider({ children }: React.PropsWithChildren) {
   const [openRenameDialog, setOpenRenameDialog] = useState<FileServerFile | null>(null)
   const [openNewFolderDialog, setOpenNewFolderDialog] = useState<string | null>(null)
   const [openMoveFileDialog, setOpenMoveFileDialog] = useState<FileServerFile[] | null>(null)
+	const [openShortcutDialog, setOpenShortcutDialog] = useState<FileServerFile | null>(null)
 
 	const value = {
 		drawerOpen,
@@ -73,7 +76,9 @@ export function AppContextProvider({ children }: React.PropsWithChildren) {
 		openNewFolderDialog,
 		setOpenNewFolderDialog,
 		openMoveFileDialog,
-		setOpenMoveFileDialog
+		setOpenMoveFileDialog,
+		openShortcutDialog,
+		setOpenShortcutDialog
 	}
 
 	return <AppContext.Provider value={value}>
