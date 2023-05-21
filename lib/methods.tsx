@@ -93,9 +93,17 @@ export const sortFileArr = (
         sortItems = direction ? a.size - b.size : b.size - a.size
         break
     }
-    if (a.isDirectory && b.isDirectory) return sortItems
-    if (a.isDirectory && !b.isDirectory) return -1
-    if (!a.isDirectory && b.isDirectory) return 1
+    //* Sort shortcut directories
+    if (a.isShortcut && a.isDirectory && !b.isShortcut && b.isDirectory) return -1;
+    if (!a.isShortcut && a.isDirectory && b.isShortcut && b.isDirectory) return 1;
+    
+    //* Sort directories
+    if (a.isDirectory && !b.isDirectory) return -1;
+    if (!a.isDirectory && b.isDirectory) return 1;
+    
+    //* Sort shortcut files
+    if (a.isShortcut && !a.isDirectory && !b.isShortcut && !b.isDirectory) return -1;
+    if (!a.isShortcut && !a.isDirectory && b.isShortcut && !b.isDirectory) return 1;
     return sortItems
   }))
   sortMethodRef.current = sortMethodRef.current == `${sortMethod}_asc` ? `${sortMethod}_desc` : `${sortMethod}_asc`
