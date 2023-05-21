@@ -70,11 +70,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
 
   function handleDownload() {
     if (!selectedFile.length) return
-    if (selectedFile.length == 1) {
-      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve${selectedFile[0].path}?download=true`)
-    } else {
-      window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve/${(router.query.path as string[]).join('/')}?${selectedFile.map(file => file.isShortcut ? null : `file[]=${file.name}`).filter(i => i).join('&')}`)
-    }
+    window.open(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/retrieve/${(router.query.path as string[] ?? []).join('/')}?${selectedFile.map(file => file.isShortcut ? null : `file[]=${file.name}`).filter(i => i).join('&')}`)
   }
 
   async function handleDownloadMulti() {
