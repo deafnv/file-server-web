@@ -20,7 +20,7 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
   const minimizedSlice = paramsRef.current?.slice(0, concatIndex)
 
   return (
-    <span className='flex items-center mt-2 text-xl'>
+    <span className='flex items-center mt-0 md:mt-2 px-3 md:px-0 text-xl'>
       {paramsRef.current ?
       <Link 
         data-isdirpath

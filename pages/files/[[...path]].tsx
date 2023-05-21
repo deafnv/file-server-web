@@ -268,7 +268,7 @@ export default function Files() {
         <title>File Server</title>
         <meta name="description" content="File Server" />
       </Head>
-      <main className="grid gap md:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] mt-[60px] px-3 md:px-4 py-0 md:py-4 md:pt-0 h-[calc(100dvh-60px)]">
+      <main className="grid gap md:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] mt-[60px] px-0 md:px-4 py-0 md:py-4 md:pt-0 h-[calc(100dvh-60px)]">
         <section className='hidden md:grid gap-3 grid-flow-row grid-rows-[minmax(0,_0.45fr)_minmax(0,_0.1fr)_minmax(0,_0.45fr)] items-center mr-0 md:mr-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
           <FileTree />
           <StorageSpace />
@@ -280,7 +280,7 @@ export default function Files() {
             uploadController={uploadController}
           />
         </section>
-        <section className='flex flex-col pt-0 pb-4 h-[calc(100dvh-60px)]'>
+        <section className='flex flex-col pt-0 pb-0 md:pb-4 h-[calc(100dvh-60px)]'>
           <FilePath paramsRef={paramsRef} />
           <FileList
             fileRefs={fileRefs}

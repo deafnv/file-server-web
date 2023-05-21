@@ -104,7 +104,6 @@ export default function FileList(
         setSelectedFile(toSelect.filter(item => item))
         fileListRef.current?.focus()
       }
-      console.log(selectedFile)
     }
     
     document.addEventListener("keydown", keyboardNavigate)
@@ -379,7 +378,7 @@ export default function FileList(
   if (fileArr == null) {
     //TODO: Better loading, don't use useLoading
     return (
-      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
+      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
         <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
           <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>#</span>
           <span className='p-3 flex-grow'>Name</span>
@@ -395,7 +394,7 @@ export default function FileList(
 
   if (!(fileArr instanceof Array)) {
     return (
-      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
+      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
         <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
           <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>#</span>
           <span className='p-3 flex-grow'>Name</span>
@@ -441,13 +440,13 @@ export default function FileList(
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onContextMenu={(e) => {if (e.target == fileListRef.current) setContextMenu('directory')}}
-      className={`relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none`}
+      className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'
     >
       <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
         <span
           title='Sort by type'
           onClick={() => sortFileArr('type', fileArr, setFileArr, sortMethodRef)}
-          className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem] cursor-pointer'>
+          className='relative flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem] cursor-pointer'>
           #
           {sortMethodRef.current.includes('type') &&
           <ArrowDropDownIcon style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }} className='absolute -right-1' />}
@@ -496,7 +495,7 @@ export default function FileList(
             }}
             className={`flex text-base md:text-lg rounded-md cursor-default outline outline-0 outline-gray-500 hover:outline-1`}
           >
-            <span className='relative hidden lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>
+            <span className='relative lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>
               {getIcon(file)}
               {file.isShortcut && 
               <div className='absolute flex items-center justify-center bottom-0 left-0 h-4 w-4 text-sm rounded-full bg-gray-600'>
