@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { MutableRefObject, useState } from 'react'
+import { MutableRefObject, useState, Fragment } from 'react'
 import { getCookie } from 'cookies-next'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
@@ -43,27 +43,24 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
         if (concatIndex > 0 && index < concatIndex) {
           if (index == 0) {
             return (
-              <>
+              <Fragment key={ param}>
                 /
                 <button 
-                  key={index}
                   tabIndex={0}
                   onClick={(e) => setFileHistoryMoreAnchor(e.currentTarget)}
                   className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-gray-500'
                 >
                   <MoreHorizIcon />
                 </button>
-              </>
+              </Fragment>
             )
           }
           return null
         } else if (index == paramsRef.current.length - 1) {
           return (
-            <>
+            <Fragment key={param}>
               /
               <button 
-                key={index}
-                title={param}
                 tabIndex={0}
                 onClick={(e) => setFolderDetailsAnchor(e.currentTarget)}
                 className='flex items-center px-2 rounded-md cursor-pointer hover:bg-gray-500'
@@ -71,16 +68,15 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
                 <span className='line-clamp-1 my-2 break-all'>{param}</span>
                 <ArrowDropDownIcon />
               </button>
-            </>
+            </Fragment>
           )
         } else {
           return (
-            <>
+            <Fragment key={param}>
               /
               <Link 
                 data-isdirpath
                 data-path={`/${paramsRef.current?.slice(0, index + 1).join('/')}`}
-                key={index}
                 title={param}
                 tabIndex={0}
                 href={paramsRef.current?.slice(0, index + 1).join('/')}
@@ -88,7 +84,7 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
               >
                 {param}
               </Link>
-            </>
+            </Fragment>
           )
         }
       })}
@@ -104,10 +100,10 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
         open={!!fileHistoryMoreAnchor}
         onClose={() => setFileHistoryMoreAnchor(null)}
       >
-        {minimizedSlice?.map((param, index) => {
+        {minimizedSlice?.map(param => {
           return (
             <MenuItem
-              key={index}
+              key={param}
               onClick={() => {}}
             >
               {param}

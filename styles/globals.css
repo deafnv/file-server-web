@@ -103,7 +103,7 @@ a {
 }
 
 ::selection {
-	color: rgb(145, 0, 101);
+	color: rgb(105, 0, 74);
 	background: rgb(226, 112, 192);
 }
 
@@ -130,100 +130,4 @@ a {
 
 ::-webkit-scrollbar-thumb:hover {
 	background: #555;
-}
-
-[type="search"]::-webkit-search-cancel-button {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 12px;
-  width: 12px;
-  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE2LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgd2lkdGg9IjEyMy4wNXB4IiBoZWlnaHQ9IjEyMy4wNXB4IiB2aWV3Qm94PSIwIDAgMTIzLjA1IDEyMy4wNSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTIzLjA1IDEyMy4wNTsiDQoJIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPGc+DQoJPHBhdGggZD0iTTEyMS4zMjUsMTAuOTI1bC04LjUtOC4zOTljLTIuMy0yLjMtNi4xLTIuMy04LjUsMGwtNDIuNCw0Mi4zOTlMMTguNzI2LDEuNzI2Yy0yLjMwMS0yLjMwMS02LjEwMS0yLjMwMS04LjUsMGwtOC41LDguNQ0KCQljLTIuMzAxLDIuMy0yLjMwMSw2LjEsMCw4LjVsNDMuMSw0My4xbC00Mi4zLDQyLjVjLTIuMywyLjMtMi4zLDYuMSwwLDguNWw4LjUsOC41YzIuMywyLjMsNi4xLDIuMyw4LjUsMGw0Mi4zOTktNDIuNGw0Mi40LDQyLjQNCgkJYzIuMywyLjMsNi4xLDIuMyw4LjUsMGw4LjUtOC41YzIuMy0yLjMsMi4zLTYuMSwwLTguNWwtNDIuNS00Mi40bDQyLjQtNDIuMzk5QzEyMy42MjUsMTcuMTI1LDEyMy42MjUsMTMuMzI1LDEyMS4zMjUsMTAuOTI1eiIvPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPC9zdmc+DQo=);
-  background-size: 12px 12px;
-	filter: invert(100%);
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-	color-scheme: dark;
-}
-
-@keyframes openMenu {
-	0% {
-		height: 0;
-		opacity: 0;
-	}
-	100% {
-		height: 16.7rem;
-		opacity: 1;
-	}
-}
-
-@keyframes openMenuMultifile {
-	0% {
-		height: 0;
-		opacity: 0;
-	}
-	100% {
-		height: 18.7rem;
-		opacity: 1;
-	}
-}
-
-@keyframes openMenuLong {
-	0% {
-		height: 0;
-		opacity: 0;
-	}
-	100% {
-		height: 20.7rem;
-		opacity: 1;
-	}
-}
-
-.context-menu-directory {
-	height: 3.5rem;
-	width: 13rem;
-	animation: openMenuDirectory 150ms ease-out;
-}
-
-@keyframes openMenuDirectory {
-	0% {
-		height: 0;
-		opacity: 0;
-	}
-	100% {
-		height: 3.5rem;
-		opacity: 1;
-	}
-}
-
-.folder-details {
-	height: 12.1rem;
-	width: 15rem;
-	animation: openFolderDetails 150ms ease-out;
-}
-
-@keyframes openFolderDetails {
-	0% {
-		height: 0;
-		opacity: 0;
-	}
-	100% {
-		height: 12.1rem;
-		opacity: 1;
-	}
-}
-
-.color-picker {
-	animation: colorPicker 150ms ease-out;
-}
-
-@keyframes colorPicker {
-	0% {
-		transform: translateY(-0.5rem);
-		opacity: 0;
-	}
-	100% {
-		transform: translateY(0);
-		opacity: 1;
-	}
 }

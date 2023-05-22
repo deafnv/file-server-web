@@ -5,7 +5,8 @@ import axios from 'axios'
 import { ColorResult, TwitterPicker } from 'react-color'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useAppContext } from '@/components/contexts/AppContext'
-import { ContextMenuTemplateProps, sleep } from '@/lib/types'
+import { ContextMenuTemplateProps } from '@/lib/types'
+import { sleep } from '@/lib/methods'
 
 function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
   const localRef = useRef<HTMLMenuElement | null>(null)
@@ -57,7 +58,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             ref.current = node as HTMLMenuElement
           }
         }}
-        className={`${!contextMenu ? 'hidden' : ''} absolute min-w-[12rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden context-menu-directory`}
+        className={`${!contextMenu ? 'hidden' : ''} absolute text-left min-w-[12rem] w-[13rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden select-none animate-menu-[3.5rem]`}
       >
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
           <button onClick={handleNewFolder} className="w-full text-left pl-6">
@@ -130,7 +131,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             ref.current = node as HTMLMenuElement
           }
         }} 
-        customClass={selectedFile.length == 1 && !selectedFile[0].isShortcut ? 'h-[20.7rem] animate-[openMenuLong_150ms_ease-out]' : 'h-[18.7rem] animate-[openMenuMultifile_150ms_ease-out]'}
+        customClass={selectedFile.length == 1 && !selectedFile[0].isShortcut ? 'animate-menu-[20.7rem]' : 'animate-menu-[18.7rem]'}
         userDataRef={userDataRef}
       >
         {selectedFile.length == 1 && !selectedFile[0].isShortcut &&
@@ -149,7 +150,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             <ChevronRightIcon className='absolute top-1/2 right-2 -translate-y-1/2' />
           </button>
           {colorPick &&
-          <div className={`absolute top-0 ${localRef.current!.offsetLeft + 476 > window.innerWidth ? 'right-full' : 'left-full'} color-picker`}>
+          <div className={`absolute top-0 ${localRef.current!.offsetLeft + 476 > window.innerWidth ? 'right-full' : 'left-full'} animate-color-picker`}>
             <TwitterPicker 
               triangle='hide' 
               colors={['#FFFFFF', '#EB144C', '#FF6900', '#FCB900', '#7BDCB5', '#00D084', '#8ED1FC', '#0693E3', '#F78DA7', '#9900EF']}
@@ -177,7 +178,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             ref.current = node as HTMLMenuElement
           }
         }} 
-        customClass={selectedFile.length == 1 && !selectedFile[0].isShortcut ? 'h-[20.7rem] animate-[openMenuLong_150ms_ease-out]' : 'h-[18.7rem] animate-[openMenuMultifile_150ms_ease-out]'}
+        customClass={selectedFile.length == 1 && !selectedFile[0].isShortcut ? 'animate-menu-[20.7rem]' : 'animate-menu-[18.7rem]'}
         userDataRef={userDataRef}
       >
         {selectedFile.length == 1 && !selectedFile[0].isShortcut &&
@@ -210,7 +211,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             ref.current = node as HTMLMenuElement
           }
         }} 
-        customClass='h-[16.7rem] animate-[openMenu_150ms_ease-out]'
+        customClass='animate-menu-[16.7rem]'
         userDataRef={userDataRef}
       >
         <hr className="my-1 border-gray-200 border-t-[1px]" />
