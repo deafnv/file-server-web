@@ -43,7 +43,7 @@ export const getData = async (
   sortMethodRef: MutableRefObject<SortMethod>,
   router: NextRouter,
   paramsRef: MutableRefObject<string[]>,
-  setLoading: (state: boolean, timeout?: number) => void
+  loadingTimerRef?: MutableRefObject<NodeJS.Timeout | undefined>
 ) => {
   try {
     const { path } = router.query
@@ -66,7 +66,7 @@ export const getData = async (
       setFileArr('Error loading data from server')
     }
   }
-  setLoading(false)
+  if (loadingTimerRef) clearTimeout(loadingTimerRef.current)
 }
 
 export const sortFileArr = (

@@ -19,7 +19,6 @@ import FileTree from '@/components/FileTree'
 import ProcessInfo from '@/components/ProcessInfo'
 import ProcessError from '@/components/ProcessError'
 import FilePath from '@/components/FilePath'
-import { useLoading } from '@/components/contexts/LoadingContext'
 import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 import Rename from '@/components/dialogs/Rename'
 import NewFolder from '@/components/dialogs/NewFolder'
@@ -29,6 +28,7 @@ import ShortcutCreate from '@/components/dialogs/ShortcutCreate'
 let socket: Socket
 
 export default function Files() {
+  const loadingTimerRef = useRef<NodeJS.Timeout>()
   const paramsRef = useRef<string[]>([])
   const fileListRef = useRef<HTMLDivElement>(null)
   const contextMenuRef = useRef<HTMLMenuElement>(null)
@@ -59,7 +59,6 @@ export default function Files() {
     setContextMenu,
     setLoggedOutWarning
   } = useAppContext()
-  const { setLoading } = useLoading()
 
   useEffect(() => {
     setWidth(window.innerWidth)
@@ -88,7 +87,7 @@ export default function Files() {
 
   useEffect(() => {
     const socketListHandler = () => {
-      getData(setFileArr, sortMethodRef, router, paramsRef, setLoading)
+      getData(setFileArr, sortMethodRef, router, paramsRef)
     }
 
     const socketTreeHandler = () => {
@@ -97,7 +96,7 @@ export default function Files() {
 
     if(router.isReady) {
       socket = io(process.env.NEXT_PUBLIC_FILE_SERVER_URL!)
-      getData(setFileArr, sortMethodRef, router, paramsRef, setLoading)
+      getData(setFileArr, sortMethodRef, router, paramsRef, loadingTimerRef)
       getFileTree(setFileTree)
       
       socket.on('connect', () => setSocketConnectionState(true))
@@ -157,10 +156,11 @@ export default function Files() {
       }
     }
 
-    const routeChangeStart = (e: string) => {
+    const routeChangeStart = () => {
       setContextMenu(null)
-      if (e.split('/')[1] == 'files')
-        setLoading(true, 800)
+      loadingTimerRef.current = setTimeout(() => {
+        setFileArr(null)
+      }, 800)
     }
 
     document.addEventListener("mousedown", preventSelect)
