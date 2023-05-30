@@ -101,7 +101,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
 
   async function handleColorPick(color: ColorResult) {
     await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/metadata`, {
-      directories: selectedFile.map(file => file.path),
+      directories: selectedFile.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path),
       newMetadata: {
         color: color.hex
       }
