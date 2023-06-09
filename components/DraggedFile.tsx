@@ -20,7 +20,7 @@ function DraggedFile(props: {}, ref: ForwardedRef<HTMLDivElement>) {
               top: 2 * index,
               left: 2 * index
             }} 
-            className='fixed flex gap-2 p-3 h-full w-full bg-black border-[1px] border-gray-500 rounded-md shadow-lg shadow-gray-900 pointer-events-none'
+            className='fixed flex gap-2 p-3 h-full w-full bg-background border border-secondary rounded-md shadow-lg shadow-gray-900 pointer-events-none'
           >
             <span className='w-[1.5rem]'>
               {selectedFile.length ? getIcon(selectedFile[0]) : null}
@@ -35,7 +35,7 @@ function DraggedFile(props: {}, ref: ForwardedRef<HTMLDivElement>) {
                 {selectedFile.length ? selectedFile[0].name : ''}
               </span>
             </div>
-            {selectedFile.length > 1 && <span className="fixed -top-2 -right-3 flex items-center justify-center text-[0.93rem] h-6 w-6 rounded-full bg-blue-500">
+            {selectedFile.length > 1 && <span className="fixed -top-2 -right-3 flex items-center justify-center text-[0.93rem] h-6 w-6 rounded-full bg-primary">
               {selectedFile.length > 99 ? '99+' : selectedFile.length}
             </span>}
           </div>

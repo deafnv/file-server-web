@@ -58,7 +58,7 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             ref.current = node as HTMLMenuElement
           }
         }}
-        className={`${!contextMenu ? 'hidden' : ''} absolute text-left min-w-[12rem] w-[13rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden select-none animate-menu-[3.5rem]`}
+        className={`${!contextMenu ? 'hidden' : ''} absolute text-left min-w-[12rem] w-[13rem] z-10 py-3 shadow-lg shadow-gray-900 bg-[#313131] text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden select-none animate-menu-[3.5rem]`}
       >
         <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
           <button onClick={handleNewFolder} className="w-full text-left pl-6">
@@ -150,12 +150,12 @@ function ContextMenu(_: any, ref: ForwardedRef<HTMLMenuElement>) {
             <ChevronRightIcon className='absolute top-1/2 right-2 -translate-y-1/2' />
           </button>
           {colorPick &&
-          <div className={`absolute top-0 ${localRef.current!.offsetLeft + 476 > window.innerWidth ? 'right-full' : 'left-full'} animate-color-picker`}>
+          <div className={`absolute top-0 ${localRef.current!.offsetLeft + 476 > window.innerWidth ? 'right-full' : 'left-full'} animate-color-picker shadow-lg shadow-gray-900 border-black border`}>
             <TwitterPicker 
               triangle='hide' 
               colors={['#FFFFFF', '#EB144C', '#FF6900', '#FCB900', '#7BDCB5', '#00D084', '#8ED1FC', '#0693E3', '#F78DA7', '#9900EF']}
               onChange={handleColorPick} 
-              styles={{ default: { card: { backgroundColor: 'rgb(63 63 70)' } } }}
+              styles={{ default: { card: { backgroundColor: '#3b3b3b' } } }}
             />  
           </div>}
         </li>
@@ -285,7 +285,7 @@ const ContextMenuTemplate = forwardRef(function ContextMenuTemplate({ children, 
     <menu
       data-cy='context-menu'
       ref={ref}
-      className={`absolute text-left min-w-[12rem] w-[13rem] z-10 py-3 shadow-lg shadow-gray-900 bg-zinc-700 text-lg text-gray-200 rounded-[0.25rem] border-black border-solid border-[1px] overflow-hidden select-none ${customClass}`}
+      className={`absolute text-left min-w-[12rem] w-[13rem] z-10 py-3 shadow-lg shadow-gray-900 bg-foreground text-lg text-gray-200 rounded-[0.25rem] border-black border overflow-hidden select-none ${customClass}`}
     >
       <li className="flex justify-center h-8 rounded-sm hover:bg-zinc-500">
         <button onClick={() => selectedFile?.[0].isDirectory ? router.push(`/files${selectedFile?.[0].path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile?.[0].path}`)} className="w-full text-left pl-6">

@@ -14,7 +14,7 @@ export default function FileTree() {
       <div 
         data-isdirpath
         data-path="/"
-        className="relative flex flex-col p-2 h-full bg-black rounded-md overflow-auto overflow-x-hidden"
+        className="relative flex flex-col p-1 h-full bg-foreground rounded-md overflow-auto overflow-x-hidden"
       >
         {fileTree ?
         <FileTreeComponent fileTree={fileTree} /> :
@@ -72,7 +72,7 @@ function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', ex
             className="ml-auto mr-0"
           >
             <div className="flex items-center">
-              <span className={`rounded-sm transition-colors duration-75 ${subtreeHasFolders ? 'cursor-pointer hover:bg-slate-400' : ''}`}>
+              <span className={`rounded-md ${subtreeHasFolders ? 'cursor-pointer hover:bg-secondary/70' : ''}`}>
                 <ExpandMoreIcon 
                   style={{
                     transform: expand.includes(filePath) ? 'initial' : 'rotate(-90deg)',
@@ -88,7 +88,7 @@ function FileTreeComponent({ fileTree, level = 0, onFileClick, prevDir = '/', ex
                 href={`/files${filePath}`}
                 title={fileName}
                 onClick={() => handleClick(filePath)}
-                className="h-full w-full p-1 line-clamp-1 cursor-pointer rounded-sm transition-colors duration-75 hover:bg-slate-400"
+                className="h-full w-full p-1 line-clamp-1 cursor-pointer rounded-md hover:bg-secondary/70"
               >
                 {fileName}
               </Link>

@@ -8,6 +8,13 @@ module.exports = {
       screens: {
         'xs': '320px'
       },
+      colors: {
+        background: '#1f1f1f',
+        foreground: '#3b3b3b',
+        text: '#ffffff',
+        primary: '#40a9ff',
+        secondary: '#6b7680'
+      },
       keyframes: {
         colorPicker: {
           '0%': {

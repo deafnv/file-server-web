@@ -73,7 +73,7 @@ export default function Drawer() {
       />
       <div 
         ref={drawerRef}
-        className="fixed flex flex-col top-0 h-full w-3/4 z-[61] bg-black pointer-events-auto"
+        className="fixed flex flex-col top-0 h-full w-3/4 z-[61] bg-background pointer-events-auto"
       >
         <div className="flex flex-col gap-4 p-5">
           <div className='flex flex-col gap-1'>
@@ -102,7 +102,7 @@ export default function Drawer() {
           </Link>}
           <hr />
         </div>
-        <div className="px-2 overflow-auto">
+        <div className="p-2 overflow-auto">
           <FileTree />
         </div>
       </div>

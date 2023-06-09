@@ -159,7 +159,7 @@ export default function DragSelectionArea({ fileListRef, fileArr }: DragSelectio
   return (
     <div 
       ref={dragAreaRef}
-      className='absolute z-0 bg-blue-500 border-2 border-solid border-blue-700 opacity-40 pointer-events-none'
+      className='absolute z-0 bg-blue-500 border border-solid border-blue-700 opacity-40 rounded-sm pointer-events-none'
     />
   )
 }

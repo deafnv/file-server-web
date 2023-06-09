@@ -174,8 +174,8 @@ export default function FileList(
       const stopDrag = () => {
         const selectedFileRefs = fileRefs.current.filter(item => selectedFile.includes(item.file))
         selectedFileRefs.forEach(item => {
-          item.ref.style.opacity = '1'
-          item.ref.style.backgroundColor = 'rgb(107 114 128)'
+          item.ref.style.opacity = ''
+          item.ref.style.backgroundColor = ''
         })
       }
 
@@ -378,8 +378,8 @@ export default function FileList(
   if (fileArr == null) {
     //TODO: Better loading, don't use useLoading
     return (
-      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
-        <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
+      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-foreground md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
+        <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b bg-foreground'>
           <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>#</span>
           <span className='p-3 flex-grow'>Name</span>
           <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>Size</span>
@@ -394,8 +394,8 @@ export default function FileList(
 
   if (!(fileArr instanceof Array)) {
     return (
-      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
-        <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
+      <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-foreground md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
+        <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b bg-foreground'>
           <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>#</span>
           <span className='p-3 flex-grow'>Name</span>
           <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>Size</span>
@@ -440,9 +440,9 @@ export default function FileList(
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onContextMenu={(e) => {if (e.target == fileListRef.current) setContextMenu('directory')}}
-      className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-black md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'
+      className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-foreground md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'
     >
-      <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b-[1px] bg-black'>
+      <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b bg-foreground'>
         <span
           title='Sort by type'
           onClick={() => sortFileArr('type', fileArr, setFileArr, sortMethodRef)}
@@ -490,10 +490,7 @@ export default function FileList(
             onDoubleClick={() => file.isDirectory ? router.push(`/files${file.path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
             onContextMenu={() => handleOnContextMenu(file)}
             onMouseDown={(e) => handleSelect(e, file, index)}
-            style={{
-              backgroundColor: selectedFile?.includes(file) ? 'rgb(107 114 128)' : 'unset'
-            }}
-            className={`flex text-base md:text-lg rounded-md cursor-default outline outline-0 outline-gray-500 hover:outline-1`}
+            className={`flex text-base md:text-lg rounded-md cursor-default ${selectedFile.includes(file) ? 'bg-secondary' : 'hover:bg-secondary/40'}`}
           >
             <span className='relative lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>
               {getIcon(file)}
@@ -550,8 +547,8 @@ export default function FileList(
         ref={dragOverlayRef}
         className='absolute top-0 left-0 z-20 h-full w-full pointer-events-none opacity-0 transition-all duration-100'
       >
-        <div className='z-20 h-full w-full bg-blue-300 border-2 border-solid border-blue-500 opacity-30 pointer-events-none' />
-        <span className='flex flex-col items-center gap-2 fixed top-[90%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 text-xl bg-sky-600 rounded-lg'>
+        <div className='z-20 h-full w-full bg-primary border-2 border-solid border-primary opacity-30 pointer-events-none' />
+        <span className='flex flex-col items-center gap-2 fixed top-[90%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 text-xl bg-primary rounded-lg'>
           <FileUploadIcon fontSize='large' />
           Drop files to upload into
           <span 

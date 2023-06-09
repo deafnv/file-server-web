@@ -27,14 +27,14 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
         data-path='/'
         href={''}
         tabIndex={0}
-        className='p-2 rounded-md transition-colors duration-75 hover:bg-gray-500'
+        className='p-2 rounded-md transition-colors duration-75 hover:bg-secondary'
       >
         Files
       </Link> :
       <button 
         tabIndex={0}
         onClick={(e) => setFolderDetailsAnchor(e.currentTarget)}
-        className='flex items-center p-2 rounded-md cursor-pointer hover:bg-gray-500 '
+        className='flex items-center p-2 rounded-md cursor-pointer hover:bg-secondary'
       >
         <span className='line-clamp-1 break-all'>Files</span>
         <ArrowDropDownIcon />
@@ -48,7 +48,7 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
                 <button 
                   tabIndex={0}
                   onClick={(e) => setFileHistoryMoreAnchor(e.currentTarget)}
-                  className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-gray-500'
+                  className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-secondary'
                 >
                   <MoreHorizIcon />
                 </button>
@@ -63,7 +63,7 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
               <button 
                 tabIndex={0}
                 onClick={(e) => setFolderDetailsAnchor(e.currentTarget)}
-                className='flex items-center px-2 rounded-md cursor-pointer hover:bg-gray-500'
+                className='flex items-center px-2 rounded-md cursor-pointer hover:bg-secondary'
               >
                 <span className='line-clamp-1 my-2 break-all'>{param}</span>
                 <ArrowDropDownIcon />
@@ -80,7 +80,7 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
                 title={param}
                 tabIndex={0}
                 href={paramsRef.current?.slice(0, index + 1).join('/')}
-                className='px-2 py-1 rounded-md hover:bg-gray-500 line-clamp-1 break-words'
+                className='px-2 py-1 rounded-md hover:bg-secondary line-clamp-1 break-words'
               >
                 {param}
               </Link>

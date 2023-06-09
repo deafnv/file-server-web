@@ -1,4 +1,5 @@
 import type { AppProps } from 'next/app'
+import { Quicksand } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import '@/styles/globals.css'
 import HeadCommon from '@/components/HeadCommon'
@@ -8,6 +9,8 @@ import Navbar from '@/components/Navbar'
 
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import Drawer from '@/components/Drawer'
+
+const quicksand = Quicksand({ subsets: ['latin'] })
 
 const theme = createTheme({
   components: {
@@ -48,7 +51,7 @@ const theme = createTheme({
     mode: 'dark'
   },
   typography: {
-    fontFamily: `-apple-system, BlinkMacSystemFont, Quicksand, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif`
+    fontFamily: `-apple-system, BlinkMacSystemFont, ${quicksand.style.fontFamily}, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif`
   }
 });
 
@@ -59,6 +62,11 @@ export default function App({ Component, pageProps }: AppProps) {
         <ThemeProvider theme={theme}>
           <AppContextProvider>
             <HeadCommon />
+            <style jsx global>{`
+              html {
+                font-family: ${quicksand.style.fontFamily};
+              }
+            `}</style>
             <Navbar />
             <Drawer />
             <Component {...pageProps} />
