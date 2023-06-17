@@ -143,7 +143,12 @@ export default function SearchFiles() {
         </section>
         <section className='flex flex-col pt-0 pb-0 md:pb-4 h-[calc(100dvh-60px)]'>
           <span className='flex items-center mt-0 md:mt-2 p-2 md:px-0 text-xl'>Search results</span>
-          <FileList fileRefs={fileRefs} fileListRef={fileListRef} sortMethodRef={sortMethodRef} />
+          <FileList
+            isSearching
+            fileRefs={fileRefs}
+            fileListRef={fileListRef}
+            sortMethodRef={sortMethodRef}
+          />
         </section>
         <ContextMenu ref={contextMenuRef} />
         <ConfirmDelete />

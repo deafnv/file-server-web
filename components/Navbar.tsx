@@ -13,6 +13,7 @@ import SearchBar from './SearchBar'
 export default function Navbar() {
   const [width, setWidth] = useState<number>(0)
   const [user, setUser] = useState('')
+  const [searchEnabled, setSearchEnabled] = useState(false)
 
   const searchBarRef = useRef<HTMLInputElement>(null)
 
@@ -43,6 +44,17 @@ export default function Navbar() {
       setUser(JSON.parse(cookie).user)
     }
   }, [router.asPath])
+
+  useEffect(() => {
+    const getIsSearchEnabled = async () => {
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/issearch`)
+      setSearchEnabled(data)
+    }
+
+    if (router.isReady) {
+      getIsSearchEnabled()
+    }
+  }, [router.isReady])
 
   async function handleLogout() {
     await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/authorize/logout`, {
@@ -88,7 +100,7 @@ export default function Navbar() {
                 {socketConnectionState ? 'Connected' : 'Disconnected'}
               </span>
             </div>
-            <SearchBar ref={searchBarRef} />
+            {searchEnabled && <SearchBar ref={searchBarRef} />}
             {user ? (
               <span className='flex gap-2 text-center text-sm sm:text-base font-semibold'>
                 {user}

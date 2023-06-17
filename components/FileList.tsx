@@ -1,6 +1,7 @@
 import path from 'path'
-import { useRouter } from 'next/router'
 import { useEffect, useRef } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import axios, { AxiosError } from 'axios'
 import { deleteCookie, getCookie } from 'cookies-next'
 import prettyBytes from 'pretty-bytes'
@@ -17,6 +18,7 @@ import { useAppContext } from '@/components/contexts/AppContext'
 import DraggedFile from '@/components/DraggedFile'
 
 export default function FileList({
+  isSearching = false,
   fileRefs,
   fileListRef,
   sortMethodRef,
@@ -518,7 +520,7 @@ export default function FileList({
       }}
       className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-foreground md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'
     >
-      <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b bg-foreground'>
+      <div className='sticky z-10 top-0 mb-1 flex text-base border-b bg-foreground'>
         <span
           title='Sort by type'
           onClick={() => sortFileArr('type', fileArr, setFileArr, sortMethodRef)}
@@ -545,6 +547,18 @@ export default function FileList({
           )}
         </span>
         <span
+          title='Sort by date created'
+          onClick={() => sortFileArr('created', fileArr, setFileArr, sortMethodRef)}
+          className='hidden lg:block p-3 min-w-[10rem] cursor-pointer'
+        >
+          Date modified
+          {sortMethodRef.current.includes('created') && (
+            <ArrowDropDownIcon
+              style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }}
+            />
+          )}
+        </span>
+        <span
           title='Sort by size'
           onClick={() => sortFileArr('size', fileArr, setFileArr, sortMethodRef)}
           className='p-3 min-w-[5rem] md:min-w-[8rem] cursor-pointer'
@@ -556,21 +570,11 @@ export default function FileList({
             />
           )}
         </span>
-        <span
-          title='Sort by date created'
-          onClick={() => sortFileArr('created', fileArr, setFileArr, sortMethodRef)}
-          className='hidden lg:block p-3 min-w-[10rem] cursor-pointer'
-        >
-          Created At
-          {sortMethodRef.current.includes('created') && (
-            <ArrowDropDownIcon
-              style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }}
-            />
-          )}
-        </span>
+        {isSearching && <span className='p-3 min-w-[9rem] md:min-w-[14rem]'>Location</span>}
       </div>
       {fileArr.map((file, index) => {
-        const dateObj = new Date(file.created)
+        const dateObj = new Date(file.modified)
+        const currentSelected = selectedFile.includes(file)
         return (
           <div
             key={index}
@@ -586,8 +590,8 @@ export default function FileList({
             }
             onContextMenu={() => handleOnContextMenu(file)}
             onMouseDown={(e) => handleSelect(e, file, index)}
-            className={`flex text-base md:text-lg rounded-md cursor-default ${
-              selectedFile.includes(file) ? 'bg-secondary' : 'hover:bg-secondary/40'
+            className={`flex text-base rounded-md cursor-default ${
+              currentSelected ? 'bg-secondary' : 'hover:bg-secondary/40'
             }`}
           >
             <span className='relative lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>
@@ -603,13 +607,10 @@ export default function FileList({
               title={file.name}
               className='flex-grow line-clamp-1 overflow-hidden'
             >
-              <span data-isfilename className='flex p-3 w-fit'>
+              <p data-isfilename className='p-3 text-ellipsis whitespace-nowrap overflow-hidden'>
                 {file.name}
-              </span>
+              </p>
             </div>
-            <span title={`${file.size} bytes`} className='p-3 min-w-[5rem] md:min-w-[8rem]'>
-              {file.isDirectory ? '—' : prettyBytes(file.size, { space: true })}
-            </span>
             <span
               title={dateObj.toLocaleDateString('en-US', {
                 day: '2-digit',
@@ -627,6 +628,24 @@ export default function FileList({
                 year: 'numeric',
               })}
             </span>
+            <span title={`${file.size} bytes`} className='p-3 min-w-[5rem] md:min-w-[8rem]'>
+              {file.isDirectory ? '—' : prettyBytes(file.size, { space: true })}
+            </span>
+            {isSearching && (
+              <div
+                title={path.basename(path.dirname(file.path))}
+                className='p-3 pl-1 min-w-[9rem] md:min-w-[14rem] w-[9rem] md:w-[14rem] overflow-hidden'
+              >
+                <Link
+                  href={`/files/${path.dirname(file.path)}`}
+                  className={`p-2 min-w-full text-ellipsis whitespace-nowrap overflow-hidden hover:${
+                    currentSelected ? 'bg-black/50' : 'bg-secondary'
+                  } rounded-full`}
+                >
+                  {path.basename(path.dirname(file.path))}
+                </Link>
+              </div>
+            )}
           </div>
         )
       })}

@@ -52,6 +52,7 @@ export interface Box {
 }
 
 export interface FileListProps {
+  isSearching?: boolean
   fileListRef: RefObject<HTMLDivElement>
   fileRefs: MutableRefObject<Array<{ file: FileServerFile; ref: HTMLDivElement }>>
   sortMethodRef: MutableRefObject<SortMethod>
