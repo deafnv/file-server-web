@@ -16,9 +16,13 @@ import { useLoading } from '@/components/contexts/LoadingContext'
 import { useAppContext } from '@/components/contexts/AppContext'
 import DraggedFile from '@/components/DraggedFile'
 
-export default function FileList(
-  { fileRefs, fileListRef, sortMethodRef, getRootProps, getInputProps }: FileListProps
-) {
+export default function FileList({
+  fileRefs,
+  fileListRef,
+  sortMethodRef,
+  getRootProps,
+  getInputProps,
+}: FileListProps) {
   const startingFileSelect = useRef<number | null>(null)
   const dragOverlayRef = useRef<HTMLDivElement>(null)
   const dragOverlayTextRef = useRef<HTMLSpanElement>(null)
@@ -37,22 +41,22 @@ export default function FileList(
     setLoggedOutWarning,
     setProcessInfo,
     setProcessError,
-    setOpenDeleteConfirm
+    setOpenDeleteConfirm,
   } = useAppContext()
 
   useEffect(() => {
     const preventShiftSelect = (e: any) => {
-      document.onselectstart = function() {
-        return !(e.key == "Shift" && e.shiftKey);
+      document.onselectstart = function () {
+        return !(e.key == 'Shift' && e.shiftKey)
       }
     }
 
-    ["keyup","keydown"].forEach(function (event) {
+    ;['keyup', 'keydown'].forEach(function (event) {
       window.addEventListener(event, preventShiftSelect)
     })
 
     return () => {
-      ["keyup","keydown"].forEach((event) => {
+      ;['keyup', 'keydown'].forEach((event) => {
         window.removeEventListener(event, preventShiftSelect)
       })
     }
@@ -65,7 +69,11 @@ export default function FileList(
     const keyboardNavigate = (e: KeyboardEvent) => {
       const navigationKeys = ['ArrowDown', 'ArrowUp', 'Enter']
       //* Allow navigation only if selected file, or body is active element
-      if (!(fileArr instanceof Array) || !navigationKeys.includes(e.key) || (!selectedFile.length && document.activeElement?.tagName !== 'BODY'))
+      if (
+        !(fileArr instanceof Array) ||
+        !navigationKeys.includes(e.key) ||
+        (!selectedFile.length && document.activeElement?.tagName !== 'BODY')
+      )
         return
       const lastSelectedFile = selectedFile[selectedFile.length - 1]
       const lastSelectedFileIndex = fileArr.lastIndexOf(lastSelectedFile)
@@ -73,26 +81,36 @@ export default function FileList(
       let shouldSet: boolean = true //* Set to false if at top or bottom of list
       switch (e.key) {
         case 'ArrowDown':
-          if (selectedFile.includes(fileArr[fileArr.length - 1]) && selectedFile.length !== fileArr.length) {
+          if (
+            selectedFile.includes(fileArr[fileArr.length - 1]) &&
+            selectedFile.length !== fileArr.length
+          ) {
             shouldSet = false
             break
           }
           toSelect = !selectedFile.length ? [fileArr[0]] : [fileArr[lastSelectedFileIndex + 1]]
-          if (!e.shiftKey) startingFileSelect.current = !selectedFile.length ? 0 : lastSelectedFileIndex + 1
+          if (!e.shiftKey)
+            startingFileSelect.current = !selectedFile.length ? 0 : lastSelectedFileIndex + 1
           break
         case 'ArrowUp':
-          if (selectedFile.includes(fileArr[0])  && selectedFile.length !== fileArr.length) {
+          if (selectedFile.includes(fileArr[0]) && selectedFile.length !== fileArr.length) {
             shouldSet = false
             break
           }
           toSelect = !selectedFile.length ? [fileArr[0]] : [fileArr[lastSelectedFileIndex - 1]]
-          if (!e.shiftKey) startingFileSelect.current = !selectedFile.length ? 0 : lastSelectedFileIndex - 1
+          if (!e.shiftKey)
+            startingFileSelect.current = !selectedFile.length ? 0 : lastSelectedFileIndex - 1
           break
         case 'Enter':
           shouldSet = false
           if (selectedFile.length !== 1) break
-          selectedFile[0].isDirectory ? router.push(`/files${selectedFile[0].path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`)
-        default: break
+          selectedFile[0].isDirectory
+            ? router.push(`/files${selectedFile[0].path}`)
+            : router.push(
+                `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${selectedFile[0].path}`
+              )
+        default:
+          break
       }
       //* If shift key pressed behave combine selections, or remove them
       if (e.shiftKey) {
@@ -101,36 +119,39 @@ export default function FileList(
       }
       //? I have no clue why there is undefined in the array, but this fixes it. Something with ctrl + a
       if (shouldSet) {
-        setSelectedFile(toSelect.filter(item => item))
+        setSelectedFile(toSelect.filter((item) => item))
         fileListRef.current?.focus()
       }
     }
-    
-    document.addEventListener("keydown", keyboardNavigate)
 
-    return () => document.removeEventListener("keydown", keyboardNavigate)
+    document.addEventListener('keydown', keyboardNavigate)
+
+    return () => document.removeEventListener('keydown', keyboardNavigate)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileArr, selectedFile])
 
   async function moveFile(files: FileServerFile[], directory: FileServerFile | string) {
     if (!getCookie('userdata')) return setLoggedOutWarning(true)
     setLoading(true)
-    try { 
+    try {
       await axios({
         method: 'POST',
         url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/move`,
         data: {
-          pathToFiles: files?.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path),
-          newPath: typeof directory == 'string' ? directory : directory.path
+          pathToFiles: files?.map((file) =>
+            file.isShortcut ? file.isShortcut.shortcutPath : file.path
+          ),
+          newPath: typeof directory == 'string' ? directory : directory.path,
         },
-        withCredentials: true
+        withCredentials: true,
       })
       setLoading(false)
-      const directoryParse = typeof directory == 'string' ? path.parse(directory).name : path.parse(directory.path).name
+      const directoryParse =
+        typeof directory == 'string' ? path.parse(directory).name : path.parse(directory.path).name
       setProcessInfo(
-        files.length > 1 ? 
-        `Moved ${files.length} files into ${directoryParse}` :
-        `Moved ${files[0].name} into ${directoryParse}`
+        files.length > 1
+          ? `Moved ${files.length} files into ${directoryParse}`
+          : `Moved ${files[0].name} into ${directoryParse}`
       )
     } catch (err) {
       if ((err as any as AxiosError).response?.status == 403) {
@@ -138,7 +159,7 @@ export default function FileList(
       } else if ((err as any as AxiosError).response?.status == 401) {
         alert('Error: Unauthorized, try logging in again.')
         deleteCookie('userdata')
-		    router.reload()
+        router.reload()
       } else {
         alert(`Error. The server is probably down. ${err}`)
       }
@@ -149,16 +170,19 @@ export default function FileList(
   useEffect(() => {
     const moveDraggedFile = (e: MouseEvent) => {
       if (isDraggingFile.current) {
-        const closestFileHovered = fileRefs.current.filter(item => (e.target as HTMLElement).closest("[data-isfile]") == item.ref)
-        if (closestFileHovered.length && (performance.now() - 150 > isDraggingFile.current)) {
+        const closestFileHovered = fileRefs.current.filter(
+          (item) => (e.target as HTMLElement).closest('[data-isfile]') == item.ref
+        )
+        if (closestFileHovered.length && performance.now() - 150 > isDraggingFile.current) {
           //! File moving animation here (file under mouse, outline hovered files)
-          
         }
 
-        if (draggedFileRef.current && (performance.now() - 150 > isDraggingFile.current)) {
+        if (draggedFileRef.current && performance.now() - 150 > isDraggingFile.current) {
           //* Make selected files greyed out while dragging them
-          const selectedFileRefs = fileRefs.current.filter(item => selectedFile.includes(item.file))
-          selectedFileRefs.forEach(item => {
+          const selectedFileRefs = fileRefs.current.filter((item) =>
+            selectedFile.includes(item.file)
+          )
+          selectedFileRefs.forEach((item) => {
             item.ref.style.opacity = '0.3'
             item.ref.style.backgroundColor = 'gray'
           })
@@ -172,21 +196,23 @@ export default function FileList(
     const dropFile = (e: MouseEvent) => {
       //* Remove greyed out effect on stop drag
       const stopDrag = () => {
-        const selectedFileRefs = fileRefs.current.filter(item => selectedFile.includes(item.file))
-        selectedFileRefs.forEach(item => {
+        const selectedFileRefs = fileRefs.current.filter((item) => selectedFile.includes(item.file))
+        selectedFileRefs.forEach((item) => {
           item.ref.style.opacity = ''
           item.ref.style.backgroundColor = ''
         })
       }
 
       if (isDraggingFile.current) {
-        const closestPathDropped = (e.target as HTMLElement).closest("[data-isdirpath]")
-        const closestFileDropped = fileRefs.current.filter(item => (e.target as HTMLElement).closest("[data-isfile]") == item.ref)
+        const closestPathDropped = (e.target as HTMLElement).closest('[data-isdirpath]')
+        const closestFileDropped = fileRefs.current.filter(
+          (item) => (e.target as HTMLElement).closest('[data-isfile]') == item.ref
+        )
         //* If dropped on file, and has been dragged for at least 150ms
-        if (closestFileDropped.length && (performance.now() - 150 > isDraggingFile.current)) {
+        if (closestFileDropped.length && performance.now() - 150 > isDraggingFile.current) {
           //* Disappear dragged file
           if (draggedFileRef.current) {
-            if (closestFileDropped[0].file.isDirectory){
+            if (closestFileDropped[0].file.isDirectory) {
               draggedFileRef.current.style.visibility = 'hidden'
               if (!selectedFile.includes(closestFileDropped[0].file))
                 moveFile(selectedFile, closestFileDropped[0].file)
@@ -196,7 +222,7 @@ export default function FileList(
             }
             stopDrag()
           }
-        } else if (closestPathDropped && (performance.now() - 150 > isDraggingFile.current)) {
+        } else if (closestPathDropped && performance.now() - 150 > isDraggingFile.current) {
           //* If dropped on file path at the top
           const pathAttribute = closestPathDropped.getAttribute('data-path')
           if (draggedFileRef.current) {
@@ -214,12 +240,12 @@ export default function FileList(
       }
     }
 
-    document.addEventListener("mousemove", moveDraggedFile)
-    document.addEventListener("mouseup", dropFile)
+    document.addEventListener('mousemove', moveDraggedFile)
+    document.addEventListener('mouseup', dropFile)
 
     return () => {
-      document.removeEventListener("mousemove", moveDraggedFile)
-      document.removeEventListener("mouseup", dropFile)
+      document.removeEventListener('mousemove', moveDraggedFile)
+      document.removeEventListener('mouseup', dropFile)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile])
@@ -237,8 +263,15 @@ export default function FileList(
   useEffect(() => {
     const keyDownListener = async (e: KeyboardEvent) => {
       //* Select all files Ctrl + A
-      if (e.ctrlKey && e.key == 'a' && document.activeElement == fileListRef.current) e.preventDefault()
-      if (e.ctrlKey && e.key == 'a' && fileArr && typeof fileArr !== 'string' && document.activeElement == fileListRef.current) {
+      if (e.ctrlKey && e.key == 'a' && document.activeElement == fileListRef.current)
+        e.preventDefault()
+      if (
+        e.ctrlKey &&
+        e.key == 'a' &&
+        fileArr &&
+        typeof fileArr !== 'string' &&
+        document.activeElement == fileListRef.current
+      ) {
         e.preventDefault()
         setSelectedFile(fileArr)
       }
@@ -247,39 +280,44 @@ export default function FileList(
       if (e.ctrlKey && e.key == 'v') {
         const clipboardData = await navigator.clipboard.read()
         //* If clipboard has text/html and file list has focus
-        if (clipboardData.some(item => item.types.some(type => type.includes('text/html'))) && document.activeElement == fileListRef.current) {
-          clipboardData.forEach(item => 
-            item.getType('text/html')
-            .then(async clipboardItem => {
-              const text = await clipboardItem.text()
-              const parsedText: { action: 'COPY' | 'CUT', files: string[] } = JSON.parse(text)
-              
-              //* Copy or cut/move file into current folder
-              axios({
-                method: 'POST',
-                url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/${parsedText.action == 'COPY' ? 'copy' : 'move'}`,
-                data: {
-                  pathToFiles: parsedText.files,
-                  newPath: (router.query.path as string[])?.join('/') ?? '/'
-                },
-                withCredentials: true
-              })
-              .then(() => setProcessInfo(`Copied files(s) sucessfully`))
-              .catch(err => setProcessInfo('Something went wrong while copying files'))
+        if (
+          clipboardData.some((item) => item.types.some((type) => type.includes('text/html'))) &&
+          document.activeElement == fileListRef.current
+        ) {
+          clipboardData.forEach((item) =>
+            item
+              .getType('text/html')
+              .then(async (clipboardItem) => {
+                const text = await clipboardItem.text()
+                const parsedText: { action: 'COPY' | 'CUT'; files: string[] } = JSON.parse(text)
 
-              //* Clear clipboard if files were cut
-              if (parsedText.action == 'CUT') 
-                navigator.clipboard.writeText('').catch(err => {})
-            })
-            .catch(err => {})
+                //* Copy or cut/move file into current folder
+                axios({
+                  method: 'POST',
+                  url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/${
+                    parsedText.action == 'COPY' ? 'copy' : 'move'
+                  }`,
+                  data: {
+                    pathToFiles: parsedText.files,
+                    newPath: (router.query.path as string[])?.join('/') ?? '/',
+                  },
+                  withCredentials: true,
+                })
+                  .then(() => setProcessInfo(`Copied files(s) sucessfully`))
+                  .catch((err) => setProcessInfo('Something went wrong while copying files'))
+
+                //* Clear clipboard if files were cut
+                if (parsedText.action == 'CUT') navigator.clipboard.writeText('').catch((err) => {})
+              })
+              .catch((err) => {})
           )
         }
       }
     }
 
-    document.addEventListener("keydown", keyDownListener)
+    document.addEventListener('keydown', keyDownListener)
 
-    return () => document.removeEventListener("keydown", keyDownListener)
+    return () => document.removeEventListener('keydown', keyDownListener)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileListRef.current, fileArr])
 
@@ -287,15 +325,23 @@ export default function FileList(
     const keyDownActions = async (e: KeyboardEvent) => {
       //* Copy link and list of paths to clipboard
       if (e.key == 'c' && e.ctrlKey && selectedFile.length) {
-        const links = selectedFile.map(file => file.isDirectory ? `${location.origin}/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`).join(',')
+        const links = selectedFile
+          .map((file) =>
+            file.isDirectory
+              ? `${location.origin}/files${file.path}`
+              : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`
+          )
+          .join(',')
         const htmlItem = {
           action: 'COPY',
-          files: selectedFile.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path)
+          files: selectedFile.map((file) =>
+            file.isShortcut ? file.isShortcut.shortcutPath : file.path
+          ),
         }
 
         const textItem = new ClipboardItem({
-           'text/plain': new Blob([links], { type: 'text/plain' }),
-           'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' })
+          'text/plain': new Blob([links], { type: 'text/plain' }),
+          'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' }),
         })
         await navigator.clipboard.write([textItem])
         setProcessInfo('Item copied to clipboard')
@@ -303,14 +349,22 @@ export default function FileList(
 
       //* Cut files into clipboard
       if (e.key == 'x' && e.ctrlKey && selectedFile.length) {
-        const links = selectedFile.map(file => file.isDirectory ? `${location.origin}/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`).join(',')
+        const links = selectedFile
+          .map((file) =>
+            file.isDirectory
+              ? `${location.origin}/files${file.path}`
+              : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`
+          )
+          .join(',')
         const htmlItem = {
           action: 'CUT',
-          files: selectedFile.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path)
+          files: selectedFile.map((file) =>
+            file.isShortcut ? file.isShortcut.shortcutPath : file.path
+          ),
         }
         const textItem = new ClipboardItem({
-           'text/plain': new Blob([links], { type: 'text/plain' }),
-           'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' })
+          'text/plain': new Blob([links], { type: 'text/plain' }),
+          'text/html': new Blob([JSON.stringify(htmlItem)], { type: 'text/html' }),
         })
         await navigator.clipboard.write([textItem])
         setProcessInfo('Item cut into clipboard')
@@ -322,9 +376,9 @@ export default function FileList(
       }
     }
 
-    document.addEventListener("keydown", keyDownActions)
+    document.addEventListener('keydown', keyDownActions)
 
-    return () => document.removeEventListener("keydown", keyDownActions)
+    return () => document.removeEventListener('keydown', keyDownActions)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile])
 
@@ -347,9 +401,8 @@ export default function FileList(
         } else if (e.ctrlKey) {
           //* Ctrl select functionality
           if (selectedFile.includes(file))
-            setSelectedFile(selectedFile.filter(item => !isEqual(item, file)))
-          else 
-            setSelectedFile(selectedFile.concat([file]))
+            setSelectedFile(selectedFile.filter((item) => !isEqual(item, file)))
+          else setSelectedFile(selectedFile.concat([file]))
         } else {
           startingFileSelect.current = index
           setSelectedFile([file])
@@ -359,18 +412,26 @@ export default function FileList(
 
     if (e.button === 1) {
       e.preventDefault()
-      window.open(file.isDirectory ? `/files${file.path}` : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`, '_blank')
+      window.open(
+        file.isDirectory
+          ? `/files${file.path}`
+          : `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`,
+        '_blank'
+      )
     }
-    
+
     //* Determine if pressed element is file, start drag if mousedown on file name
     if (e.button === 0 && (e.target as HTMLElement).getAttribute('data-isfilename') == 'true') {
-      const fileMouseDowned = fileRefs.current.filter(item => item.ref == e.currentTarget)[0]
+      const fileMouseDowned = fileRefs.current.filter((item) => item.ref == e.currentTarget)[0]
       //* Fix for unable to unselect on pressing title with ctrl and shift
       if (!(selectedFile.includes(fileMouseDowned.file) && !e.ctrlKey && !e.shiftKey)) {
         selectItem()
       }
       isDraggingFile.current = performance.now()
-    } else if (e.button === 0 && (e.currentTarget as HTMLElement).getAttribute('data-isfile') == 'true') {
+    } else if (
+      e.button === 0 &&
+      (e.currentTarget as HTMLElement).getAttribute('data-isfile') == 'true'
+    ) {
       selectItem()
     }
   }
@@ -380,7 +441,9 @@ export default function FileList(
     return (
       <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-foreground md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
         <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b bg-foreground'>
-          <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>#</span>
+          <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>
+            #
+          </span>
           <span className='p-3 flex-grow'>Name</span>
           <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>Size</span>
           <span className='hidden lg:block p-3 min-w-[10rem]'>Created At</span>
@@ -396,60 +459,78 @@ export default function FileList(
     return (
       <div className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-foreground md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'>
         <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b bg-foreground'>
-          <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>#</span>
+          <span className='relative hidden lg:flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem]'>
+            #
+          </span>
           <span className='p-3 flex-grow'>Name</span>
           <span className='p-3 min-w-[5rem] md:min-w-[8rem]'>Size</span>
           <span className='hidden lg:block p-3 min-w-[10rem]'>Created At</span>
         </div>
-        <div className='h-full w-full flex items-center justify-center text-2xl'>
-          {fileArr}
-        </div>
+        <div className='h-full w-full flex items-center justify-center text-2xl'>{fileArr}</div>
       </div>
     )
   }
 
   function handleDragOver(e: React.DragEvent) {
-    if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current && dragOverlayTextRef.current) {
-      const closestFileDropped = fileRefs.current.filter(item => (e.target as HTMLElement).closest("[data-isfile]") == item.ref)
+    if (
+      e.dataTransfer.types.includes('Files') &&
+      dragOverlayRef.current &&
+      dragOverlayTextRef.current
+    ) {
+      const closestFileDropped = fileRefs.current.filter(
+        (item) => (e.target as HTMLElement).closest('[data-isfile]') == item.ref
+      )
       if (closestFileDropped[0] && closestFileDropped[0].file.isDirectory) {
-          closestFileDropped[0].ref.style.outlineWidth = '1px'
-          dragOverlayTextRef.current.innerText = closestFileDropped[0].file.name
+        closestFileDropped[0].ref.style.outlineWidth = '1px'
+        dragOverlayTextRef.current.innerText = closestFileDropped[0].file.name
       } else {
         dragOverlayTextRef.current.innerText = 'Current directory'
       }
       dragOverlayRef.current.style.opacity = '1'
     }
   }
-  
+
   function handleDragLeave(e: React.DragEvent) {
     if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current) {
-      fileRefs.current.forEach(element => element.ref.style.outlineWidth = '')
+      fileRefs.current.forEach((element) => (element.ref.style.outlineWidth = ''))
       dragOverlayRef.current.style.opacity = '0'
     }
   }
 
   return (
     <div
-      {...getRootProps({
-        onDrop: (e) => {if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current) dragOverlayRef.current.style.opacity = '0'}
+      {...getRootProps?.({
+        onDrop: (e) => {
+          if (e.dataTransfer.types.includes('Files') && dragOverlayRef.current)
+            dragOverlayRef.current.style.opacity = '0'
+        },
       })}
       data-cy='file-list'
       data-disableselect={false}
       ref={fileListRef}
-      onBlur={() => {if (!contextMenu) setSelectedFile([])}}
+      onBlur={() => {
+        if (!contextMenu) setSelectedFile([])
+      }}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
-      onContextMenu={(e) => {if (e.target == fileListRef.current) setContextMenu('directory')}}
+      onContextMenu={(e) => {
+        if (e.target == fileListRef.current) setContextMenu('directory')
+      }}
       className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full bg-foreground md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'
     >
       <div className='sticky z-10 top-0 mb-1 flex text-base md:text-lg border-b bg-foreground'>
         <span
           title='Sort by type'
           onClick={() => sortFileArr('type', fileArr, setFileArr, sortMethodRef)}
-          className='relative flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem] cursor-pointer'>
+          className='relative flex items-center justify-center p-3 mr-0 min-w-[3rem] max-w-[3rem] cursor-pointer'
+        >
           #
-          {sortMethodRef.current.includes('type') &&
-          <ArrowDropDownIcon style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }} className='absolute -right-1' />}
+          {sortMethodRef.current.includes('type') && (
+            <ArrowDropDownIcon
+              style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }}
+              className='absolute -right-1'
+            />
+          )}
         </span>
         <span
           title='Sort by name'
@@ -457,8 +538,11 @@ export default function FileList(
           className='p-3 flex-grow cursor-pointer'
         >
           Name
-          {sortMethodRef.current.includes('name') &&
-          <ArrowDropDownIcon style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }} />}
+          {sortMethodRef.current.includes('name') && (
+            <ArrowDropDownIcon
+              style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }}
+            />
+          )}
         </span>
         <span
           title='Sort by size'
@@ -466,8 +550,11 @@ export default function FileList(
           className='p-3 min-w-[5rem] md:min-w-[8rem] cursor-pointer'
         >
           Size
-          {sortMethodRef.current.includes('size') &&
-          <ArrowDropDownIcon style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }} />}
+          {sortMethodRef.current.includes('size') && (
+            <ArrowDropDownIcon
+              style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }}
+            />
+          )}
         </span>
         <span
           title='Sort by date created'
@@ -475,8 +562,11 @@ export default function FileList(
           className='hidden lg:block p-3 min-w-[10rem] cursor-pointer'
         >
           Created At
-          {sortMethodRef.current.includes('created') &&
-          <ArrowDropDownIcon style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }} />}
+          {sortMethodRef.current.includes('created') && (
+            <ArrowDropDownIcon
+              style={{ transform: sortMethodRef.current.includes('asc') ? 'rotate(180deg)' : '' }}
+            />
+          )}
         </span>
       </div>
       {fileArr.map((file, index) => {
@@ -484,63 +574,63 @@ export default function FileList(
         return (
           <div
             key={index}
-            ref={ref => {if (ref) fileRefs.current[index] = { file, ref }}}
+            ref={(ref) => {
+              if (ref) fileRefs.current[index] = { file, ref }
+            }}
             data-isfile
             data-filehierarchy
-            onDoubleClick={() => file.isDirectory ? router.push(`/files${file.path}`) : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)}
+            onDoubleClick={() =>
+              file.isDirectory
+                ? router.push(`/files${file.path}`)
+                : router.push(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/retrieve${file.path}`)
+            }
             onContextMenu={() => handleOnContextMenu(file)}
             onMouseDown={(e) => handleSelect(e, file, index)}
-            className={`flex text-base md:text-lg rounded-md cursor-default ${selectedFile.includes(file) ? 'bg-secondary' : 'hover:bg-secondary/40'}`}
+            className={`flex text-base md:text-lg rounded-md cursor-default ${
+              selectedFile.includes(file) ? 'bg-secondary' : 'hover:bg-secondary/40'
+            }`}
           >
             <span className='relative lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>
               {getIcon(file)}
-              {file.isShortcut && 
-              <div className='absolute flex items-center justify-center bottom-0 left-0 h-4 w-4 text-sm rounded-full bg-gray-600'>
-                <RedoIcon fontSize='inherit' className='-rotate-90' />
-              </div>}
+              {file.isShortcut && (
+                <div className='absolute flex items-center justify-center bottom-0 left-0 h-4 w-4 text-sm rounded-full bg-gray-600'>
+                  <RedoIcon fontSize='inherit' className='-rotate-90' />
+                </div>
+              )}
             </span>
-            <div 
+            <div
               data-filehierarchy
               title={file.name}
               className='flex-grow line-clamp-1 overflow-hidden'
             >
-              <span 
-                data-isfilename
-                className='flex p-3 w-fit'
-              >
+              <span data-isfilename className='flex p-3 w-fit'>
                 {file.name}
               </span>
             </div>
-            <span
-              title={`${file.size} bytes`}
-              className='p-3 min-w-[5rem] md:min-w-[8rem]'
-            >
+            <span title={`${file.size} bytes`} className='p-3 min-w-[5rem] md:min-w-[8rem]'>
               {file.isDirectory ? '—' : prettyBytes(file.size, { space: true })}
             </span>
             <span
               title={dateObj.toLocaleDateString('en-US', {
                 day: '2-digit',
                 month: '2-digit',
-                year: 'numeric',  
+                year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-                second: '2-digit'
+                second: '2-digit',
               })}
               className='hidden lg:block p-3 min-w-[10rem]'
             >
               {dateObj.toLocaleDateString('en-US', {
                 day: 'numeric',
                 month: 'short',
-                year: 'numeric'
+                year: 'numeric',
               })}
             </span>
           </div>
         )
       })}
-      <DragSelectionArea 
-        fileListRef={fileListRef} 
-        fileArr={fileArr}
-      />
+      <DragSelectionArea fileListRef={fileListRef} fileArr={fileArr} />
       <DraggedFile ref={draggedFileRef} />
       <div
         data-cy='dragged-file'
@@ -551,13 +641,10 @@ export default function FileList(
         <span className='flex flex-col items-center gap-2 fixed top-[90%] left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 text-xl bg-primary rounded-lg'>
           <FileUploadIcon fontSize='large' />
           Drop files to upload into
-          <span 
-            ref={dragOverlayTextRef}
-            className='font-bold'
-          />
+          <span ref={dragOverlayTextRef} className='font-bold' />
         </span>
       </div>
-      <input {...getInputProps()} />
+      {getInputProps && <input {...getInputProps()} />}
     </div>
   )
 }

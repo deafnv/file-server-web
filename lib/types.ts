@@ -2,120 +2,104 @@ import { CookieValueTypes } from 'cookies-next'
 import { RefObject, MutableRefObject } from 'react'
 import { DropzoneInputProps, DropzoneRootProps } from 'react-dropzone'
 
-interface NavLinksWithDropdown {
-	name: string;
-  posLeft: string;
-  dropdown: { name: string; route: string }[];
-  route?: never;
-}
-
-interface NavLinksWithRoute {
-	name: string;
-  route: string;
-  posLeft?: never;
-  dropdown?: never;
-}
-
-export type NavLinks = NavLinksWithDropdown | NavLinksWithRoute;
-
 export interface FileServerFile {
-  name: string;
-  path: string;
-  size: number;
-  created: string;
-  modified: string;
-  isDirectory: boolean;
+  name: string
+  path: string
+  size: number
+  created: string
+  modified: string
+  isDirectory: boolean
   isShortcut?: {
-    shortcutName: string;
-    shortcutPath: string;
-  };
-  metadata?: FileMetadata;
+    shortcutName: string
+    shortcutPath: string
+  }
+  metadata?: FileMetadata
 }
 
 interface FileMetadata {
-  color: string;
+  color: string
 }
 
-export type SortField = 'type' | 'name' | 'size' | 'created';
-export type SortDirection = 'asc' | 'desc';
+export type SortField = 'type' | 'name' | 'size' | 'created'
+export type SortDirection = 'asc' | 'desc'
 
-export type SortMethod = `${SortField}_${SortDirection}`;
+export type SortMethod = `${SortField}_${SortDirection}` | ''
 
 export interface UploadProgress {
-  name: string;
-  progress: number;
+  name: string
+  progress: number
 }
 
 export interface StorageSpaceRes {
-  free: number;
-  size: number;
+  free: number
+  size: number
 }
 
 export interface FileTreeRes {
-  [key: string]: FileTreeRes;
+  [key: string]: FileTreeRes
 }
 
 export interface Point {
-  x: number;
-  y: number;
+  x: number
+  y: number
 }
 
 export interface Box {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
+  left: number
+  top: number
+  width: number
+  height: number
 }
 
-export interface FileListProps { 
-  fileListRef: RefObject<HTMLDivElement>; 
-  fileRefs: MutableRefObject<Array<{ file: FileServerFile; ref: HTMLDivElement; }>>;
-  sortMethodRef: MutableRefObject<SortMethod>;
-  getRootProps: <T extends DropzoneRootProps>(props?: T | undefined) => T;
-  getInputProps: <T extends DropzoneInputProps>(props?: T | undefined) => T;
+export interface FileListProps {
+  fileListRef: RefObject<HTMLDivElement>
+  fileRefs: MutableRefObject<Array<{ file: FileServerFile; ref: HTMLDivElement }>>
+  sortMethodRef: MutableRefObject<SortMethod>
+  getRootProps?: <T extends DropzoneRootProps>(props?: T | undefined) => T
+  getInputProps?: <T extends DropzoneInputProps>(props?: T | undefined) => T
 }
 
-export interface ContextMenuTemplateProps { 
-  customClass: string;
-  userDataRef: MutableRefObject<CookieValueTypes>;
+export interface ContextMenuTemplateProps {
+  customClass: string
+  userDataRef: MutableRefObject<CookieValueTypes>
 }
 
 export interface UploadQueueItem {
-  file: File;
-  uploadTo: string;
+  file: File
+  uploadTo: string
 }
 
 export interface UploadsListProps {
-  setFilesToUpload: (val: UploadQueueItem[]) => void;
-  currentUploadProgress: UploadProgress | null;
-  uploadQueue: UploadQueueItem[];
-  handleOpenFileDialog: () => void;
-  uploadController: MutableRefObject<AbortController | undefined>;
+  setFilesToUpload: (val: UploadQueueItem[]) => void
+  currentUploadProgress: UploadProgress | null
+  uploadQueue: UploadQueueItem[]
+  handleOpenFileDialog: () => void
+  uploadController: MutableRefObject<AbortController | undefined>
 }
 
 export interface FileTreeProps {
-  fileTree: FileTreeRes | string;
-  level?: number;
-  prevDir?: string;
-  onFileClick?: (filePath: string) => void;
-  expand1?: string[];
-};
+  fileTree: FileTreeRes | string
+  level?: number
+  prevDir?: string
+  onFileClick?: (filePath: string) => void
+  expand1?: string[]
+}
 
 export interface DragSelectionAreaProps {
-  fileListRef: RefObject<HTMLDivElement>;
-  fileArr: string | FileServerFile[] | null;
+  fileListRef: RefObject<HTMLDivElement>
+  fileArr: string | FileServerFile[] | null
 }
 
 export interface UserData {
-  username: string;
-  rank: number;
+  username: string
+  rank: number
   permissions: {
-    "makedir": boolean;
-    "upload": boolean;
-    "rename": boolean;
-    "copy": boolean;
-    "move": boolean;
-    "delete": boolean;
-  };
-  created_at: string;
+    makedir: boolean
+    upload: boolean
+    rename: boolean
+    copy: boolean
+    move: boolean
+    delete: boolean
+  }
+  created_at: string
 }

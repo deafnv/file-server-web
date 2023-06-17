@@ -10,15 +10,15 @@ import isEqual from 'lodash/isEqual'
 import { getData, getFileTree } from '@/lib/methods'
 import { FileServerFile, SortMethod, UploadProgress, UploadQueueItem } from '@/lib/types'
 import { useAppContext } from '@/components/contexts/AppContext'
-import ContextMenu from '@/components/ContextMenu'
+import FileTree from '@/components/FileTree'
+import StorageSpace from '@/components/StorageSpace'
+import UploadsList from '@/components/UploadsList'
+import FilePath from '@/components/FilePath'
 import FileList from '@/components/FileList'
 import LoggedOutWarning from '@/components/LoggedOutWarn'
-import UploadsList from '@/components/UploadsList'
-import StorageSpace from '@/components/StorageSpace'
-import FileTree from '@/components/FileTree'
 import ProcessInfo from '@/components/ProcessInfo'
 import ProcessError from '@/components/ProcessError'
-import FilePath from '@/components/FilePath'
+import ContextMenu from '@/components/ContextMenu'
 import ConfirmDelete from '@/components/dialogs/ConfirmDelete'
 import Rename from '@/components/dialogs/Rename'
 import NewFolder from '@/components/dialogs/NewFolder'
@@ -34,15 +34,17 @@ export default function Files() {
   const contextMenuRef = useRef<HTMLMenuElement>(null)
   const filesToUpload = useRef<UploadQueueItem[]>([])
   const uploadController = useRef<AbortController>()
-  const fileRefs = useRef<Array<{
-    file: FileServerFile,
-    ref: HTMLDivElement
-  }>>([])
+  const fileRefs = useRef<
+    Array<{
+      file: FileServerFile
+      ref: HTMLDivElement
+    }>
+  >([])
   const sortMethodRef = useRef<SortMethod>('name_asc')
 
   const [width, setWidth] = useState<number>(0)
   const [uploadButton, setUploadButton] = useState(true)
-  
+
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([])
 
@@ -52,19 +54,14 @@ export default function Files() {
   }
 
   const router = useRouter()
-  const {
-    setSocketConnectionState,
-    setFileArr,
-    setFileTree,
-    setContextMenu,
-    setLoggedOutWarning
-  } = useAppContext()
+  const { setSocketConnectionState, setFileArr, setFileTree, setContextMenu, setLoggedOutWarning } =
+    useAppContext()
 
   useEffect(() => {
     setWidth(window.innerWidth)
-		const handleWindowResize = () => setWidth(window.innerWidth)
+    const handleWindowResize = () => setWidth(window.innerWidth)
 
-		window.addEventListener('resize', handleWindowResize)
+    window.addEventListener('resize', handleWindowResize)
 
     return () => window.removeEventListener('resize', handleWindowResize)
   }, [])
@@ -94,14 +91,14 @@ export default function Files() {
       getFileTree(setFileTree)
     }
 
-    if(router.isReady) {
+    if (router.isReady) {
       socket = io(process.env.NEXT_PUBLIC_FILE_SERVER_URL!)
       getData(setFileArr, sortMethodRef, router, paramsRef, loadingTimerRef)
       getFileTree(setFileTree)
-      
+
       socket.on('connect', () => setSocketConnectionState(true))
       socket.on('disconnect', () => setSocketConnectionState(false))
-      
+
       socket.on(`/${(router.query.path as string[])?.join('/') ?? ''}`, socketListHandler)
       socket.on('filetree', socketTreeHandler)
     }
@@ -130,16 +127,20 @@ export default function Files() {
 
       const isFarRight = e.pageX + contextMenuRef.current.offsetWidth > window.innerWidth
       const isFarBottom = e.pageY + contextMenuRef.current.scrollHeight > window.innerHeight
-      
+
       if (isFarRight || isFarBottom) {
-        contextMenuRef.current.style.top = `${(isFarBottom ? e.pageY - contextMenuRef.current.scrollHeight : e.pageY)}px`
-        contextMenuRef.current.style.left = `${isFarRight ? e.pageX - contextMenuRef.current.offsetWidth : e.pageX}px`
+        contextMenuRef.current.style.top = `${
+          isFarBottom ? e.pageY - contextMenuRef.current.scrollHeight : e.pageY
+        }px`
+        contextMenuRef.current.style.left = `${
+          isFarRight ? e.pageX - contextMenuRef.current.offsetWidth : e.pageX
+        }px`
       } else {
         contextMenuRef.current.style.top = `${e.pageY}px`
         contextMenuRef.current.style.left = `${e.pageX}px`
       }
     }
-    
+
     const exitMenus = (e: MouseEvent) => {
       const target = e.target as HTMLElement
       if (contextMenuRef.current) {
@@ -156,104 +157,117 @@ export default function Files() {
       }
     }
 
-    const routeChangeStart = () => {
-      setContextMenu(null)
-      loadingTimerRef.current = setTimeout(() => {
-        setFileArr(null)
-      }, 800)
+    const routeChangeStart = (e: string) => {
+      if (e.startsWith('/files')) {
+        setContextMenu(null)
+        loadingTimerRef.current = setTimeout(() => {
+          setFileArr(null)
+        }, 800)
+      }
     }
 
-    document.addEventListener("mousedown", preventSelect)
-    document.addEventListener("contextmenu", customContextMenu)
-    document.addEventListener("mousedown", exitMenus)
+    document.addEventListener('mousedown', preventSelect)
+    document.addEventListener('contextmenu', customContextMenu)
+    document.addEventListener('mousedown', exitMenus)
 
     router.events.on('routeChangeStart', routeChangeStart)
-    
+
     return () => {
-      document.removeEventListener("mousedown", preventSelect)
-      document.removeEventListener("contextmenu", customContextMenu)
-      document.removeEventListener("mousedown", exitMenus)
+      document.removeEventListener('mousedown', preventSelect)
+      document.removeEventListener('contextmenu', customContextMenu)
+      document.removeEventListener('mousedown', exitMenus)
 
       router.events.off('routeChangeStart', routeChangeStart)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contextMenuRef.current])
 
-  const onDrop = useCallback(async (acceptedFiles: File[], _: any, event: DropEvent) => {
-    if (!getCookie('userdata')) {
-      setLoggedOutWarning(true)
-      return
-    }
+  const onDrop = useCallback(
+    async (acceptedFiles: File[], _: any, event: DropEvent) => {
+      if (!getCookie('userdata')) {
+        setLoggedOutWarning(true)
+        return
+      }
 
-    //const closestPathDropped = (event.target as HTMLElement).closest("[data-isdirpath]")
-    const closestFileDropped = fileRefs.current.filter(item => (event.target as HTMLElement).closest("[data-isfile]") == item.ref)
+      //const closestPathDropped = (event.target as HTMLElement).closest("[data-isdirpath]")
+      const closestFileDropped = fileRefs.current.filter(
+        (item) => (event.target as HTMLElement).closest('[data-isfile]') == item.ref
+      )
 
-    let acceptedFilesQueue: UploadQueueItem[]
+      let acceptedFilesQueue: UploadQueueItem[]
 
-    //* Dropping file in directory
-    if (closestFileDropped[0]?.file.isDirectory) {
-      acceptedFilesQueue = acceptedFiles.map(file => ({
-        file,
-        uploadTo: closestFileDropped[0].file.path
-      }))
-    } else {
-      const routerPath = (router.query.path as string[])?.join('/')
-      acceptedFilesQueue = acceptedFiles.map(file => ({
-        file,
-        uploadTo: routerPath ? `/${routerPath}` : '/'
-      }))
-    }
+      //* Dropping file in directory
+      if (closestFileDropped[0]?.file.isDirectory) {
+        acceptedFilesQueue = acceptedFiles.map((file) => ({
+          file,
+          uploadTo: closestFileDropped[0].file.path,
+        }))
+      } else {
+        const routerPath = (router.query.path as string[])?.join('/')
+        acceptedFilesQueue = acceptedFiles.map((file) => ({
+          file,
+          uploadTo: routerPath ? `/${routerPath}` : '/',
+        }))
+      }
 
-    if (!filesToUpload.current.length) {
-      setFilesToUpload(filesToUpload.current.concat(acceptedFilesQueue))
-      
-      while (filesToUpload.current.length !== 0 && !currentUploadProgress) {
-        const fileToUpload = filesToUpload.current[0]
-        setFilesToUpload(filesToUpload.current.filter(file => !isEqual(file, fileToUpload))!)
-        const formData = new FormData()
-        formData.append('upload-file', fileToUpload.file)
+      if (!filesToUpload.current.length) {
+        setFilesToUpload(filesToUpload.current.concat(acceptedFilesQueue))
 
-        try {
-          uploadController.current = new AbortController()
-          const uploadres = await axios.post(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${fileToUpload.uploadTo}`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data"
-            },
-            withCredentials: true,
-            onUploadProgress: (progressEvent) => {
-              if (!progressEvent.total) return
-              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-              setCurrentUploadProgress({
-                name: fileToUpload.file.name,
-                progress: percentCompleted
-              })
-            },
-            signal: uploadController.current.signal
-          })
-        } catch (err) {
-          setCurrentUploadProgress(null)
-          if ((err as any as AxiosError).response?.status == 403) {
-            alert(`Error: Forbidden.`)
-          } else if ((err as any as AxiosError).response?.status == 401) {
-            alert('Error: Unauthorized, try logging in again.')
-            deleteCookie('userdata')
-            router.reload()
-          } else if ((err as any as AxiosError).code != 'ERR_CANCELED') {
-            //* Other errors not triggered by upload cancel
-            alert(`Error. The server is probably down. ${err}`)
+        while (filesToUpload.current.length !== 0 && !currentUploadProgress) {
+          const fileToUpload = filesToUpload.current[0]
+          setFilesToUpload(filesToUpload.current.filter((file) => !isEqual(file, fileToUpload))!)
+          const formData = new FormData()
+          formData.append('upload-file', fileToUpload.file)
+
+          try {
+            uploadController.current = new AbortController()
+            const uploadres = await axios.post(
+              `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/upload${fileToUpload.uploadTo}`,
+              formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true,
+                onUploadProgress: (progressEvent) => {
+                  if (!progressEvent.total) return
+                  const percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total
+                  )
+                  setCurrentUploadProgress({
+                    name: fileToUpload.file.name,
+                    progress: percentCompleted,
+                  })
+                },
+                signal: uploadController.current.signal,
+              }
+            )
+          } catch (err) {
+            setCurrentUploadProgress(null)
+            if ((err as any as AxiosError).response?.status == 403) {
+              alert(`Error: Forbidden.`)
+            } else if ((err as any as AxiosError).response?.status == 401) {
+              alert('Error: Unauthorized, try logging in again.')
+              deleteCookie('userdata')
+              router.reload()
+            } else if ((err as any as AxiosError).code != 'ERR_CANCELED') {
+              //* Other errors not triggered by upload cancel
+              alert(`Error. The server is probably down. ${err}`)
+            }
+            console.error(err)
           }
-          console.error(err)
+          setCurrentUploadProgress(null)
         }
-        setCurrentUploadProgress(null)
-      } 
-    } else {
-      setFilesToUpload(filesToUpload.current.concat(acceptedFilesQueue))
-    }
+      } else {
+        setFilesToUpload(filesToUpload.current.concat(acceptedFilesQueue))
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.asPath, currentUploadProgress])
-  
-  const { getRootProps, getInputProps, open } = useDropzone({onDrop, noClick: true})
-  
+    [router.asPath, currentUploadProgress]
+  )
+
+  const { getRootProps, getInputProps, open } = useDropzone({ onDrop, noClick: true })
+
   function handleOpenFileDialog() {
     if (getCookie('userdata')) {
       open()
@@ -266,13 +280,13 @@ export default function Files() {
     <>
       <Head>
         <title>File Server</title>
-        <meta name="description" content="File Server" />
+        <meta name='description' content='File Server' />
       </Head>
-      <main className="grid gap md:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] mt-[60px] px-0 md:px-4 py-0 md:py-4 md:pt-0 h-[calc(100dvh-60px)]">
+      <main className='grid gap md:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] mt-[60px] px-0 md:px-4 py-0 md:py-4 md:pt-0 h-[calc(100dvh-60px)]'>
         <section className='hidden md:grid gap-3 grid-flow-row grid-rows-[minmax(0,_0.45fr)_minmax(0,_0.1fr)_minmax(0,_0.45fr)] items-center mr-0 md:mr-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
           <FileTree />
           <StorageSpace />
-          <UploadsList 
+          <UploadsList
             setFilesToUpload={setFilesToUpload}
             currentUploadProgress={currentUploadProgress}
             uploadQueue={uploadQueue}
@@ -299,16 +313,17 @@ export default function Files() {
         <LoggedOutWarning />
         <ProcessInfo />
         <ProcessError />
-        {width < 768 &&
-        <div 
-          style={{
-            transform: uploadButton ? 'scale(1)' : 'scale(0)'
-          }}
-          onClick={handleOpenFileDialog}
-          className='flex items-center justify-center fixed bottom-4 right-4 h-16 w-16 bg-sky-500 hover:bg-sky-500 rounded-full transition-transform duration-200'
-        >
-          <UploadIcon className='text-black' />
-        </div>}
+        {width < 768 && (
+          <div
+            style={{
+              transform: uploadButton ? 'scale(1)' : 'scale(0)',
+            }}
+            onClick={handleOpenFileDialog}
+            className='flex items-center justify-center fixed bottom-4 right-4 h-16 w-16 bg-sky-500 hover:bg-sky-500 rounded-full transition-transform duration-200'
+          >
+            <UploadIcon className='text-black' />
+          </div>
+        )}
       </main>
     </>
   )

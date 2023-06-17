@@ -1,6 +1,6 @@
-import { ForwardedRef, forwardRef } from "react"
-import { useAppContext } from "@/components/contexts/AppContext"
-import { getIcon } from "@/lib/methods"
+import { ForwardedRef, forwardRef } from 'react'
+import { useAppContext } from '@/components/contexts/AppContext'
+import { getIcon } from '@/lib/methods'
 
 //* Shown when dragging file
 function DraggedFile(props: {}, ref: ForwardedRef<HTMLDivElement>) {
@@ -14,30 +14,27 @@ function DraggedFile(props: {}, ref: ForwardedRef<HTMLDivElement>) {
       {selectedFile.map((item, index) => {
         if (index > 2) return null
         return (
-          <div 
+          <div
             key={index}
             style={{
               top: 2 * index,
-              left: 2 * index
-            }} 
+              left: 2 * index,
+            }}
             className='fixed flex gap-2 p-3 h-full w-full bg-background border border-secondary rounded-md shadow-lg shadow-gray-900 pointer-events-none'
           >
             <span className='w-[1.5rem]'>
               {selectedFile.length ? getIcon(selectedFile[0]) : null}
             </span>
-            <div 
-              className='flex items-center overflow-hidden'
-            >
-              <span 
-                data-isfilename
-                className='line-clamp-1 w-fit'
-              >
+            <div className='flex items-center overflow-hidden'>
+              <span data-isfilename className='line-clamp-1 w-fit'>
                 {selectedFile.length ? selectedFile[0].name : ''}
               </span>
             </div>
-            {selectedFile.length > 1 && <span className="fixed -top-2 -right-3 flex items-center justify-center text-[0.93rem] h-6 w-6 rounded-full bg-primary">
-              {selectedFile.length > 99 ? '99+' : selectedFile.length}
-            </span>}
+            {selectedFile.length > 1 && (
+              <span className='fixed -top-2 -right-3 flex items-center justify-center text-[0.93rem] h-6 w-6 rounded-full bg-primary'>
+                {selectedFile.length > 99 ? '99+' : selectedFile.length}
+              </span>
+            )}
           </div>
         )
       })}
