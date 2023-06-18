@@ -43,7 +43,7 @@ export default function SearchFiles() {
     const getSearchResults = async () => {
       setFileArr(null)
       const { data } = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/search?q=${q}`)
-      setFileArr(data.map((file: any) => file.item))
+      setFileArr(data)
     }
     getSearchResults()
     // eslint-disable-next-line react-hooks/exhaustive-deps

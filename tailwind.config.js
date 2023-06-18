@@ -26,9 +26,14 @@ module.exports = {
             opacity: '1',
           },
         },
+        hideDelay: {
+          '0%': { opacity: 1 },
+          '100%': { opacity: 0 },
+        },
       },
       animation: {
         'color-picker': 'colorPicker 150ms ease-out',
+        'hide-delay': 'hideDelay 150ms ease-out',
       },
     },
   },
@@ -47,5 +52,6 @@ module.exports = {
         { values: theme('height') }
       )
     }),
+    require('tailwindcss-animate'),
   ],
 }

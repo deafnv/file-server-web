@@ -1,5 +1,5 @@
 import path from 'path'
-import { useEffect, useRef } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import axios, { AxiosError } from 'axios'
@@ -10,9 +10,10 @@ import CircularProgress from '@mui/material/CircularProgress'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import RedoIcon from '@mui/icons-material/Redo'
-import DragSelectionArea from '@/components/DragSelection'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { getIcon, sortFileArr } from '@/lib/methods'
 import { FileListProps, FileServerFile } from '@/lib/types'
+import DragSelectionArea from '@/components/DragSelection'
 import { useLoading } from '@/components/contexts/LoadingContext'
 import { useAppContext } from '@/components/contexts/AppContext'
 import DraggedFile from '@/components/DraggedFile'
@@ -30,6 +31,9 @@ export default function FileList({
   const dragOverlayTextRef = useRef<HTMLSpanElement>(null)
   const draggedFileRef = useRef<HTMLDivElement>(null)
   const isDraggingFile = useRef(0)
+
+  const [locationHover, setLocationHover] = useState<boolean[]>([])
+  const [fileArrLoaded, setFileArrLoaded] = useState(false)
 
   const router = useRouter()
   const { setLoading } = useLoading()
@@ -64,6 +68,16 @@ export default function FileList({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  //* Prevent animation from triggering before load
+  //FIXME: Make this less hacky
+  useEffect(() => {
+    if (fileArr?.length) {
+      setTimeout(() => setFileArrLoaded(true), 350)
+    } else {
+      setFileArrLoaded(false)
+    }
+  }, [fileArr])
 
   useEffect(() => {
     //* Allows navigation of file list with arrow keys and enter
@@ -499,6 +513,14 @@ export default function FileList({
     }
   }
 
+  function handleLocationHover(index: number, state: boolean) {
+    setLocationHover((val) => {
+      let newArr = [...val]
+      newArr[index] = state
+      return newArr
+    })
+  }
+
   return (
     <div
       {...getRootProps?.({
@@ -570,7 +592,7 @@ export default function FileList({
             />
           )}
         </span>
-        {isSearching && <span className='p-3 min-w-[9rem] md:min-w-[14rem]'>Location</span>}
+        {isSearching && <span className='hidden lg:block p-3 min-w-[8rem] w-[8rem]'>Location</span>}
       </div>
       {fileArr.map((file, index) => {
         const dateObj = new Date(file.modified)
@@ -590,7 +612,7 @@ export default function FileList({
             }
             onContextMenu={() => handleOnContextMenu(file)}
             onMouseDown={(e) => handleSelect(e, file, index)}
-            className={`flex text-base rounded-md cursor-default ${
+            className={`relative flex text-base rounded-md cursor-default ${
               currentSelected ? 'bg-secondary' : 'hover:bg-secondary/40'
             }`}
           >
@@ -634,16 +656,60 @@ export default function FileList({
             {isSearching && (
               <div
                 title={path.basename(path.dirname(file.path))}
-                className='p-3 pl-1 min-w-[9rem] md:min-w-[14rem] w-[9rem] md:w-[14rem] overflow-hidden'
+                onMouseEnter={() => handleLocationHover(index, true)}
+                onMouseLeave={() => handleLocationHover(index, false)}
+                className='relative hidden lg:block min-w-[8rem] w-[8rem]'
               >
-                <Link
-                  href={`/files/${path.dirname(file.path)}`}
-                  className={`p-2 min-w-full text-ellipsis whitespace-nowrap overflow-hidden hover:${
-                    currentSelected ? 'bg-black/50' : 'bg-secondary'
-                  } rounded-full`}
+                <div className='p-1 overflow-hidden text-ellipsis'>
+                  <p className='block p-2 max-w-min text-ellipsis whitespace-nowrap overflow-hidden rounded-full'>
+                    {path.dirname(file.path) != '/'
+                      ? path.basename(path.dirname(file.path))
+                      : 'Root'}
+                  </p>
+                </div>
+                <div
+                  className={`absolute top-0 right-0 z-10 hidden lg:flex gap-1 p-2 w-fit min-w-[8rem] bg-background rounded-full ${
+                    locationHover[index]
+                      ? 'animate-in fade-in zoom-in-95 origin-right ease-in'
+                      : `animate-out fade-out zoom-out-95 origin-right fill-mode-forwards pointer-events-none ${
+                          fileArrLoaded ? '' : 'duration-0'
+                        }`
+                  }`}
                 >
-                  {path.basename(path.dirname(file.path))}
-                </Link>
+                  {path
+                    .dirname(file.path)
+                    .split('/')
+                    .map((segment, index) => {
+                      const link = path
+                        .dirname(file.path)
+                        .split('/')
+                        .slice(0, index + 1)
+                        .join('/')
+
+                      if (!(!segment && index > 0))
+                        return (
+                          <Fragment key={segment}>
+                            {index != 0 && (
+                              <div className='flex items-center'>
+                                <ChevronRightIcon />
+                              </div>
+                            )}
+                            <Link
+                              href={link ? `/files${link}` : '/files'}
+                              style={{
+                                minWidth:
+                                  index == path.dirname(file.path).split('/').length - 1
+                                    ? '8rem'
+                                    : 'initial',
+                              }}
+                              className='p-2 whitespace-nowrap hover:bg-secondary rounded-full transition-colors'
+                            >
+                              {segment ? segment : 'Root'}
+                            </Link>
+                          </Fragment>
+                        )
+                    })}
+                </div>
               </div>
             )}
           </div>

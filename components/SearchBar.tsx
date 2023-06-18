@@ -1,13 +1,24 @@
-import { FormEvent, forwardRef, ForwardedRef } from 'react'
+import { FormEvent, forwardRef, ForwardedRef, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Search from '@mui/icons-material/Search'
 
 function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
+  const [isSearching, setIsSearching] = useState(true)
+
   const router = useRouter()
 
+  //* Prevent searching too fast
+  useEffect(() => {
+    setTimeout(() => setIsSearching(false), 500)
+  }, [router.query])
+
   function search(e: FormEvent) {
-    const target = e.target as HTMLFormElement
     e.preventDefault()
+
+    if (isSearching) return
+    setIsSearching(true)
+
+    const target = e.target as HTMLFormElement
     router.push(`/search?q=${(target[0] as HTMLInputElement).value}`)
   }
 

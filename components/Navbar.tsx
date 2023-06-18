@@ -36,7 +36,8 @@ export default function Navbar() {
     let { q } = router.query
     if (q instanceof Array) q = q[0]
     if (searchBarRef.current) searchBarRef.current.value = q ?? ''
-  }, [router.query])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query, searchBarRef.current])
 
   useEffect(() => {
     const cookie = getCookie('userdata')
