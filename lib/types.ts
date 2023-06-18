@@ -88,6 +88,7 @@ export interface FileTreeProps {
 
 export interface DragSelectionAreaProps {
   fileListRef: RefObject<HTMLDivElement>
+  allowDragSelect: MutableRefObject<boolean>
   fileArr: string | FileServerFile[] | null
 }
 

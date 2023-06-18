@@ -30,7 +30,8 @@ export default function FileList({
   const dragOverlayRef = useRef<HTMLDivElement>(null)
   const dragOverlayTextRef = useRef<HTMLSpanElement>(null)
   const draggedFileRef = useRef<HTMLDivElement>(null)
-  const isDraggingFile = useRef(0)
+  const isDraggingFile = useRef(0) //TODO: Rename, currently used as timer to determine drag time
+  const allowDragSelect = useRef(true) //? For dragging selected file
 
   const [locationHover, setLocationHover] = useState<boolean[]>([])
   const [fileArrLoaded, setFileArrLoaded] = useState(false)
@@ -162,17 +163,18 @@ export default function FileList({
         withCredentials: true,
       })
       setLoading(false)
+      setSelectedFile([])
       const directoryParse =
         typeof directory == 'string' ? path.parse(directory).name : path.parse(directory.path).name
       setProcessInfo(
         files.length > 1
-          ? `Moved ${files.length} files into ${directoryParse}`
-          : `Moved ${files[0].name} into ${directoryParse}`
+          ? `Moved ${files.length} files into ${directoryParse ? directoryParse : 'Root'}`
+          : `Moved ${files[0].name} into ${directoryParse ? directoryParse : 'Root'}`
       )
     } catch (err) {
-      if ((err as any as AxiosError).response?.status == 403) {
+      if ((err as AxiosError).response?.status == 403) {
         setProcessError('Error: Forbidden')
-      } else if ((err as any as AxiosError).response?.status == 401) {
+      } else if ((err as AxiosError).response?.status == 401) {
         alert('Error: Unauthorized, try logging in again.')
         deleteCookie('userdata')
         router.reload()
@@ -185,6 +187,7 @@ export default function FileList({
 
   useEffect(() => {
     const moveDraggedFile = (e: MouseEvent) => {
+      //TODO: Refactor/remove useless code
       if (isDraggingFile.current) {
         const closestFileHovered = fileRefs.current.filter(
           (item) => (e.target as HTMLElement).closest('[data-isfile]') == item.ref
@@ -210,48 +213,45 @@ export default function FileList({
     }
 
     const dropFile = (e: MouseEvent) => {
-      //* Remove greyed out effect on stop drag
-      const stopDrag = () => {
+      if (isDraggingFile.current) {
+        const closestFileDropped = fileRefs.current.filter(
+          (item) => (e.target as HTMLElement).closest('[data-isfile]') == item.ref
+        )
+        const closestPathDropped = (e.target as HTMLElement).closest('[data-isdirpath]')
+
+        //* If dropped on file, and has been dragged for at least 150ms
+        if (performance.now() - 150 > isDraggingFile.current) {
+          if (closestFileDropped.length) {
+            //* If dropping into directory, and directory is not selected
+            if (
+              closestFileDropped[0].file.isDirectory &&
+              !selectedFile.includes(closestFileDropped[0].file)
+            ) {
+              moveFile(selectedFile, closestFileDropped[0].file)
+            }
+          } else if (closestPathDropped) {
+            //* If dropped on file path at the top
+            const pathAttribute = closestPathDropped.getAttribute('data-path')
+            if (pathAttribute) {
+              moveFile(selectedFile, pathAttribute)
+            }
+          }
+        } else if (!e.ctrlKey && !e.shiftKey) {
+          //* Select file if not actually dragging anything and not ctrl/shift selecting
+          setSelectedFile([closestFileDropped[0].file])
+        }
+
+        //* Remove greyed out effect on stop drag
         const selectedFileRefs = fileRefs.current.filter((item) => selectedFile.includes(item.file))
         selectedFileRefs.forEach((item) => {
           item.ref.style.opacity = ''
           item.ref.style.backgroundColor = ''
         })
-      }
 
-      if (isDraggingFile.current) {
-        const closestPathDropped = (e.target as HTMLElement).closest('[data-isdirpath]')
-        const closestFileDropped = fileRefs.current.filter(
-          (item) => (e.target as HTMLElement).closest('[data-isfile]') == item.ref
-        )
-        //* If dropped on file, and has been dragged for at least 150ms
-        if (closestFileDropped.length && performance.now() - 150 > isDraggingFile.current) {
-          //* Disappear dragged file
-          if (draggedFileRef.current) {
-            if (closestFileDropped[0].file.isDirectory) {
-              draggedFileRef.current.style.visibility = 'hidden'
-              if (!selectedFile.includes(closestFileDropped[0].file))
-                moveFile(selectedFile, closestFileDropped[0].file)
-            } else {
-              //* Do nothing and move back dragged file to its spot (didnt drag into folder)
-              draggedFileRef.current.style.visibility = 'hidden'
-            }
-            stopDrag()
-          }
-        } else if (closestPathDropped && performance.now() - 150 > isDraggingFile.current) {
-          //* If dropped on file path at the top
-          const pathAttribute = closestPathDropped.getAttribute('data-path')
-          if (draggedFileRef.current) {
-            if (pathAttribute) {
-              draggedFileRef.current.style.visibility = 'hidden'
-              moveFile(selectedFile, pathAttribute)
-            } else draggedFileRef.current.style.visibility = 'hidden'
-            stopDrag()
-          }
-        } else {
-          draggedFileRef.current!.style.visibility = 'hidden'
-          stopDrag()
-        }
+        //* Remove dragged file visual
+        if (draggedFileRef.current) draggedFileRef.current.style.visibility = 'hidden'
+
+        allowDragSelect.current = true
         isDraggingFile.current = 0
       }
     }
@@ -416,9 +416,11 @@ export default function FileList({
           setSelectedFile(selectedFiles)
         } else if (e.ctrlKey) {
           //* Ctrl select functionality
-          if (selectedFile.includes(file))
+          if (selectedFile.includes(file)) {
             setSelectedFile(selectedFile.filter((item) => !isEqual(item, file)))
-          else setSelectedFile(selectedFile.concat([file]))
+          } else {
+            setSelectedFile(selectedFile.concat([file]))
+          }
         } else {
           startingFileSelect.current = index
           setSelectedFile([file])
@@ -436,11 +438,15 @@ export default function FileList({
       )
     }
 
-    //* Determine if pressed element is file, start drag if mousedown on file name
-    if (e.button === 0 && (e.target as HTMLElement).getAttribute('data-isfilename') == 'true') {
-      const fileMouseDowned = fileRefs.current.filter((item) => item.ref == e.currentTarget)[0]
-      //* Fix for unable to unselect on pressing title with ctrl and shift
-      if (!(selectedFile.includes(fileMouseDowned.file) && !e.ctrlKey && !e.shiftKey)) {
+    //* Determine if pressed element is file, start drag if mousedown on file name or file is selected
+    if (
+      e.button === 0 &&
+      ((e.target as HTMLElement).getAttribute('data-isfilename') == 'true' ||
+        selectedFile.includes(file))
+    ) {
+      allowDragSelect.current = false
+      //* To allow drag multiple files, and fixes ctrlkey/shiftkey behavior
+      if (!(selectedFile.includes(file) && !e.ctrlKey && !e.shiftKey)) {
         selectItem()
       }
       isDraggingFile.current = performance.now()
@@ -616,7 +622,7 @@ export default function FileList({
               currentSelected ? 'bg-secondary' : 'hover:bg-secondary/40'
             }`}
           >
-            <span className='relative lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem]'>
+            <span className='relative lg:block m-3 mr-0 min-w-[2.5rem] max-w-[2.5rem] pointer-events-none'>
               {getIcon(file)}
               {file.isShortcut && (
                 <div className='absolute flex items-center justify-center bottom-0 left-0 h-4 w-4 text-sm rounded-full bg-gray-600'>
@@ -627,9 +633,12 @@ export default function FileList({
             <div
               data-filehierarchy
               title={file.name}
-              className='flex-grow line-clamp-1 overflow-hidden'
+              className='flex-grow line-clamp-1 max-w-full p-3 overflow-hidden'
             >
-              <p data-isfilename className='p-3 text-ellipsis whitespace-nowrap overflow-hidden'>
+              <p
+                data-isfilename
+                className='max-w-fit text-ellipsis whitespace-nowrap overflow-hidden'
+              >
                 {file.name}
               </p>
             </div>
@@ -715,7 +724,11 @@ export default function FileList({
           </div>
         )
       })}
-      <DragSelectionArea fileListRef={fileListRef} fileArr={fileArr} />
+      <DragSelectionArea
+        fileListRef={fileListRef}
+        allowDragSelect={allowDragSelect}
+        fileArr={fileArr}
+      />
       <DraggedFile ref={draggedFileRef} />
       <div
         data-cy='dragged-file'
