@@ -1,6 +1,6 @@
 {
   "name": "file-server-app",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "private": true,
   "author": "deafnv",
   "scripts": {

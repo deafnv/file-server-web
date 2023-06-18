@@ -158,7 +158,8 @@ export default function Files() {
     }
 
     const routeChangeStart = (e: string) => {
-      if (e.startsWith('/files')) {
+      //* Trigger loading only if navigating between directories, and not navigating to same url
+      if (e.startsWith('/files') && router.asPath != e) {
         setContextMenu(null)
         loadingTimerRef.current = setTimeout(() => {
           setFileArr(null)
@@ -180,7 +181,7 @@ export default function Files() {
       router.events.off('routeChangeStart', routeChangeStart)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contextMenuRef.current])
+  }, [contextMenuRef.current, router.asPath])
 
   const onDrop = useCallback(
     async (acceptedFiles: File[], _: any, event: DropEvent) => {
