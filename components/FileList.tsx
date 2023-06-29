@@ -152,7 +152,6 @@ export default function FileList({
   }, [fileArr, selectedFile])
 
   async function moveFile(files: FileServerFile[], directory: FileServerFile | string) {
-    console.log(files)
     if (files.length == 0) return
     if (!getCookie('userdata')) return setLoggedOutWarning(true)
     setLoading(true)

@@ -1,9 +1,10 @@
+import path from 'path'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { useEffect, useRef, useState, useCallback } from 'react'
 import axios, { AxiosError } from 'axios'
 import UploadIcon from '@mui/icons-material/Upload'
-import { DropEvent, useDropzone } from 'react-dropzone'
+import { DropEvent, useDropzone, FileWithPath } from 'react-dropzone'
 import { deleteCookie, getCookie } from 'cookies-next'
 import { io, Socket } from 'socket.io-client'
 import isEqual from 'lodash/isEqual'
@@ -199,16 +200,24 @@ export default function Files() {
 
       //* Dropping file in directory
       if (closestFileDropped[0]?.file.isDirectory) {
-        acceptedFilesQueue = acceptedFiles.map((file) => ({
-          file,
-          uploadTo: closestFileDropped[0].file.path,
-        }))
+        acceptedFilesQueue = acceptedFiles.map((file: FileWithPath) => {
+          let fileDirname = path.dirname(file.path ?? '')
+          if (fileDirname == '.') fileDirname = ''
+          return {
+            file,
+            uploadTo: `${closestFileDropped[0].file.path}${fileDirname}`,
+          }
+        })
       } else {
         const routerPath = (router.query.path as string[])?.join('/')
-        acceptedFilesQueue = acceptedFiles.map((file) => ({
-          file,
-          uploadTo: routerPath ? `/${routerPath}` : '/',
-        }))
+        acceptedFilesQueue = acceptedFiles.map((file: FileWithPath) => {
+          let fileDirname = path.dirname(file.path ?? '')
+          if (fileDirname == '.') fileDirname = ''
+          return {
+            file,
+            uploadTo: routerPath ? `/${routerPath}${fileDirname}` : `/${fileDirname.slice(1)}`,
+          }
+        })
       }
 
       if (!filesToUpload.current.length) {
