@@ -29,6 +29,9 @@ yarn-error.log*
 .env*.local
 cypress.env.json
 
+# cypress
+/cypress/downloads
+
 # vercel
 .vercel
 

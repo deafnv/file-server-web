@@ -192,7 +192,7 @@ export default function Files() {
 
       //const closestPathDropped = (event.target as HTMLElement).closest("[data-isdirpath]")
       const closestFileDropped = fileRefs.current.filter(
-        (item) => (event.target as HTMLElement).closest('[data-isfile]') == item.ref
+        (item) => (event?.target as HTMLElement)?.closest('[data-isfile]') == item.ref
       )
 
       let acceptedFilesQueue: UploadQueueItem[]
