@@ -30,7 +30,7 @@ export default function FileList({
   const dragOverlayRef = useRef<HTMLDivElement>(null)
   const dragOverlayTextRef = useRef<HTMLSpanElement>(null)
   const draggedFileRef = useRef<HTMLDivElement>(null)
-  const isDraggingFile = useRef(0) //TODO: Rename, currently used as timer to determine drag time
+  const timeSinceStartDrag = useRef(0)
   const allowDragSelect = useRef(true) //? For dragging selected file
 
   const [locationHover, setLocationHover] = useState<boolean[]>([])
@@ -85,13 +85,17 @@ export default function FileList({
     //FIXME: Weird interactions with ctrl + a select all
     const keyboardNavigate = (e: KeyboardEvent) => {
       const navigationKeys = ['ArrowDown', 'ArrowUp', 'Enter']
-      //* Allow navigation only if selected file, or body is active element
+
+      if (!(fileArr instanceof Array) || !navigationKeys.includes(e.key)) return
+
+      //* Allow navigation only if selected file, or body is active element (allows immediate keyboard navigation)
       if (
-        !(fileArr instanceof Array) ||
-        !navigationKeys.includes(e.key) ||
-        (!selectedFile.length && document.activeElement?.tagName !== 'BODY')
+        (!selectedFile.length && document.activeElement?.tagName !== 'BODY') ||
+        (document.activeElement?.tagName !== 'BODY' &&
+          document.activeElement !== fileListRef.current)
       )
         return
+
       const lastSelectedFile = selectedFile[selectedFile.length - 1]
       const lastSelectedFileIndex = fileArr.lastIndexOf(lastSelectedFile)
       let toSelect: FileServerFile[] = []
@@ -148,6 +152,8 @@ export default function FileList({
   }, [fileArr, selectedFile])
 
   async function moveFile(files: FileServerFile[], directory: FileServerFile | string) {
+    console.log(files)
+    if (files.length == 0) return
     if (!getCookie('userdata')) return setLoggedOutWarning(true)
     setLoading(true)
     try {
@@ -185,18 +191,33 @@ export default function FileList({
     }
   }
 
+  function stopDrag() {
+    //* Remove greyed out effect on stop drag
+    const selectedFileRefs = fileRefs.current.filter((item) => selectedFile.includes(item.file))
+    selectedFileRefs.forEach((item) => {
+      item.ref.style.opacity = ''
+      item.ref.style.backgroundColor = ''
+    })
+
+    //* Remove dragged file visual
+    if (draggedFileRef.current) draggedFileRef.current.style.visibility = 'hidden'
+
+    allowDragSelect.current = true
+    timeSinceStartDrag.current = 0
+  }
+
   useEffect(() => {
     const moveDraggedFile = (e: MouseEvent) => {
       //TODO: Refactor/remove useless code
-      if (isDraggingFile.current) {
+      if (timeSinceStartDrag.current) {
         const closestFileHovered = fileRefs.current.filter(
           (item) => (e.target as HTMLElement).closest('[data-isfile]') == item.ref
         )
-        if (closestFileHovered.length && performance.now() - 150 > isDraggingFile.current) {
+        if (closestFileHovered.length && performance.now() - 150 > timeSinceStartDrag.current) {
           //! File moving animation here (file under mouse, outline hovered files)
         }
 
-        if (draggedFileRef.current && performance.now() - 150 > isDraggingFile.current) {
+        if (draggedFileRef.current && performance.now() - 150 > timeSinceStartDrag.current) {
           //* Make selected files greyed out while dragging them
           const selectedFileRefs = fileRefs.current.filter((item) =>
             selectedFile.includes(item.file)
@@ -213,14 +234,14 @@ export default function FileList({
     }
 
     const dropFile = (e: MouseEvent) => {
-      if (isDraggingFile.current) {
+      if (timeSinceStartDrag.current) {
         const closestFileDropped = fileRefs.current.filter(
           (item) => (e.target as HTMLElement).closest('[data-isfile]') == item.ref
         )
         const closestPathDropped = (e.target as HTMLElement).closest('[data-isdirpath]')
 
         //* If dropped on file, and has been dragged for at least 150ms
-        if (performance.now() - 150 > isDraggingFile.current) {
+        if (performance.now() - 150 > timeSinceStartDrag.current) {
           if (closestFileDropped.length) {
             //* If dropping into directory, and directory is not selected
             if (
@@ -241,18 +262,7 @@ export default function FileList({
           setSelectedFile([closestFileDropped[0].file])
         }
 
-        //* Remove greyed out effect on stop drag
-        const selectedFileRefs = fileRefs.current.filter((item) => selectedFile.includes(item.file))
-        selectedFileRefs.forEach((item) => {
-          item.ref.style.opacity = ''
-          item.ref.style.backgroundColor = ''
-        })
-
-        //* Remove dragged file visual
-        if (draggedFileRef.current) draggedFileRef.current.style.visibility = 'hidden'
-
-        allowDragSelect.current = true
-        isDraggingFile.current = 0
+        stopDrag()
       }
     }
 
@@ -265,6 +275,13 @@ export default function FileList({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile])
+
+  //* Stop dragging after switching directories
+  useEffect(() => {
+    setSelectedFile([])
+    stopDrag()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.asPath])
 
   useEffect(() => {
     //* Set upload overlay height, hacky way of getting file list's scrollHeight
@@ -449,7 +466,7 @@ export default function FileList({
       if (!(selectedFile.includes(file) && !e.ctrlKey && !e.shiftKey)) {
         selectItem()
       }
-      isDraggingFile.current = performance.now()
+      timeSinceStartDrag.current = performance.now()
     } else if (
       e.button === 0 &&
       (e.currentTarget as HTMLElement).getAttribute('data-isfile') == 'true'
