@@ -1,6 +1,7 @@
 import type { AppProps } from 'next/app'
 import { Quicksand } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
+import { LazyMotion, domAnimation } from 'framer-motion'
 import '@/styles/globals.css'
 import HeadCommon from '@/components/HeadCommon'
 import { LoadingProvider } from '@/components/contexts/LoadingContext'
@@ -19,21 +20,21 @@ const theme = createTheme({
         root: {
           '& .MuiPaper-root': {
             backgroundColor: 'white',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
           },
-        }
-      }
+        },
+      },
     },
     MuiAlert: {
       styleOverrides: {
         standardError: {
-          color: 'rgb(248 113 113)'
+          color: 'rgb(248 113 113)',
         },
         standardInfo: {
-          color: 'rgb(14 165 233)'
-        }
-      }
-    }
+          color: 'rgb(14 165 233)',
+        },
+      },
+    },
   },
   palette: {
     primary: {
@@ -48,16 +49,16 @@ const theme = createTheme({
       dark: '#90c1fc',
       contrastText: '#000',
     },
-    mode: 'dark'
+    mode: 'dark',
   },
   typography: {
-    fontFamily: `-apple-system, BlinkMacSystemFont, ${quicksand.style.fontFamily}, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif`
-  }
-});
+    fontFamily: `-apple-system, BlinkMacSystemFont, ${quicksand.style.fontFamily}, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif`,
+  },
+})
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <LazyMotion features={domAnimation}>
       <LoadingProvider>
         <ThemeProvider theme={theme}>
           <AppContextProvider>
@@ -74,6 +75,6 @@ export default function App({ Component, pageProps }: AppProps) {
           </AppContextProvider>
         </ThemeProvider>
       </LoadingProvider>
-    </>
+    </LazyMotion>
   )
 }
