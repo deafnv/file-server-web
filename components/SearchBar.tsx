@@ -12,12 +12,14 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
   const searchFormRef = useRef<HTMLFormElement>(null)
   const filterSettingsRef = useRef<HTMLDivElement>(null)
   const filterSettingsButtonRef = useRef<HTMLButtonElement>(null)
+  const currentDirectoryRef = useRef('')
 
   const [isSearching, setIsSearching] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
     file: true,
     directory: true,
+    location: false,
   })
 
   const router = useRouter()
@@ -26,6 +28,15 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
   useEffect(() => {
     setTimeout(() => setIsSearching(false), 500)
   }, [router.query])
+
+  useEffect(() => {
+    if (router.asPath.startsWith('/files')) {
+      const { path } = router.query
+      const joinPath = path?.length ? (path as string[]).join('/') : ''
+      currentDirectoryRef.current = joinPath ? `/${joinPath}` : '/'
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.asPath])
 
   useEffect(() => {
     const exitFilterSettings = (e: MouseEvent) => {
@@ -58,11 +69,12 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
       typeFilters = filters.file ? 'file' : 'directory'
     }
 
-    router.push(
-      `/search?q=${(target[0] as HTMLInputElement).value}${
-        typeFilters ? `&filter=${typeFilters}` : ''
-      }`
-    )
+    //* Build search url
+    let searchUrl = `/search?q=${(target[0] as HTMLInputElement).value}`
+    if (typeFilters) searchUrl += `&filter=${typeFilters}`
+    if (filters.location) searchUrl += `&parent=${encodeURIComponent(currentDirectoryRef.current)}`
+
+    router.push(searchUrl)
   }
 
   function handleTypeFilterChange(key: 'file' | 'directory', value: boolean) {
@@ -82,6 +94,22 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
     }
   }
 
+  function handleLocationFilterChange(key: 'location', value: boolean) {
+    setFilters((val) => ({
+      ...val,
+      [key]: value,
+    }))
+  }
+
+  let searchPlaceholder = 'Search '
+  if (filters.file && filters.directory) {
+    searchPlaceholder += 'files / folders'
+  } else if (filters.file) {
+    searchPlaceholder += 'files'
+  } else {
+    searchPlaceholder += 'folders'
+  }
+
   return (
     <div className='relative flex items-center gap-2 pl-3 pr-1 h-2/3 w-1/2 bg-foreground rounded-full'>
       <div onClick={() => searchFormRef.current?.requestSubmit()} className='cursor-pointer'>
@@ -90,7 +118,11 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
       <form ref={searchFormRef} onSubmit={search} className='w-full'>
         <input
           ref={ref}
-          placeholder='Search files / folders'
+          placeholder={`${searchPlaceholder}${
+            filters.location
+              ? ` in "${currentDirectoryRef.current.split('/').slice(-1)[0] || 'Root'}"`
+              : ''
+          }`}
           className='w-full bg-transparent outline-none placeholder:text-text/50'
         />
       </form>
@@ -106,7 +138,7 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
             exit={{ opacity: 0 }}
             transition={{ ease: 'easeInOut', duration: 0.15 }}
             style={{ originY: 0.1 }}
-            className='absolute top-[45px] right-0 flex flex-col p-2 pl-4 bg-foreground rounded-md shadow-md shadow-black select-none'
+            className='absolute top-[45px] right-0 flex flex-col gap-2 p-2 pl-4 max-w-2xl bg-foreground rounded-md shadow-lg shadow-black select-none overflow-hidden'
           >
             <div>
               <p className='p-1 cursor-default'>Include types</p>
@@ -123,7 +155,7 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
                   }
                 />
                 <FormControlLabel
-                  label='Directories'
+                  label='Folders'
                   control={
                     <Checkbox
                       checked={filters.directory}
@@ -132,6 +164,28 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
                       }
                     />
                   }
+                />
+              </FormGroup>
+            </div>
+            <div>
+              <p className='p-1 cursor-default'>Location</p>
+              <FormGroup>
+                <FormControlLabel
+                  label={`Search in "${
+                    currentDirectoryRef.current.split('/').slice(-1)[0] || 'Root'
+                  }"`}
+                  control={
+                    <Checkbox
+                      checked={filters.location}
+                      onChange={(e) =>
+                        handleLocationFilterChange(
+                          'location',
+                          (e.target as HTMLInputElement).checked
+                        )
+                      }
+                    />
+                  }
+                  className='break-all line-clamp-1'
                 />
               </FormGroup>
             </div>

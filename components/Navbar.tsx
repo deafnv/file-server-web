@@ -88,7 +88,7 @@ export default function Navbar() {
             </div>
           </div>
         ) : (
-          <div className='flex items-center justify-between px-24 h-[60px] w-full'>
+          <div className='flex items-center justify-between px-6 lg:px-24 h-[60px] w-full'>
             <div className='flex items-end gap-3'>
               <Link href={'/files'} className='text-center text-lg sm:text-2xl font-semibold'>
                 File Server

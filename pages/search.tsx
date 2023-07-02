@@ -37,17 +37,16 @@ export default function SearchFiles() {
   const { setContextMenu, setFileArr, setFileTree, setSocketConnectionState } = useAppContext()
 
   useEffect(() => {
-    let { q, filter } = router.query
+    let { q, filter, parent } = router.query
     if (q instanceof Array) q = q[0]
     if (filter instanceof Array) filter = filter[0]
+    if (parent instanceof Array) parent = parent[0]
 
     const getSearchResults = async () => {
       setFileArr(null)
-      const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/search?q=${q}${
-          filter ? `&filter=${filter}` : ''
-        }`
-      )
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/search`, {
+        params: { q, filter, parent },
+      })
       setFileArr(data)
     }
     getSearchResults()

@@ -606,6 +606,9 @@ export default function FileList({
         </span>
         {isSearching && <span className='hidden lg:block p-3 min-w-[8rem] w-[8rem]'>Location</span>}
       </div>
+      {fileArr.length == 0 && (
+        <div className='flex items-center justify-center h-full text-xl'>No files found</div>
+      )}
       {fileArr.map((file, index) => {
         const dateObj = new Date(file.modified)
         const currentSelected = selectedFile.includes(file)
