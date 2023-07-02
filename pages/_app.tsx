@@ -58,7 +58,7 @@ const theme = createTheme({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <LazyMotion features={domAnimation}>
+    <LazyMotion features={domAnimation} strict>
       <LoadingProvider>
         <ThemeProvider theme={theme}>
           <AppContextProvider>

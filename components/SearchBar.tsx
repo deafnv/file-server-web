@@ -9,6 +9,7 @@ import FormGroup from '@mui/material/FormGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 
 function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
+  const searchFormRef = useRef<HTMLFormElement>(null)
   const filterSettingsRef = useRef<HTMLDivElement>(null)
   const filterSettingsButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -27,7 +28,7 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
   }, [router.query])
 
   useEffect(() => {
-    const exitSettingsFilter = (e: MouseEvent) => {
+    const exitFilterSettings = (e: MouseEvent) => {
       const target = e.target as HTMLElement
       if (
         !filterSettingsButtonRef.current?.contains(target) &&
@@ -37,10 +38,10 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
       }
     }
 
-    document.addEventListener('mousedown', exitSettingsFilter)
+    document.addEventListener('mousedown', exitFilterSettings)
 
     return () => {
-      document.removeEventListener('mousedown', exitSettingsFilter)
+      document.removeEventListener('mousedown', exitFilterSettings)
     }
   }, [])
 
@@ -83,8 +84,10 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
 
   return (
     <div className='relative flex items-center gap-2 pl-3 pr-1 h-2/3 w-1/2 bg-foreground rounded-full'>
-      <Search />
-      <form onSubmit={search} className='w-full'>
+      <div onClick={() => searchFormRef.current?.requestSubmit()} className='cursor-pointer'>
+        <Search />
+      </div>
+      <form ref={searchFormRef} onSubmit={search} className='w-full'>
         <input
           ref={ref}
           placeholder='Search files / folders'

@@ -52,6 +52,5 @@ module.exports = {
         { values: theme('height') }
       )
     }),
-    require('tailwindcss-animate'),
   ],
 }

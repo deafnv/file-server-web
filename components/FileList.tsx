@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import axios, { AxiosError } from 'axios'
 import { deleteCookie, getCookie } from 'cookies-next'
+import { AnimatePresence, m } from 'framer-motion'
 import prettyBytes from 'pretty-bytes'
 import isEqual from 'lodash/isEqual'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -34,7 +35,6 @@ export default function FileList({
   const allowDragSelect = useRef(true) //? For dragging selected file
 
   const [locationHover, setLocationHover] = useState<boolean[]>([])
-  const [fileArrLoaded, setFileArrLoaded] = useState(false)
 
   const router = useRouter()
   const { setLoading } = useLoading()
@@ -69,16 +69,6 @@ export default function FileList({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  //* Prevent animation from triggering before load
-  //FIXME: Make this less hacky
-  useEffect(() => {
-    if (fileArr?.length) {
-      setTimeout(() => setFileArrLoaded(true), 350)
-    } else {
-      setFileArrLoaded(false)
-    }
-  }, [fileArr])
 
   useEffect(() => {
     //* Allows navigation of file list with arrow keys and enter
@@ -692,49 +682,52 @@ export default function FileList({
                       : 'Root'}
                   </p>
                 </div>
-                <div
-                  className={`absolute top-0 right-0 z-10 hidden lg:flex gap-1 p-2 w-fit min-w-[8rem] bg-background rounded-full ${
-                    locationHover[index]
-                      ? 'animate-in fade-in zoom-in-95 origin-right ease-in'
-                      : `animate-out fade-out zoom-out-95 origin-right fill-mode-forwards pointer-events-none ${
-                          fileArrLoaded ? '' : 'duration-0'
-                        }`
-                  }`}
-                >
-                  {path
-                    .dirname(file.path)
-                    .split('/')
-                    .map((segment, index) => {
-                      const link = path
+                <AnimatePresence>
+                  {locationHover[index] && (
+                    <m.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.1, delay: 0.05 } }}
+                      transition={{ type: 'tween', ease: 'easeInOut', duration: 0.05 }}
+                      style={{ originX: 1 }}
+                      className='absolute top-0 right-0 z-10 hidden lg:flex gap-1 p-2 w-fit min-w-[8rem] bg-background rounded-full'
+                    >
+                      {path
                         .dirname(file.path)
                         .split('/')
-                        .slice(0, index + 1)
-                        .join('/')
+                        .map((segment, index) => {
+                          const link = path
+                            .dirname(file.path)
+                            .split('/')
+                            .slice(0, index + 1)
+                            .join('/')
 
-                      if (!(!segment && index > 0))
-                        return (
-                          <Fragment key={segment}>
-                            {index != 0 && (
-                              <div className='flex items-center'>
-                                <ChevronRightIcon />
-                              </div>
-                            )}
-                            <Link
-                              href={link ? `/files${link}` : '/files'}
-                              style={{
-                                minWidth:
-                                  index == path.dirname(file.path).split('/').length - 1
-                                    ? '8rem'
-                                    : 'initial',
-                              }}
-                              className='p-2 whitespace-nowrap hover:bg-secondary rounded-full transition-colors'
-                            >
-                              {segment ? segment : 'Root'}
-                            </Link>
-                          </Fragment>
-                        )
-                    })}
-                </div>
+                          if (!(!segment && index > 0))
+                            return (
+                              <Fragment key={segment}>
+                                {index != 0 && (
+                                  <div className='flex items-center'>
+                                    <ChevronRightIcon />
+                                  </div>
+                                )}
+                                <Link
+                                  href={link ? `/files${link}` : '/files'}
+                                  style={{
+                                    minWidth:
+                                      index == path.dirname(file.path).split('/').length - 1
+                                        ? '8rem'
+                                        : 'initial',
+                                  }}
+                                  className='p-2 whitespace-nowrap hover:bg-secondary rounded-full transition-colors'
+                                >
+                                  {segment ? segment : 'Root'}
+                                </Link>
+                              </Fragment>
+                            )
+                        })}
+                    </m.div>
+                  )}
+                </AnimatePresence>
               </div>
             )}
           </div>
