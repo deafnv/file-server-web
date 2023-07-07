@@ -73,6 +73,7 @@ function FileTreeComponent({
     } else {
       setExpandedDirs((val) => val.concat([filePath]))
     }
+    setSelectFolder(filePath)
   }
 
   if (typeof fileTree == 'string') return null
@@ -114,8 +115,8 @@ function FileTreeComponent({
                 <span
                   title={fileName}
                   onClick={() => handleClick(filePath)}
-                  className={`h-full w-full p-1 line-clamp-1 cursor-pointer rounded-sm hover:bg-secondary/70 ${
-                    filePath == selectFolder ? 'bg-primary' : ''
+                  className={`h-full w-full p-1 line-clamp-1 cursor-pointer rounded-sm ${
+                    filePath == selectFolder ? 'bg-primary' : 'hover:bg-secondary/70'
                   }`}
                 >
                   {fileName}

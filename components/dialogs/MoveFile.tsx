@@ -15,26 +15,23 @@ export default function MoveFile() {
   const [selectFolder, setSelectFolder] = useState('/')
 
   const { setLoading } = useLoading()
-  const {
-    fileTree,
-    openMoveFileDialog,
-    setOpenMoveFileDialog,
-    setProcessError
-  } = useAppContext()
+  const { fileTree, openMoveFileDialog, setOpenMoveFileDialog, setProcessError } = useAppContext()
 
   const router = useRouter()
 
   async function handleMove() {
     setLoading(true)
-    try { 
+    try {
       await axios({
         method: 'POST',
         url: `${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/move`,
         data: {
-          pathToFiles: openMoveFileDialog?.map(file => file.isShortcut ? file.isShortcut.shortcutPath : file.path),
-          newPath: selectFolder
+          pathToFiles: openMoveFileDialog?.map((file) =>
+            file.isShortcut ? file.isShortcut.shortcutPath : file.path
+          ),
+          newPath: selectFolder,
         },
-        withCredentials: true
+        withCredentials: true,
       })
       setOpenMoveFileDialog(null)
     } catch (err) {
@@ -43,7 +40,7 @@ export default function MoveFile() {
       } else if ((err as any as AxiosError).response?.status == 401) {
         alert('Error: Unauthorized, try logging in again.')
         deleteCookie('userdata')
-		    router.reload()
+        router.reload()
       } else {
         alert(`Error. The server is probably down. ${err}`)
       }
@@ -55,26 +52,21 @@ export default function MoveFile() {
   if (typeof fileTree == 'string') return null
 
   return (
-    <Dialog
-      open={!!openMoveFileDialog}
-      onClose={() => setOpenMoveFileDialog(null)}
-      fullWidth
-    >
-      <DialogTitle>
-        {openMoveFileDialog?.length! > 1 ? 'Move files' : 'Move file'}
-      </DialogTitle>
+    <Dialog open={!!openMoveFileDialog} onClose={() => setOpenMoveFileDialog(null)} fullWidth>
+      <DialogTitle>{openMoveFileDialog?.length! > 1 ? 'Move files' : 'Move file'}</DialogTitle>
       <DialogContent className='h-[45rem]'>
-        <MoveFileTree 
+        <MoveFileTree
           fileTree={fileTree}
-          selectFolder={selectFolder} 
-          setSelectFolder={setSelectFolder} 
+          selectFolder={selectFolder}
+          setSelectFolder={setSelectFolder}
         />
-        <span>Selected folder: {selectFolder}</span>
+        <p>
+          <span className='font-bold'>Selected folder: </span>
+          {selectFolder}
+        </p>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setOpenMoveFileDialog(null)}>
-          Cancel
-        </Button>
+        <Button onClick={() => setOpenMoveFileDialog(null)}>Cancel</Button>
         <Button onClick={handleMove}>Move</Button>
       </DialogActions>
     </Dialog>
