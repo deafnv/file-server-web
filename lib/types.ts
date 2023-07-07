@@ -1,5 +1,5 @@
 import { CookieValueTypes } from 'cookies-next'
-import { RefObject, MutableRefObject } from 'react'
+import { RefObject, MutableRefObject, Dispatch, SetStateAction } from 'react'
 import { DropzoneInputProps, DropzoneRootProps } from 'react-dropzone'
 
 export interface FileServerFile {
@@ -83,7 +83,8 @@ export interface FileTreeProps {
   level?: number
   prevDir?: string
   onFileClick?: (filePath: string) => void
-  expand1?: string[]
+  expandedDirs: string[]
+  setExpandedDirs: Dispatch<SetStateAction<string[]>>
 }
 
 export interface DragSelectionAreaProps {

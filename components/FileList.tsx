@@ -550,7 +550,7 @@ export default function FileList({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onContextMenu={(e) => {
-        if (e.target == fileListRef.current) setContextMenu('directory')
+        if (e.target == fileListRef.current && !isSearching) setContextMenu('directory')
       }}
       className='relative flex flex-col ml-0 md:ml-2 p-2 pt-0 h-full max-w-[100dvw] bg-foreground md:rounded-lg overflow-x-hidden overflow-y-auto outline-none select-none'
     >

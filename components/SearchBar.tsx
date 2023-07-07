@@ -7,16 +7,18 @@ import IconButton from '@mui/material/IconButton'
 import Checkbox from '@mui/material/Checkbox'
 import FormGroup from '@mui/material/FormGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import { useLocalStorage } from '@/lib/methods'
 
 function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
   const searchFormRef = useRef<HTMLFormElement>(null)
   const filterSettingsRef = useRef<HTMLDivElement>(null)
   const filterSettingsButtonRef = useRef<HTMLButtonElement>(null)
   const currentDirectoryRef = useRef('')
+  const isSearchingRef = useRef(true)
 
-  const [isSearching, setIsSearching] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
-  const [filters, setFilters] = useState({
+
+  const [filters, setFilters] = useLocalStorage('searchopts', {
     file: true,
     directory: true,
     location: false,
@@ -26,7 +28,7 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
 
   //* Prevent searching too fast
   useEffect(() => {
-    setTimeout(() => setIsSearching(false), 500)
+    setTimeout(() => (isSearchingRef.current = false), 500)
   }, [router.query])
 
   useEffect(() => {
@@ -60,8 +62,8 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
     e.preventDefault()
     const target = e.target as HTMLFormElement
 
-    if (isSearching || (target[0] as HTMLInputElement).value == '') return
-    setIsSearching(true)
+    if (isSearchingRef.current || (target[0] as HTMLInputElement).value == '') return
+    isSearchingRef.current = true
 
     //FIXME: Change this
     let typeFilters = ''

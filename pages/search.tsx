@@ -107,10 +107,8 @@ export default function SearchFiles() {
 
     const exitMenus = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      if (contextMenuRef.current) {
-        if (!contextMenuRef.current?.contains(target)) {
-          setContextMenu(null)
-        }
+      if (!contextMenuRef.current?.contains(target)) {
+        setContextMenu(null)
       }
     }
 

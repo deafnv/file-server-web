@@ -1,6 +1,6 @@
 import path from 'path'
 import { NextRouter } from 'next/router'
-import { Dispatch, SetStateAction, MutableRefObject } from 'react'
+import { Dispatch, SetStateAction, MutableRefObject, useState, useEffect } from 'react'
 import axios, { AxiosError } from 'axios'
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderZipIcon from '@mui/icons-material/FolderZip'
@@ -15,6 +15,21 @@ import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption'
 import TerminalIcon from '@mui/icons-material/Terminal'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { FileServerFile, FileTreeRes, SortDirection, SortField, SortMethod } from '@/lib/types'
+
+export function useLocalStorage<T>(key: string, fallbackValue: T) {
+  const [value, setValue] = useState(fallbackValue)
+  useEffect(() => {
+    const stored = localStorage.getItem(key)
+    setValue(stored ? JSON.parse(stored) : fallbackValue)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value))
+  }, [key, value])
+
+  return [value, setValue] as const
+}
 
 export function getIcon(file: FileServerFile) {
   if (file.isDirectory)
