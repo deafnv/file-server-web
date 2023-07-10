@@ -4,8 +4,8 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 import { io, Socket } from 'socket.io-client'
 import { useAppContext } from '@/components/contexts/AppContext'
-import FileTree from '@/components/FileTree'
-import StorageSpace from '@/components/StorageSpace'
+import FileTree from '@/components/left/FileTree'
+import StorageSpace from '@/components/left/StorageSpace'
 import FileList from '@/components/FileList'
 import LoggedOutWarning from '@/components/LoggedOutWarn'
 import ProcessInfo from '@/components/ProcessInfo'
@@ -46,6 +46,7 @@ export default function SearchFiles() {
       setFileArr(null)
       const { data } = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/search`, {
         params: { q, filter, parent },
+        withCredentials: true,
       })
       setFileArr(data)
     }
