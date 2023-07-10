@@ -324,7 +324,7 @@ export default function Files() {
         </section>
         <section className='hidden xl:grid gap-3 grid-rows-[minmax(0,_0.5fr)_minmax(0,_0.5fr)] items-center ml-0 md:ml-4 py-4 pt-6 h-[calc(100dvh-60px)] overflow-hidden'>
           {/* <FileDetails /> */}
-          <FileLogs />
+          <FileLogs detailsOpen={detailsOpen} />
         </section>
         <ContextMenu ref={contextMenuRef} />
         <ConfirmDelete />

@@ -11,7 +11,7 @@ interface LogState {
 
 let loadingTimer: NodeJS.Timeout
 
-export default function FileLogs() {
+export default function FileLogs({ detailsOpen }: { detailsOpen: boolean }) {
   const isMouseDownRef = useRef(false)
   const fileLogDates = useRef<string[]>([])
 
@@ -45,39 +45,41 @@ export default function FileLogs() {
   }, [])
 
   useEffect(() => {
-    if (selectedFile.length == 1 && !isMouseDownRef.current) {
-      console.count('Getting logs')
-      setIsLoadingLogs(true)
-      axios
-        .get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/logs`, {
-          params: {
-            path: selectedFile[0].path,
-            //type: 'RETRIEVE',
-          },
-        })
-        .then(({ data }: { data: FileLog[] }) => {
-          fileLogDates.current = data.map(
-            ({ created_at }) =>
-              `${new Date(created_at).toLocaleTimeString('en-US', {
-                hour12: false,
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric',
-              })} ${new Date(created_at).toLocaleDateString('en-US', {
-                month: 'numeric',
-                day: 'numeric',
-                year: 'numeric',
-              })}`
-          )
-          setFileLogs({
-            selectedFile: selectedFile[0],
-            selectedFileLogs: data,
+    if (detailsOpen) {
+      if (selectedFile.length == 1 && !isMouseDownRef.current) {
+        console.count('Getting logs')
+        setIsLoadingLogs(true)
+        axios
+          .get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/logs`, {
+            params: {
+              path: selectedFile[0].path,
+              //type: 'RETRIEVE',
+            },
           })
-        })
-        .catch((err) => console.error(err))
-        .finally(() => setIsLoadingLogs(false))
-    } else {
-      setFileLogs(null)
+          .then(({ data }: { data: FileLog[] }) => {
+            fileLogDates.current = data.map(
+              ({ created_at }) =>
+                `${new Date(created_at).toLocaleTimeString('en-US', {
+                  hour12: false,
+                  hour: 'numeric',
+                  minute: 'numeric',
+                  second: 'numeric',
+                })} ${new Date(created_at).toLocaleDateString('en-US', {
+                  month: 'numeric',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}`
+            )
+            setFileLogs({
+              selectedFile: selectedFile[0],
+              selectedFileLogs: data,
+            })
+          })
+          .catch((err) => console.error(err))
+          .finally(() => setIsLoadingLogs(false))
+      } else {
+        setFileLogs(null)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile])

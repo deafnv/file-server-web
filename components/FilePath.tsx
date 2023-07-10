@@ -10,6 +10,7 @@ import {
   useRef,
   useEffect,
 } from 'react'
+import axios from 'axios'
 import { AnimatePresence, m } from 'framer-motion'
 import { getCookie } from 'cookies-next'
 import IconButton from '@mui/material/IconButton'
@@ -37,8 +38,17 @@ export default function FilePath({
 
   const [folderDetailsPos, setFolderDetailsPos] = useState<DetailsPos | null>(null)
   const [ancestorMoreMenuPos, setAncestorMoreMenuPos] = useState<DetailsPos | null>(null)
+  const [isDBLogsEnabled, setIsDBLogsEnabled] = useState(false)
 
   useEffect(() => {
+    axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/isdblogs`).then(({ data }) => {
+      if (data) {
+        setIsDBLogsEnabled(true)
+      } else {
+        setDetailsOpen(false)
+      }
+    })
+
     const userExitMenus = (e: MouseEvent) => {
       const target = e.target as HTMLElement
       if (
@@ -61,6 +71,7 @@ export default function FilePath({
     return () => {
       document.removeEventListener('mousedown', userExitMenus)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const concatIndex = paramsRef.current?.length - 3
@@ -167,9 +178,11 @@ export default function FilePath({
           setFolderDetailsPos={setFolderDetailsPos}
         />
       </div>
-      <IconButton title='Show/hide details menu' onClick={() => setDetailsOpen((val) => !val)}>
-        <InfoIcon />
-      </IconButton>
+      {isDBLogsEnabled && (
+        <IconButton title='Show/hide details menu' onClick={() => setDetailsOpen((val) => !val)}>
+          <InfoIcon />
+        </IconButton>
+      )}
     </div>
   )
 }
