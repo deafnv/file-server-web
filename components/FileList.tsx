@@ -283,22 +283,22 @@ export default function FileList({
 
   useEffect(() => {
     const keyDownListener = async (e: KeyboardEvent) => {
+      const isFileListFocused = document.activeElement == fileListRef.current
       //* Select all files Ctrl + A
-      if (e.ctrlKey && e.key == 'a' && document.activeElement == fileListRef.current)
-        e.preventDefault()
+      if (e.ctrlKey && e.key == 'a' && isFileListFocused) e.preventDefault()
       if (
         e.ctrlKey &&
         e.key == 'a' &&
         fileArr &&
         typeof fileArr !== 'string' &&
-        document.activeElement == fileListRef.current
+        isFileListFocused
       ) {
         e.preventDefault()
         setSelectedFile(fileArr)
       }
 
       //* Copy files into directory Ctrl + V
-      if (e.ctrlKey && e.key == 'v') {
+      if (e.ctrlKey && e.key == 'v' && isFileListFocused) {
         const clipboardData = await navigator.clipboard.read()
         //* If clipboard has text/html and file list has focus
         if (
@@ -345,7 +345,8 @@ export default function FileList({
   useEffect(() => {
     const keyDownActions = async (e: KeyboardEvent) => {
       //* Copy link and list of paths to clipboard
-      if (e.key == 'c' && e.ctrlKey && selectedFile.length) {
+      const isFileListFocused = document.activeElement == fileListRef.current
+      if (e.key == 'c' && e.ctrlKey && selectedFile.length && isFileListFocused) {
         const links = selectedFile
           .map((file) =>
             file.isDirectory
@@ -369,7 +370,7 @@ export default function FileList({
       }
 
       //* Cut files into clipboard
-      if (e.key == 'x' && e.ctrlKey && selectedFile.length) {
+      if (e.key == 'x' && e.ctrlKey && selectedFile.length && isFileListFocused) {
         const links = selectedFile
           .map((file) =>
             file.isDirectory
@@ -392,7 +393,7 @@ export default function FileList({
       }
 
       //* Delete file with key Del
-      if (e.key == 'Delete' && selectedFile.length) {
+      if (e.key == 'Delete' && selectedFile.length && isFileListFocused) {
         setOpenDeleteConfirm(selectedFile)
       }
     }

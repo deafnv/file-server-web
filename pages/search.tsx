@@ -46,6 +46,7 @@ export default function SearchFiles() {
       setFileArr(null)
       const { data } = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/search`, {
         params: { q, filter, parent },
+        withCredentials: true,
       })
       setFileArr(data)
     }
