@@ -10,8 +10,11 @@ import {
   useRef,
   useEffect,
 } from 'react'
+import axios from 'axios'
 import { AnimatePresence, m } from 'framer-motion'
 import { getCookie } from 'cookies-next'
+import IconButton from '@mui/material/IconButton'
+import InfoIcon from '@mui/icons-material/Info'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { useAppContext } from '@/components/contexts/AppContext'
@@ -21,7 +24,13 @@ interface DetailsPos {
   left: number
 }
 
-export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<string[]> }) {
+export default function FilePath({
+  paramsRef,
+  setDetailsOpen,
+}: {
+  paramsRef: MutableRefObject<string[]>
+  setDetailsOpen: Dispatch<SetStateAction<boolean>>
+}) {
   const folderDetailsButtonRef = useRef<HTMLButtonElement>(null)
   const folderDetailsMenuRef = useRef<HTMLMenuElement>(null)
   const ancestorMoreButtonRef = useRef<HTMLButtonElement>(null)
@@ -29,8 +38,17 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
 
   const [folderDetailsPos, setFolderDetailsPos] = useState<DetailsPos | null>(null)
   const [ancestorMoreMenuPos, setAncestorMoreMenuPos] = useState<DetailsPos | null>(null)
+  const [isDBLogsEnabled, setIsDBLogsEnabled] = useState(false)
 
   useEffect(() => {
+    axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL}/isdblogs`).then(({ data }) => {
+      if (data) {
+        setIsDBLogsEnabled(true)
+      } else {
+        setDetailsOpen(false)
+      }
+    })
+
     const userExitMenus = (e: MouseEvent) => {
       const target = e.target as HTMLElement
       if (
@@ -53,111 +71,119 @@ export default function FilePath({ paramsRef }: { paramsRef: MutableRefObject<st
     return () => {
       document.removeEventListener('mousedown', userExitMenus)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const concatIndex = paramsRef.current?.length - 3
 
   return (
-    <span className='flex items-center mt-0 md:mt-2 px-3 md:px-0 text-xl'>
-      {paramsRef.current ? (
-        <Link
-          data-isdirpath
-          data-path='/'
-          href={''}
-          tabIndex={0}
-          className='p-2 rounded-md transition-colors duration-75 hover:bg-secondary'
-        >
-          Files
-        </Link>
-      ) : (
-        <button
-          tabIndex={0}
-          onClick={(e) => {}}
-          className='flex items-center p-2 rounded-md cursor-pointer hover:bg-secondary'
-        >
-          <span className='line-clamp-1 break-all'>Files</span>
-          <ArrowDropDownIcon />
-        </button>
-      )}
-      {paramsRef.current?.map((param, index) => {
-        if (concatIndex > 0 && index < concatIndex) {
-          if (index == 0) {
+    <div className='flex items-center justify-between mt-0 md:mt-2 px-3 md:px-0 text-xl'>
+      <div className='flex items-center'>
+        {paramsRef.current ? (
+          <Link
+            data-isdirpath
+            data-path='/'
+            href={''}
+            tabIndex={0}
+            className='p-2 rounded-md transition-colors duration-75 hover:bg-secondary'
+          >
+            Files
+          </Link>
+        ) : (
+          <button
+            tabIndex={0}
+            onClick={(e) => {}}
+            className='flex items-center p-2 rounded-md cursor-pointer hover:bg-secondary'
+          >
+            <span className='line-clamp-1 break-all'>Files</span>
+            <ArrowDropDownIcon />
+          </button>
+        )}
+        {paramsRef.current?.map((param, index) => {
+          if (concatIndex > 0 && index < concatIndex) {
+            if (index == 0) {
+              return (
+                <Fragment key={param}>
+                  /
+                  <button
+                    ref={ancestorMoreButtonRef}
+                    tabIndex={0}
+                    onClick={() => {
+                      if (ancestorMoreButtonRef.current)
+                        setAncestorMoreMenuPos({
+                          top:
+                            ancestorMoreButtonRef.current.getBoundingClientRect().top +
+                            ancestorMoreButtonRef.current.clientHeight,
+                          left: ancestorMoreButtonRef.current.getBoundingClientRect().left,
+                        })
+                    }}
+                    className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-secondary'
+                  >
+                    <MoreHorizIcon />
+                  </button>
+                </Fragment>
+              )
+            }
+            return null
+          } else if (index == paramsRef.current.length - 1) {
             return (
               <Fragment key={param}>
                 /
                 <button
-                  ref={ancestorMoreButtonRef}
+                  ref={folderDetailsButtonRef}
                   tabIndex={0}
                   onClick={() => {
-                    if (ancestorMoreButtonRef.current)
-                      setAncestorMoreMenuPos({
+                    if (folderDetailsButtonRef.current)
+                      setFolderDetailsPos({
                         top:
-                          ancestorMoreButtonRef.current.getBoundingClientRect().top +
-                          ancestorMoreButtonRef.current.clientHeight,
-                        left: ancestorMoreButtonRef.current.getBoundingClientRect().left,
+                          folderDetailsButtonRef.current.getBoundingClientRect().top +
+                          folderDetailsButtonRef.current.clientHeight,
+                        left: folderDetailsButtonRef.current.getBoundingClientRect().left,
                       })
                   }}
-                  className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-secondary'
+                  className='flex items-center px-2 rounded-md cursor-pointer hover:bg-secondary'
                 >
-                  <MoreHorizIcon />
+                  <span className='line-clamp-1 my-2 break-all'>{param}</span>
+                  <ArrowDropDownIcon />
                 </button>
               </Fragment>
             )
+          } else {
+            return (
+              <Fragment key={param}>
+                /
+                <Link
+                  data-isdirpath
+                  data-path={`/${paramsRef.current?.slice(0, index + 1).join('/')}`}
+                  title={param}
+                  tabIndex={0}
+                  href={paramsRef.current?.slice(0, index + 1).join('/')}
+                  className='px-2 py-1 rounded-md hover:bg-secondary line-clamp-1 break-words'
+                >
+                  {param}
+                </Link>
+              </Fragment>
+            )
           }
-          return null
-        } else if (index == paramsRef.current.length - 1) {
-          return (
-            <Fragment key={param}>
-              /
-              <button
-                ref={folderDetailsButtonRef}
-                tabIndex={0}
-                onClick={() => {
-                  if (folderDetailsButtonRef.current)
-                    setFolderDetailsPos({
-                      top:
-                        folderDetailsButtonRef.current.getBoundingClientRect().top +
-                        folderDetailsButtonRef.current.clientHeight,
-                      left: folderDetailsButtonRef.current.getBoundingClientRect().left,
-                    })
-                }}
-                className='flex items-center px-2 rounded-md cursor-pointer hover:bg-secondary'
-              >
-                <span className='line-clamp-1 my-2 break-all'>{param}</span>
-                <ArrowDropDownIcon />
-              </button>
-            </Fragment>
-          )
-        } else {
-          return (
-            <Fragment key={param}>
-              /
-              <Link
-                data-isdirpath
-                data-path={`/${paramsRef.current?.slice(0, index + 1).join('/')}`}
-                title={param}
-                tabIndex={0}
-                href={paramsRef.current?.slice(0, index + 1).join('/')}
-                className='px-2 py-1 rounded-md hover:bg-secondary line-clamp-1 break-words'
-              >
-                {param}
-              </Link>
-            </Fragment>
-          )
-        }
-      })}
-      <FileAncestorMenu
-        ancestorMoreMenuRef={ancestorMoreMenuRef}
-        paramsRef={paramsRef}
-        ancestorMoreMenuPos={ancestorMoreMenuPos}
-        setAncestorMoreMenuPos={setAncestorMoreMenuPos}
-      />
-      <FolderDetails
-        folderDetailsMenuRef={folderDetailsMenuRef}
-        folderDetailsPos={folderDetailsPos}
-        setFolderDetailsPos={setFolderDetailsPos}
-      />
-    </span>
+        })}
+        <FileAncestorMenu
+          ancestorMoreMenuRef={ancestorMoreMenuRef}
+          paramsRef={paramsRef}
+          ancestorMoreMenuPos={ancestorMoreMenuPos}
+          setAncestorMoreMenuPos={setAncestorMoreMenuPos}
+        />
+        <FolderDetails
+          folderDetailsMenuRef={folderDetailsMenuRef}
+          folderDetailsPos={folderDetailsPos}
+          setFolderDetailsPos={setFolderDetailsPos}
+        />
+      </div>
+      {isDBLogsEnabled && (
+        <IconButton title='Show/hide details menu' onClick={() => setDetailsOpen((val) => !val)}>
+          <InfoIcon />
+        </IconButton>
+      )}
+    </div>
   )
 }
 

@@ -17,7 +17,7 @@ export default function FileTree() {
       <div
         data-isdirpath
         data-path='/'
-        className='relative flex flex-col p-1 h-full bg-foreground rounded-md overflow-auto overflow-x-hidden'
+        className='relative flex flex-col p-1 h-full text-[0.95rem] bg-foreground rounded-md overflow-auto overflow-x-hidden'
       >
         {fileTree ? (
           <FileTreeComponent
