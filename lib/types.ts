@@ -106,3 +106,20 @@ export interface UserData {
   }
   created_at: string
 }
+
+export interface FileLog {
+  log_id: number
+  username: string
+  display_name: string
+  ip_address: string
+  file_id: string
+  event_type: string
+  event_path: string
+  event_old: string
+  event_new: string
+  event_data: string
+  created_at: string
+  log_events: {
+    event_display_text: string
+  }
+}

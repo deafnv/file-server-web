@@ -39,7 +39,6 @@ export default function FileList({
   const router = useRouter()
   const { setLoading } = useLoading()
   const {
-    contextMenu,
     setContextMenu,
     fileArr,
     setFileArr,
@@ -544,9 +543,6 @@ export default function FileList({
       data-cy='file-list'
       data-disableselect={false}
       ref={fileListRef}
-      onBlur={() => {
-        if (!contextMenu) setSelectedFile([])
-      }}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onContextMenu={(e) => {

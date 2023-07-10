@@ -8,14 +8,16 @@ import { DropEvent, useDropzone, FileWithPath } from 'react-dropzone'
 import { deleteCookie, getCookie } from 'cookies-next'
 import { io, Socket } from 'socket.io-client'
 import isEqual from 'lodash/isEqual'
-import { getData, getFileTree } from '@/lib/methods'
+import { getData, getFileTree, useLocalStorage } from '@/lib/methods'
 import { FileServerFile, SortMethod, UploadProgress, UploadQueueItem } from '@/lib/types'
 import { useAppContext } from '@/components/contexts/AppContext'
-import FileTree from '@/components/FileTree'
-import StorageSpace from '@/components/StorageSpace'
-import UploadsList from '@/components/UploadsList'
+import FileTree from '@/components/left/FileTree'
+import StorageSpace from '@/components/left/StorageSpace'
+import UploadsList from '@/components/left/UploadsList'
 import FilePath from '@/components/FilePath'
 import FileList from '@/components/FileList'
+import FileDetails from '@/components/right/FileDetails'
+import FileLogs from '@/components/right/FileLogs'
 import LoggedOutWarning from '@/components/LoggedOutWarn'
 import ProcessInfo from '@/components/ProcessInfo'
 import ProcessError from '@/components/ProcessError'
@@ -48,6 +50,8 @@ export default function Files() {
 
   const [currentUploadProgress, setCurrentUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([])
+
+  const [detailsOpen, setDetailsOpen] = useLocalStorage('detailsopen', false)
 
   const setFilesToUpload = (val: UploadQueueItem[]) => {
     filesToUpload.current = val
@@ -290,7 +294,13 @@ export default function Files() {
         <title>File Server</title>
         <meta name='description' content='File Server' />
       </Head>
-      <main className='grid gap md:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] xl:grid-cols-[20%_80%] mt-[60px] px-0 md:px-4 py-0 md:py-4 md:pt-0 h-[calc(100dvh-60px)]'>
+      <main
+        className={`grid gap md:grid-cols-[30%_70%] lg:grid-cols-[25%_75%] ${
+          detailsOpen ? 'xl:grid-cols-[20%_60%_20%]' : 'xl:grid-cols-[20%_80%_0%]'
+        } ${
+          detailsOpen ? '2xl:grid-cols-[17%_66%_17%]' : '2xl:grid-cols-[17%_83%_0%]'
+        } mt-[60px] px-0 md:px-4 py-0 md:py-4 md:pt-0 h-[calc(100dvh-60px)] transition-[grid-template-columns] ease-out`}
+      >
         <section className='hidden md:grid gap-3 grid-flow-row grid-rows-[minmax(0,_0.45fr)_minmax(0,_0.1fr)_minmax(0,_0.45fr)] items-center mr-0 md:mr-2 py-4 pt-6 h-[calc(100dvh-60px)]'>
           <FileTree />
           <StorageSpace />
@@ -303,7 +313,7 @@ export default function Files() {
           />
         </section>
         <section className='flex flex-col pt-0 pb-0 md:pb-4 h-[calc(100dvh-60px)]'>
-          <FilePath paramsRef={paramsRef} />
+          <FilePath paramsRef={paramsRef} setDetailsOpen={setDetailsOpen} />
           <FileList
             fileRefs={fileRefs}
             fileListRef={fileListRef}
@@ -311,6 +321,10 @@ export default function Files() {
             getRootProps={getRootProps}
             getInputProps={getInputProps}
           />
+        </section>
+        <section className='hidden xl:grid gap-3 grid-rows-[minmax(0,_0.5fr)_minmax(0,_0.5fr)] items-center ml-0 md:ml-4 py-4 pt-6 h-[calc(100dvh-60px)] overflow-hidden'>
+          {/* <FileDetails /> */}
+          <FileLogs />
         </section>
         <ContextMenu ref={contextMenuRef} />
         <ConfirmDelete />

@@ -26,7 +26,7 @@ export default function Login() {
 
   useEffect(() => {
     const getIsDBEnabled = async () => {
-      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/isdb`)
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_FILE_SERVER_URL!}/isdbusers`)
       setShowRegister(data)
     }
 
