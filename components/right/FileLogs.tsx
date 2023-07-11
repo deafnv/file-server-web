@@ -118,7 +118,7 @@ export default function FileLogs({ detailsOpen }: { detailsOpen: boolean }) {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFile])
+  }, [selectedFile, detailsOpen])
 
   async function handleFilterLogsByUser(userDetail: string) {
     try {

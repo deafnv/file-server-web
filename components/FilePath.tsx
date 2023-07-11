@@ -103,7 +103,7 @@ export default function FilePath({
           if (concatIndex > 0 && index < concatIndex) {
             if (index == 0) {
               return (
-                <Fragment key={param}>
+                <Fragment key={index}>
                   /
                   <button
                     ref={ancestorMoreButtonRef}
@@ -127,7 +127,7 @@ export default function FilePath({
             return null
           } else if (index == paramsRef.current.length - 1) {
             return (
-              <Fragment key={param}>
+              <Fragment key={index}>
                 /
                 <button
                   ref={folderDetailsButtonRef}
@@ -150,7 +150,7 @@ export default function FilePath({
             )
           } else {
             return (
-              <Fragment key={param}>
+              <Fragment key={index}>
                 /
                 <Link
                   data-isdirpath
@@ -216,7 +216,7 @@ function FileAncestorMenu({
         >
           {minimizedSlice.map((param, index) => (
             <li
-              key={param}
+              key={index}
               className='flex items-center justify-center h-8 rounded-sm hover:bg-zinc-500'
             >
               <Link
