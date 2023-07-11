@@ -36,6 +36,11 @@ function SearchBar(_: any, ref: ForwardedRef<HTMLInputElement>) {
       const { path } = router.query
       const joinPath = path?.length ? (path as string[]).join('/') : ''
       currentDirectoryRef.current = joinPath ? `/${joinPath}` : '/'
+    } else if (router.asPath.startsWith('/search') && !currentDirectoryRef.current) {
+      //* Get parent directory from query param
+      let { parent } = router.query
+      if (parent instanceof Array) parent = parent[0]
+      if (parent) currentDirectoryRef.current = decodeURIComponent(parent)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.asPath])

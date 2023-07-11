@@ -14,6 +14,7 @@ export default function Navbar() {
   const [width, setWidth] = useState<number>(0)
   const [user, setUser] = useState('')
   const [searchEnabled, setSearchEnabled] = useState(false)
+  const [isInFiles, setIsInFiles] = useState(false)
 
   const searchBarRef = useRef<HTMLInputElement>(null)
 
@@ -43,6 +44,12 @@ export default function Navbar() {
     const cookie = getCookie('userdata')
     if (typeof cookie == 'string') {
       setUser(JSON.parse(cookie).user)
+    }
+
+    if (router.asPath.startsWith('/files') || router.asPath.startsWith('/search')) {
+      setIsInFiles(true)
+    } else {
+      setIsInFiles(false)
     }
   }, [router.asPath])
 
@@ -101,7 +108,7 @@ export default function Navbar() {
                 {socketConnectionState ? 'Connected' : 'Disconnected'}
               </span>
             </div>
-            {searchEnabled && <SearchBar ref={searchBarRef} />}
+            {searchEnabled && isInFiles && <SearchBar ref={searchBarRef} />}
             {user ? (
               <span className='flex gap-2 text-center text-sm sm:text-base font-semibold'>
                 {user}
